@@ -29,7 +29,7 @@
  // Instruction format
  
  wire [3:0] opCode; // Operation code value
- wire iFlag; // Immedite data flag
+ wire iFlag; // Immediate data flag
  wire [7:0] op2; // Second operand raw code
  wire [7:0] RdValDP; // Destination register value
  reg  [7:0] RnVal; // Source data register value
