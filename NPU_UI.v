@@ -1,3 +1,5 @@
+`include "memory_unit.vh"
+
 //
 //---------------- User Interface ----------------
 //
@@ -30,197 +32,68 @@ module NPU_UI (KEY, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
    endcase
   endfunction
  wire clk,w1,reset;
-  nand(clk,KEY[0],w1); // Set up RS FF latch
+ nand(clk,KEY[0],w1); // Set up RS FF latch
  nand(w1,KEY[1],clk); // as debounced clock.
  //assign clk = CLOCK_50;
  and(reset,~KEY[0],~KEY[1]); // Reset if both keys pushed
+ 
+ //NPU State Registers
  reg [2:0] CPU_state;
- 
- 
- //Noun Type Parameters
- parameter cell_noun   = 3'b111;
- parameter op_noun     = 3'b101;
- parameter atom_noun   = 3'b0??;
- 
- 
- //CPU State Parameters
- parameter dive   = 2'b10;
- parameter decode  = 2'b01;
- parameter pop = 2'b11;
- parameter stop = 2'b00;
- 
- parameter nil = 32'hFFFFFFFF;
- 
- assign LEDR[9:8] = CPU_state;
- 
- reg [31:0] P; // Current Pointer Register
- reg [31:0] B; // Back Pointer Register
- reg [31:0] P_val; // Current Pointer Value
- reg [31:0] tmp; // Current Pointer Value
+ parameter start    = 2'b00;
 
- 
- reg marker;
- reg dive_dir;
- reg pop_dir;
- reg B_mem;
- reg [31:0] hed [0:7]; // Program memory
- reg [31:0] tel [0:7]; // Program memory
- reg stack [0:7];
- 
- //Display P register 
- assign HEX0 = digit(B[3:0]);
- assign HEX1 = digit(P[3:0]);
- 
- //Display P_tel register contents
- assign HEX3 = digit(tel[P][31:28]);
- assign HEX2 = digit(tel[P][3:0]);
- 
- //Display P_hed register contents
- assign HEX5 = digit(hed[P][31:28]);
- assign HEX4 = digit(hed[P][3:0]);
+ reg [`memory_addr_width - 1:0] start_addr;
 
- //assign LEDR[0] = dive_dir;
- //assign LEDR[1] = pop_dir;
+  
+ wire [1:0] mem_func;
+ wire mem_execute;
+ wire power;
+ wire [`memory_addr_width - 1:0] addr;
+ wire [`memory_data_width - 1:0] data_in;
+ wire [`memory_addr_width - 1:0] addr_out;
+ wire [`memory_data_width - 1:0] data_out;
+ wire mem_ready;
+ 
+ memory_unit mem(.func (mem_func),
+                 .execute (mem_execute),
+                 .addr_in (addr),
+                 .data_in (data_in),
+                 .addr_out (addr_out),
+                 .data_out (data_out),
+                 .is_ready (mem_ready),
+                 .power (power),
+                 .clk (clk),
+                 .rst (reset));
 
- //assign LEDR[2] = marker;
- assign LEDR[0] = stack[0];
- assign LEDR[1] = stack[1];
- assign LEDR[2] = stack[2];
- assign LEDR[3] = stack[3];
- assign LEDR[4] = stack[4];
- assign LEDR[5] = marker;
-
+ wire traversal_execute;
+                 
+ mem_traversal traversal(.power (power),
+                 .clk (clk),
+                 .rst (reset),
+                 .start_addr (start_addr),
+                 .execute (traversal_execute),
+                 .mem_ready (mem_ready),
+                 .read_addr (addr),
+                 .read_data (data_in),
+                 .mem_execute (mem_execute),
+                 .mem_func (mem_func),
+                 .write_addr (addr_out),
+                 .write_data (data_out));
+                 
+ 
+ 
  reg run; // Flag indicating CPU is running
  always @ (posedge(clk), posedge(reset))
   begin
    if (reset)
    begin
-      hed [0] <= 32'hE0000001; //Pointer to 0x01
-      hed [1] <= 32'hE0000002; //Pointer to 0x02
-      hed [2] <= 32'h00000004; //Atom - 4
-      hed [3] <= 32'h00000006; //Atom - 6
-      hed [4] <= 32'h0000000E; //Atom - 14
 
-      tel [0] <= 32'hFFFFFFFF; //NULL
-      tel [1] <= 32'h00000003; //Pointer to 0x03
-      tel [2] <= 32'h00000005; //Atom - 5
-      tel [3] <= 32'hE0000004; //Pointer to 0x04
-      tel [4] <= 32'h0000000F; //Atom - 15
-
-      stack[0] <= 0;
-      stack[1] <= 0;
-      stack[2] <= 0;
-      stack[3] <= 0;
-      stack[4] <= 0;
-
-      dive_dir <= 0;
-      pop_dir <= 0;
-      P <= 32'h00000000;
-      B <= nil;
-      B_mem <= 0;
-      P_val <= hed[P];
-      marker <= 0;
-
-      CPU_state <= decode;
    end
    else
       case (CPU_state)
-         decode:  // Disassemble the instruction 
-         begin
-            if (dive_dir==0)
-               P_val = hed[P];
-            else
-               P_val = tel[P];
-
-            casex (P_val[31:29])
-               atom_noun:
-               begin
-                  if(dive_dir == 0) 
-                     begin //if atom at head decode tel
-                        dive_dir = 1;
-                        CPU_state = decode; 
-                     end
-                  else // if atom at tel pop
-                     begin
-                        stack[P[3:0]] = 1;
-                        CPU_state = pop;
-                     end
-               end
-               
-               cell_noun: // if its a cell then dive
-               begin
-                  if(P_val[28])
-                     begin
-                        if(dive_dir==0)
-                           begin
-                              dive_dir = 1;
-                              CPU_state = decode;
-                           end
-                        else
-                           begin
-                              stack[P[3:0]] = 1;
-                              CPU_state = pop;
-                              marker = 1;
-                           end
-                     end
-                  else
-                    CPU_state = dive;
-               end
-               
-               op_noun:
-               begin
-                //TODO what happens when a noun is an opcode
-               end
-              
-            endcase
-         end
-         
-         dive: 
-         begin
-            if(dive_dir==0)
-               begin
-                  hed[P] <= B;
-                  P <= hed[P];
-                  B <= P;
-               end
-            else
-               begin
-                  tel[P] <= B;
-                  P <= tel[P];
-                  B <= P;
-                  stack[B[3:0]] = 1;
-               end
-            dive_dir = 0;
-            CPU_state = decode; 
-         end
-            
-         pop:
-         begin
-            if(stack[B[3:0]])
-               begin
-                  B <= tel[B];
-                  P <= B;
-                  //tel[B] <= P;
-                  tel[B] <= P & (1<<28);
-                  CPU_state = pop;
-               end
-            else
-               begin
-                  B <= hed[B];
-                  P <= B;
-                  //hed[B] <= P;
-                  hed[B] <= P & (1<<28);
-                  dive_dir = 1;
-                  CPU_state = decode;
-               end
-            
-            if(B==nil)
-               CPU_state = stop;
-         end
-         
-         stop:
-            CPU_state = stop;
-            
+      start:
+      begin
+      
+      end
       endcase
    end
 endmodule
