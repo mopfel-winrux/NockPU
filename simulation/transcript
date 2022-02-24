@@ -1,0 +1,26 @@
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# 5 compiles, 0 failed with no errors.
+vsim -gui work.NPU_UI
+# vsim -gui work.NPU_UI 
+# Start time: 17:15:54 on Feb 24,2022
+# Loading work.NPU_UI
+# Loading work.memory_unit
+# Loading work.ram
+# Loading work.mem_traversal
+# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for 'mem'.  Expected 12, found 10.
+#    Time: 0 ps  Iteration: 0  Instance: /NPU_UI/mem File: D:/Quartus/NPU_UI/verilog/NPU_UI.v Line: 56
+# ** Warning: (vsim-3722) D:/Quartus/NPU_UI/verilog/NPU_UI.v(56): [TFMPC] - Missing connection for port 'state'.
+# ** Warning: (vsim-3722) D:/Quartus/NPU_UI/verilog/NPU_UI.v(56): [TFMPC] - Missing connection for port 'mem_data_out'.
+run
+# Break key hit
+# Break key hit
+# Break key hit
+add wave -position insertpoint sim:/NPU_UI/*
+# Break key hit
+quit -sim
+# End time: 17:17:30 on Feb 24,2022, Elapsed time: 0:01:36
+# Errors: 0, Warnings: 8

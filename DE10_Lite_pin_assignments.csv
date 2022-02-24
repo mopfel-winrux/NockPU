@@ -1,0 +1,84 @@
+# Quartus Prime Lite, Version 18.1
+# File: D:\de2_pins\DE10_Lite_pin_assignments.csv
+# Generated on: Friday Feb 22 2019
+
+# Note: The column header names should not be changed if you wish to import this .csv file into the Quartus Prime software.
+
+To,Location
+#Table 3-[2],PIN Assignment of Clock Circuitry, DE10 Lite User Manual
+CLOCK_50,PIN_P11
+CLOCK2_50,PIN_N14
+#Table 3-[3],PIN Assignment of Push-buttons DE10 Lite User Manual
+KEY[0],PIN_B8
+KEY[1],PIN_A7
+#Table 3-[4],PIN Assignment of Slide Switches DE10 Lite User Manual
+SW[0],PIN_C10
+SW[1],PIN_C11
+SW[2],PIN_D12
+SW[3],PIN_C12
+SW[4],PIN_A12
+SW[5],PIN_B12
+SW[6],PIN_A13
+SW[7],PIN_A14
+SW[8],PIN_B14
+SW[9],PIN_F15
+#Table 3-[5],PIN Assignment of LEDs DE10 Lite User Manual
+LEDR[0],PIN_A8
+LEDR[1],PIN_A9
+LEDR[2],PIN_A10
+LEDR[3],PIN_B10
+LEDR[4],PIN_D13
+LEDR[5],PIN_C13
+LEDR[6],PIN_E14
+LEDR[7],PIN_D14
+LEDR[8],PIN_A11
+LEDR[9],PIN_B11
+#Table 3-[6],PIN Assignment of 7-segment Displays DE10 Lite User Manual
+HEX0[0],PIN_C14
+HEX0[1],PIN_E15
+HEX0[2],PIN_C15
+HEX0[3],PIN_C16
+HEX0[4],PIN_E16
+HEX0[5],PIN_D17
+HEX0[6],PIN_C17
+HEX0[7],PIN_D15
+HEX1[0],PIN_C18
+HEX1[1],PIN_D18
+HEX1[2],PIN_E18
+HEX1[3],PIN_B16
+HEX1[4],PIN_A17
+HEX1[5],PIN_A18
+HEX1[6],PIN_B17
+HEX1[7],PIN_A16
+HEX2[0],PIN_B20
+HEX2[1],PIN_A20
+HEX2[2],PIN_B19
+HEX2[3],PIN_A21
+HEX2[4],PIN_B21
+HEX2[5],PIN_C22
+HEX2[6],PIN_B22
+HEX2[7],PIN_A19
+HEX3[0],PIN_F21
+HEX3[1],PIN_E22
+HEX3[2],PIN_E21
+HEX3[3],PIN_C19
+HEX3[4],PIN_C20
+HEX3[5],PIN_D19
+HEX3[6],PIN_E17
+HEX3[7],PIN_D22
+HEX4[0],PIN_F18
+HEX4[1],PIN_E20
+HEX4[2],PIN_E19
+HEX4[3],PIN_J18
+HEX4[4],PIN_H19
+HEX4[5],PIN_F19
+HEX4[6],PIN_F20
+HEX4[7],PIN_F17
+HEX5[0],PIN_J20
+HEX5[1],PIN_K20
+HEX5[2],PIN_L18
+HEX5[3],PIN_N18
+HEX5[4],PIN_M20
+HEX5[5],PIN_N19
+HEX5[6],PIN_N20
+HEX5[7],PIN_L19
