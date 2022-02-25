@@ -44,14 +44,12 @@ module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, d
              STATE_INIT_WAIT_1   = 4'h4,
              STATE_WAIT          = 4'h5,
              STATE_READ_WAIT_0   = 4'h6,
-             STATE_READ_WAIT_1   = 4'h7,
-             STATE_READ_FINISH   = 4'h8,
-             STATE_WRITE_WAIT_0  = 4'h9,
-             STATE_WRITE_WAIT_1  = 4'hA,
-             STATE_WRITE_FINISH  = 4'hB,
-             STATE_CONS_WAIT     = 4'hC;
+             STATE_READ_FINISH   = 4'h7,
+             STATE_WRITE_WAIT_0  = 4'h8,
+             STATE_WRITE_FINISH  = 4'h9,
+             STATE_FREE_WAIT     = 4'hA;
              
-   ram ram(.address (mem_addr),
+   single_port_ram ram(.address (mem_addr),
            .clock (clk),
            .data (mem_data_in),
            .wren (mem_write),
@@ -89,11 +87,10 @@ module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, d
                
                mem_addr <= 0;
                mem_data_in <= 0;
-               mem_write <= 1;
             end
             STATE_INIT_WAIT_1: begin
                state <= STATE_WAIT;
-               addr_out <= free_mem - 10'b1;
+               addr_out <= free_mem;
                
                mem_write <= 0;
             end
@@ -119,9 +116,7 @@ module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, d
                         addr_out <= free_mem;
                         free_mem <= free_mem + `memory_addr_width'b1;
                
-                        is_ready_reg <= 1;
-               
-                        state <= STATE_WAIT;
+                        state <= STATE_FREE_WAIT;
                      end
                   endcase
                end
@@ -129,14 +124,11 @@ module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, d
                else begin
                   state <= STATE_WAIT;
                   is_ready_reg <= 1;
-                  mem_addr <= 0;
+                  //mem_addr <= 0;
                end
             end
             // Various wait states used when reading from memory
             STATE_READ_WAIT_0: begin
-               state <= STATE_READ_WAIT_1;
-            end
-            STATE_READ_WAIT_1: begin
                state <= STATE_READ_FINISH;
             end
             STATE_READ_FINISH: begin
@@ -147,21 +139,16 @@ module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, d
             end
             // Various wait states used when writing to memory
             STATE_WRITE_WAIT_0: begin
-               state <= STATE_WRITE_WAIT_1;
-            end
-            STATE_WRITE_WAIT_1: begin
                state <= STATE_WRITE_FINISH;
+               mem_write<=0;
             end
+     
             STATE_WRITE_FINISH: begin
                state <= STATE_WAIT;
                is_ready_reg <= 1;
             end
             // Return a new cell
-            STATE_CONS_WAIT: begin
-               mem_write <= 0;
-               addr_out <= free_mem;
-               free_mem <= free_mem + `memory_addr_width'b1;
-               
+            STATE_FREE_WAIT: begin             
                is_ready_reg <= 1;
                
                state <= STATE_WAIT;

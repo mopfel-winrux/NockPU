@@ -1,26 +1,374 @@
+vsim -gui work.memory_unit_tb
+# vsim -gui work.memory_unit_tb 
+# Start time: 12:44:38 on Feb 25,2022
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+add wave -position end sim:/memory_unit_tb/*
+run -all
+# ** Warning: (vsim-PLI-3406) Too many digits (29) in data on line 1 of file "../memory/memory.hex". (Max is 17.)    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
 # Compile of mem_traversal.v was successful.
 # Compile of memory_unit.v was successful.
 # Compile of NPU_UI.v was successful.
 # Compile of ram.v was successful.
 # Compile of ram_bb.v was successful.
-# 5 compiles, 0 failed with no errors.
-vsim -gui work.NPU_UI
-# vsim -gui work.NPU_UI 
-# Start time: 17:15:54 on Feb 24,2022
-# Loading work.NPU_UI
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
 # Loading work.memory_unit
-# Loading work.ram
-# Loading work.mem_traversal
-# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for 'mem'.  Expected 12, found 10.
-#    Time: 0 ps  Iteration: 0  Instance: /NPU_UI/mem File: D:/Quartus/NPU_UI/verilog/NPU_UI.v Line: 56
-# ** Warning: (vsim-3722) D:/Quartus/NPU_UI/verilog/NPU_UI.v(56): [TFMPC] - Missing connection for port 'state'.
-# ** Warning: (vsim-3722) D:/Quartus/NPU_UI/verilog/NPU_UI.v(56): [TFMPC] - Missing connection for port 'mem_data_out'.
+# Loading work.single_port_ram
+run -all
+# ** Warning: (vsim-PLI-3410) Illegal character 'W' in data on line 1 of file "../memory/memory.mif".    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Warning: (vsim-PLI-3410) Illegal character 'I' in data on line 1 of file "../memory/memory.mif".    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Warning: (vsim-PLI-3410) Illegal character 'T' in data on line 1 of file "../memory/memory.mif".    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Warning: (vsim-PLI-3410) Illegal character 'H' in data on line 1 of file "../memory/memory.mif".    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Warning: (vsim-PLI-3410) Illegal character '=' in data on line 1 of file "../memory/memory.mif".    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Warning: (vsim-PLI-3410) Illegal character ';' in data on line 1 of file "../memory/memory.mif".    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+run -all
+# Break key hit
+# Simulation stop requested.
+run -all
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Warning: (vsim-PLI-3406) Too many digits (29) in data on line 1 of file "../memory/memory.hex". (Max is 17.)    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+run -all
+# ** Warning: (vsim-PLI-3406) Too many digits (29) in data on line 1 of file "../memory/memory.hex". (Max is 17.)    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+add wave -position end  sim:/memory_unit_tb/mem/ram/data
+restart
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 2 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.single_port_ram
+run -all
+# ** Warning: (vsim-PLI-3406) Too many digits (29) in data on line 1 of file "../memory/memory.hex". (Max is 17.)    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(66)
+#    Time: 0 ns  Iteration: 0  Instance: /memory_unit_tb
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+# Compile of memory_unit_tb.v was successful.
+run -all
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+restart
 run
-# Break key hit
-# Break key hit
-# Break key hit
-add wave -position insertpoint sim:/NPU_UI/*
-# Break key hit
-quit -sim
-# End time: 17:17:30 on Feb 24,2022, Elapsed time: 0:01:36
-# Errors: 0, Warnings: 8
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+restart
+# Compile of memory_unit.v was successful.
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+add wave -position end  sim:/memory_unit_tb/mem/ram/ram
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+restart
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v failed with 1 errors.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 1 failed with 1 error.
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(90)
+#    Time: 750 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 90
+# Compile of memory_unit_tb.v failed with 1 errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(92)
+#    Time: 650 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 92
+# Compile of memory_unit.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(92)
+#    Time: 650 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 92
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v failed with 2 errors.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 1 failed with 2 errors.
+# Compile of memory_unit_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(96)
+#    Time: 490 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 96
+# Compile of memory_unit.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of memory_unit_tb.v was successful.
+run -all
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(96)
+#    Time: 350 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 96
+restart
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(96)
+#    Time: 350 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 96
+# Compile of memory_unit_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(96)
+#    Time: 650 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 96
+add wave -position end sim:/memory_unit_tb/mem/*
+restart
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(96)
+#    Time: 650 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 96
+# Compile of memory_unit.v was successful.
+# Compile of memory_unit_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(96)
+#    Time: 850 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 96
+# Compile of memory_unit.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# 2 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+add wave -position 1  sim:/memory_unit_tb/free_addr
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(100)
+#    Time: 890 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 100
+# Compile of memory_unit_tb.v failed with 1 errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(117)
+#    Time: 1010 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 117
+add wave -position end  sim:/memory_unit_tb/mem/ram/data
+add wave -position end  sim:/memory_unit_tb/mem/ram/ram
+restart
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(117)
+#    Time: 1010 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 117
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(117)
+#    Time: 1010 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 117
+# Compile of memory_unit_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(119)
+#    Time: 1010 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 119
+add wave -position end  sim:/memory_unit_tb/mem/free_mem
+add wave -position end  sim:/memory_unit_tb/mem/ram/ram
+# Compile of memory_unit.v failed with 1 errors.
+# Compile of memory_unit_tb.v was successful.
+# 2 compiles, 1 failed with 1 error.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(119)
+#    Time: 890 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 119
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+run -all
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(119)
+#    Time: 890 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 119
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# 7 compiles, 0 failed with no errors.
+run -all
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v(126)
+#    Time: 950 ns  Iteration: 1  Instance: /memory_unit_tb
+# Break in Module memory_unit_tb at D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v line 126
