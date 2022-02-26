@@ -12,14 +12,21 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 Top level modules:
 	single_port_ram
 
-} {} {}} D:/Quartus/NPU_UI/verilog/mem_traversal.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/mem_traversal.v
+} {} {}} D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
--- Compiling module mem_traversal
+-- Compiling module mem_traversal_tb
 
 Top level modules:
-	mem_traversal
+	mem_traversal_tb
 
 } {} {}} D:/Quartus/NPU_UI/verilog/ram_bb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/ram_bb.v
+Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+-- Compiling module ram
+
+Top level modules:
+	ram
+
+} {} {}} D:/Quartus/NPU_UI/verilog/ram.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/ram.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
 -- Compiling module ram
 

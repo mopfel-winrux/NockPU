@@ -23,7 +23,8 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
    reg [(`memory_data_width-4)/2 - 1:0] hed, tel;
    reg [`memory_addr_width - 1:0] mem_addr;
    reg [`memory_data_width - 1:0] mem_data;
-   
+   reg debug_sig;
+
    // Traversal Registers needed
    reg [(`memory_data_width-4)/2 - 1:0] trav_P;
    reg [(`memory_data_width-4)/2 - 1:0] trav_B;
@@ -41,7 +42,7 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
    // Read States
    parameter SYS_READ_INIT   = 4'h0,
              SYS_READ_WAIT   = 4'h1,
-             SYS_READ_DECODE = 4'h3;
+             SYS_READ_DECODE = 4'h2;
    
    // Write States
    parameter SYS_WRITE_INIT = 4'h0,
@@ -63,9 +64,13 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
          state <= SYS_READ_INIT;
          mem_addr <= start_addr;
          trav_B <= `NIL;
+         trav_P <= start_addr;
+         mem_execute <= 0;
+         debug_sig <= 0;
+
          
       end
-      else if (power) begin
+      else if (execute) begin
          case (sys_func)
             SYS_FUNC_READ: begin
                case(state)
@@ -88,7 +93,6 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
                         state <= SYS_READ_DECODE;
                      end
                      else begin
-                        read_addr <= 0;
                         mem_func <= 0;
                         mem_execute <= 0;
                      end
@@ -143,7 +147,7 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
                   SYS_TRAVERSE_INIT: begin
                         case(mem_tag[1:0])
                            `CELL_CELL: begin
-                              if(mem_tag[3] == 0) begin // if the hed cell hasn't been visited we push into it
+                              if(mem_tag[3:2] == 2'b00) begin // if the hed cell hasn't been visited we push into it
                               
                                  // Set the command after write to traverse the hed
                                  write_return_sys_func <= SYS_FUNC_TRAVERSE;
@@ -163,6 +167,7 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
                                  
                               end
                               else if(mem_tag[3:2] == 2'b10) begin // if hed was visited and tel wasnt
+                                 debug_sig <=1;
                                  // Set the command after write to traverse the tel
                                  write_return_sys_func <= SYS_FUNC_TRAVERSE;
                                  write_return_state <= SYS_TRAVERSE_PUSH;
@@ -271,7 +276,8 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
                   end
                   SYS_TRAVERSE_PUSH: begin
                      mem_addr <= trav_P;
-                     
+                     sys_func <= SYS_FUNC_READ;
+                     state <= SYS_READ_INIT;
                   end
                   
                   SYS_TRAVERSE_POP: begin

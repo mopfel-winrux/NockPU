@@ -5,8 +5,6 @@
 module memory_unit_tb();
 
 //Test Parameters
-parameter MEM_FUNC = 2'b00; // GET_CONTENTS
-parameter MAX_ADDR = 6;
 parameter MEM_INIT_FILE = "../memory/memory.hex";
 parameter MEM_WRITE_DATA = 68'hDEADBEEF;
 
