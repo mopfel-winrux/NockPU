@@ -26,12 +26,12 @@ assign power = 1'b1;
 reg [`memory_addr_width - 1:0] addr;
 
 
-reg [`memory_data_width - 1:0] data_in;
-wire [`memory_addr_width - 1:0] addr_out;
-wire [`memory_data_width - 1:0] data_out;
+reg [`memory_data_width - 1:0] write_data;
+wire [`memory_addr_width - 1:0] free_addr;
+wire [`memory_data_width - 1:0] read_data;
 wire [`memory_data_width - 1:0] mem_data_out;
 
-reg [`memory_data_width - 1:0] free_addr;
+reg [`memory_data_width - 1:0] free_addr_reg;
 
 wire mem_ready;
 wire [3:0] state;
@@ -40,10 +40,10 @@ wire [3:0] state;
 // Instantiate UUT 
 memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
-                .addr_in (addr),
-                .data_in (data_in),
-                .addr_out (addr_out),
-                .data_out (data_out),
+                .address (addr),
+                .write_data (write_data),
+                .free_addr (free_addr_out),
+                .read_data (read_data),
                 .is_ready (mem_ready),
                 .power (power),
                 .clk (clk),
@@ -77,15 +77,15 @@ initial begin
     mem_execute = 1;
     repeat (2) @(posedge clk);
     mem_execute = 0;
-    free_addr = addr_out;
+    free_addr_reg = free_addr;
     wait (mem_ready == 1'b1);
 
     repeat (1) @(posedge clk);
 
 
     // Write to Free Addr
-    data_in = MEM_WRITE_DATA;
-    addr = free_addr;
+    write_data = MEM_WRITE_DATA;
+    addr = free_addr_reg;
     mem_func = `SET_CONTENTS;
     mem_execute = 1;
     repeat (2) @(posedge clk);
@@ -99,7 +99,7 @@ initial begin
     mem_execute = 1;
     repeat (2) @(posedge clk);
     mem_execute = 0;
-    free_addr = addr_out;
+    free_addr_reg = free_addr;
     wait (mem_ready == 1'b1);
     
     repeat (1) @(posedge clk);
@@ -109,7 +109,7 @@ initial begin
 
     addr = 0;
 
-    while(addr < free_addr)
+    while(addr < free_addr_reg)
         begin
             mem_execute = 1;
             repeat (2) @(posedge clk);

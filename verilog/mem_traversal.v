@@ -1,7 +1,8 @@
 `include "memory_unit.vh"
+`include "mem_traversal.vh"
 
 
-module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr, read_data, mem_execute, mem_func, write_addr, write_data, finished);
+module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, address, read_data, mem_execute, mem_func, free_addr, write_data, finished, error, mux_controller);
    input power, clk, rst;
    input [`memory_addr_width - 1:0] start_addr; //Address to start traversal at
    input execute; // wire to begin traversal
@@ -12,11 +13,12 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
    //Interface with memory unit
    input mem_ready;
    input [`memory_data_width - 1:0] read_data;
-   
+   input [`memory_addr_width - 1:0] free_addr; // Not sure if needed
+
    output reg mem_execute;
-   output reg [`memory_addr_width - 1:0] read_addr;
+   output reg mux_controller;
+   output reg [`memory_addr_width - 1:0] address;
    output reg [1:0] mem_func;
-   output reg [`memory_addr_width - 1:0] write_addr; // Not sure if needed
    output reg [`memory_data_width - 1:0] write_data; // Not sure if needed
    
    // Internal registers needed
@@ -29,6 +31,13 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
    reg [7:0] debug_sig;
    wire is_running;
    assign is_running = !finished && execute;
+   output reg [7:0] error;
+
+   // Execute Registers needed
+   reg [`memory_addr_width - 1:0] execute_address;
+   reg [4:0] execute_tag;
+
+   reg [(`memory_data_width-4)/2 - 1:0] a, opcode, b, c, d;
 
    // Traversal Registers needed
    reg [(`memory_data_width-4)/2 - 1:0] trav_P;
@@ -60,7 +69,10 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
              SYS_TRAVERSE_TEL    = 4'h3;
    
    // Execute States
-   parameter SYS_EXECUTE_INIT = 4'h0;
+   parameter SYS_EXECUTE_INIT       = 4'h0,
+             SYS_EXECUTE_READ_TEL   = 4'h1,
+             SYS_EXECUTE_DECODE     = 4'h2,
+             SYS_EXECUTE_ERROR       = 4'hF;
    
    always@(posedge clk or negedge rst) begin
       if(!rst) begin
@@ -72,10 +84,67 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
          trav_P <= start_addr;
          mem_execute <= 0;
          debug_sig <= 0;
+         error <=0;
+         mux_controller <= 0;
          
       end
       else if (execute) begin
          case (sys_func)
+
+            SYS_FUNC_EXECUTE: begin
+               case(state)
+                  SYS_EXECUTE_INIT: begin
+                     execute_address <= mem_addr;
+                     if(mem_tag[0] == 1) begin
+                        error <= `ERROR_TEL_NOT_CELL;
+                        state <= SYS_EXECUTE_ERROR;
+                     end
+                     else begin
+                        a <= hed;
+                        address <= tel;
+                        mem_func <= `GET_CONTENTS;
+                        mem_execute <= 1;
+                        state <= SYS_EXECUTE_READ_TEL;
+                     end
+                  end
+
+                  SYS_EXECUTE_READ_TEL: begin
+                     if(mem_ready) begin
+                        mem_data <= read_data;
+                        execute_tag <= read_data[`tag_start:`tag_end]; // read first 4 bits and store into tag for easier access
+                        
+                        opcode <= read_data[`hed_start:`hed_end];
+                        b <= read_data[`tel_start:`tel_end];
+                        state <= SYS_EXECUTE_DECODE;
+                     end
+                     else begin
+                        mem_func <= 0;
+                        mem_execute <= 0;
+                     end
+                  end
+
+                  SYS_EXECUTE_DECODE: begin
+                     if((opcode < 0) || (opcode > 11)) begin //If invalid opcode
+                        error <= `ERROR_INVALID_OPCODE;
+                        state <= SYS_EXECUTE_ERROR;
+                     end
+                     else begin
+                        //case(opcode)
+                        //endcase
+                     end
+                  end
+
+                  SYS_EXECUTE_ERROR: begin
+                     state <= SYS_EXECUTE_ERROR;
+                  end
+
+               endcase
+
+            end
+
+
+
+
             SYS_FUNC_READ: begin
                case(state)
                   SYS_READ_INIT: begin
@@ -84,7 +153,7 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
                      end
                      else begin
                         is_finished_reg <= 0;
-                        read_addr <= mem_addr;
+                        address <= mem_addr;
                         mem_func <= `GET_CONTENTS;
                         mem_execute <= 1;
                   
@@ -129,7 +198,7 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
             SYS_FUNC_WRITE: begin
                case(state)
                   SYS_WRITE_INIT: begin
-                     write_addr <= mem_addr;
+                     address <= mem_addr;
                      write_data <= {mem_tag, hed, tel};
                      mem_func <= `SET_CONTENTS;
                      mem_execute <= 1;
@@ -143,7 +212,7 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
                         state <= write_return_state;
                      end
                      else begin
-                        write_addr <= 0;
+                        address <= 0;
                         write_data <= 0;
                         mem_func <= 0;
                         mem_execute <= 0;
@@ -313,11 +382,7 @@ module mem_traversal(power, clk, rst, start_addr,  execute, mem_ready, read_addr
                   end
                endcase
             end
-            
-            SYS_FUNC_EXECUTE: begin
-               sys_func <= SYS_FUNC_READ;
-               state <= SYS_READ_INIT;
-            end
+
          endcase
       end
    end

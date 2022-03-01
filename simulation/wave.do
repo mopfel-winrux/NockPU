@@ -1,6 +1,9 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /mem_traversal_tb/traversal/clk
+add wave -noupdate /mem_traversal_tb/traversal/finished
+add wave -noupdate /mem_traversal_tb/traversal/is_running
+add wave -noupdate /mem_traversal_tb/traversal/execute
 add wave -noupdate /mem_traversal_tb/traversal/sys_func
 add wave -noupdate /mem_traversal_tb/traversal/state
 add wave -noupdate /mem_traversal_tb/traversal/mem_addr
@@ -31,7 +34,7 @@ add wave -noupdate /mem_traversal_tb/traversal/debug_sig
 add wave -noupdate /mem_traversal_tb/traversal/start_addr
 add wave -noupdate /mem_traversal_tb/traversal/execute
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {427 ns} 0}
+WaveRestoreCursors {{Cursor 1} {16975310 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 283
 configure wave -valuecolwidth 221
@@ -47,4 +50,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {416 ns} {820 ns}
+WaveRestoreZoom {16975140 ns} {16975544 ns}

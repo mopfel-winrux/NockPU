@@ -585,3 +585,422 @@ run -all
 # ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v(99)
 #    Time: 1810 ns  Iteration: 1  Instance: /mem_traversal_tb
 # Break in Module mem_traversal_tb at D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v line 99
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.mem_traversal
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v(99)
+#    Time: 1810 ns  Iteration: 1  Instance: /mem_traversal_tb
+# Break in Module mem_traversal_tb at D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v line 99
+# Compile of memory_unit_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v(99)
+#    Time: 1810 ns  Iteration: 1  Instance: /mem_traversal_tb
+# Break in Module mem_traversal_tb at D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v line 99
+# Compile of memory_unit_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v(99)
+#    Time: 1810 ns  Iteration: 1  Instance: /mem_traversal_tb
+# Break in Module mem_traversal_tb at D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v line 99
+restart
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# 8 compiles, 0 failed with no errors.
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v(99)
+#    Time: 1810 ns  Iteration: 1  Instance: /mem_traversal_tb
+# Break in Module mem_traversal_tb at D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v line 99
+vsim work.mem_traversal_tb
+# End time: 13:56:40 on Mar 01,2022, Elapsed time: 1:20:42
+# Errors: 0, Warnings: 2
+# vsim work.mem_traversal_tb 
+# Start time: 13:56:40 on Mar 01,2022
+# Loading work.mem_traversal_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.mem_traversal
+onerror {resume}
+#  Warning: onerror command for use within macro
+quietly WaveActivateNextPane {} 0
+add wave -noupdate /mem_traversal_tb/traversal/clk
+add wave -noupdate /mem_traversal_tb/traversal/sys_func
+add wave -noupdate /mem_traversal_tb/traversal/state
+add wave -noupdate /mem_traversal_tb/traversal/mem_addr
+add wave -noupdate /mem_traversal_tb/traversal/write_return_sys_func
+add wave -noupdate /mem_traversal_tb/traversal/write_return_state
+add wave -noupdate /mem_traversal_tb/traversal/mem_ready
+add wave -noupdate /mem_traversal_tb/traversal/read_addr
+add wave -noupdate /mem_traversal_tb/traversal/read_data
+add wave -noupdate -expand /mem_traversal_tb/traversal/mem_tag
+add wave -noupdate /mem_traversal_tb/traversal/hed
+add wave -noupdate /mem_traversal_tb/traversal/tel
+add wave -noupdate /mem_traversal_tb/traversal/trav_P
+add wave -noupdate /mem_traversal_tb/traversal/trav_B
+add wave -noupdate -divider {Can ignore}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[0]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[1]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[2]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[3]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[4]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[5]}
+add wave -noupdate /mem_traversal_tb/mem/ram/ram
+add wave -noupdate /mem_traversal_tb/traversal/mem_func
+add wave -noupdate /mem_traversal_tb/traversal/write_addr
+add wave -noupdate /mem_traversal_tb/traversal/mem_execute
+add wave -noupdate /mem_traversal_tb/traversal/write_data
+add wave -noupdate /mem_traversal_tb/traversal/mem_data
+add wave -noupdate /mem_traversal_tb/traversal/debug_sig
+add wave -noupdate /mem_traversal_tb/traversal/start_addr
+add wave -noupdate /mem_traversal_tb/traversal/execute
+TreeUpdate [SetDefaultTree]
+WaveRestoreCursors {{Cursor 1} {427 ns} 0}
+quietly wave cursor active 1
+configure wave -namecolwidth 283
+configure wave -valuecolwidth 221
+configure wave -justifyvalue left
+configure wave -signalnamewidth 0
+configure wave -snapdistance 10
+configure wave -datasetprefix 0
+configure wave -rowmargin 4
+configure wave -childrowmargin 2
+configure wave -gridoffset 0
+configure wave -gridperiod 1
+configure wave -griddelta 40
+configure wave -timeline 0
+configure wave -timelineunits ns
+update
+WaveRestoreZoom {416 ns} {820 ns}
+add wave -position 1  sim:/mem_traversal_tb/traversal/finished
+add wave -position 2  sim:/mem_traversal_tb/traversal/execute
+add wave -position 2  sim:/mem_traversal_tb/traversal/is_running
+run -all
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf D:/Quartus/NPU_UI/simulation/wave.do
+# Compile of mem_traversal.v failed with 10 errors.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v failed with 11 errors.
+# 9 compiles, 2 failed with 21 errors.
+# Compile of mem_traversal.v failed with 6 errors.
+# Compile of mem_traversal.v failed with 6 errors.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 2 failed with 17 errors.
+# Compile of mem_traversal.v failed with 6 errors.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 2 failed with 17 errors.
+# Compile of mem_traversal.v failed with 5 errors.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 2 failed with 16 errors.
+# Compile of mem_traversal.v failed with 1 errors.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 2 failed with 12 errors.
+# Compile of mem_traversal.v failed with 2 errors.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 2 failed with 13 errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 1 failed with 11 errors.
+# Compile of mem_traversal.v failed with 6 errors.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 2 failed with 17 errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 1 failed with 11 errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_mux.v failed with 11 errors.
+# 2 compiles, 1 failed with 11 errors.
+# Compile of memory_mux.v failed with 11 errors.
+# Compile of memory_mux.v was successful.
+# Compile of memory_unit.v failed with 1 errors.
+# Compile of memory_unit_tb.v failed with 3 errors.
+# Compile of mem_traversal_tb.v was successful.
+# 3 compiles, 2 failed with 4 errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# 4 compiles, 0 failed with no errors.
+# Compile of memory_unit.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# 2 compiles, 0 failed with no errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+# 9 compiles, 0 failed with no errors.
+# Compile of mem_traversal.v failed with 1 errors.
+# Compile of mem_traversal.v failed with 1 errors.
+# Compile of mem_traversal.v was successful.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# 3 compiles, 0 failed with no errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+# 9 compiles, 0 failed with no errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+# 9 compiles, 0 failed with no errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v failed with 1 errors.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+# 9 compiles, 1 failed with 1 error.
+# Compile of memory_unit_tb.v was successful.
+# Compile of execute_tb.v was successful.
+# Compile of memory_mux.v failed with 1 errors.
+# Compile of execute_tb.v was successful.
+# 2 compiles, 1 failed with 1 error.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+# Compile of execute_tb.v was successful.
+# 10 compiles, 0 failed with no errors.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+# Compile of execute_tb.v was successful.
+# 10 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.mem_traversal_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.mem_traversal
+# ** Error: (vsim-3063) Port 'data_in' not found in the connected module (4th connection).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 42
+# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for 'traversal'.  Expected 15, found 13.
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/traversal File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 55
+# ** Warning: (vsim-3722) D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v(55): [TFMPC] - Missing connection for port 'error'.
+# ** Warning: (vsim-3722) D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v(55): [TFMPC] - Missing connection for port 'mux_controller'.
+# A time value could not be extracted from the current line
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+# Compile of execute_tb.v was successful.
+# 10 compiles, 0 failed with no errors.
+# Break key hit
+# Compile of mem_traversal_tb.v was successful.
+vsim work.mem_traversal_tb
+# vsim work.mem_traversal_tb 
+# Start time: 13:56:40 on Mar 01,2022
+# Loading work.mem_traversal_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.mem_traversal
+# ** Error: (vsim-3063) Port 'data_in' not found in the connected module (4th connection).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 42
+# Error loading design
+# End time: 17:08:58 on Mar 01,2022, Elapsed time: 3:12:18
+# Errors: 2, Warnings: 6
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+# Compile of execute_tb.v was successful.
+# 10 compiles, 0 failed with no errors.
+vsim work.mem_traversal_tb
+# vsim work.mem_traversal_tb 
+# Start time: 17:09:43 on Mar 01,2022
+# Loading work.mem_traversal_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.mem_traversal
+# ** Error: (vsim-3063) Port 'data_in' not found in the connected module (4th connection).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 41
+# ** Warning: (vsim-3015) [PCDPC] - Port size (10) does not match connection size (1) for port 'free_addr'. The port definition is at: D:/Quartus/NPU_UI/verilog/memory_unit.v(12).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 41
+# ** Warning: (vsim-3015) [PCDPC] - Port size (69) does not match connection size (1) for port 'write_data'. The port definition is at: D:/Quartus/NPU_UI/verilog/memory_unit.v(12).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 41
+# Error loading design
+# End time: 17:09:43 on Mar 01,2022, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 4
+# Compile of memory_unit_tb.v was successful.
+vsim work.mem_traversal_tb
+# vsim work.mem_traversal_tb 
+# Start time: 17:12:24 on Mar 01,2022
+# Loading work.mem_traversal_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.mem_traversal
+# ** Error: (vsim-3063) Port 'data_in' not found in the connected module (4th connection).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 41
+# ** Warning: (vsim-3015) [PCDPC] - Port size (10) does not match connection size (1) for port 'free_addr'. The port definition is at: D:/Quartus/NPU_UI/verilog/memory_unit.v(12).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 41
+# ** Warning: (vsim-3015) [PCDPC] - Port size (69) does not match connection size (1) for port 'write_data'. The port definition is at: D:/Quartus/NPU_UI/verilog/memory_unit.v(12).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 41
+# Error loading design
+# End time: 17:12:24 on Mar 01,2022, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 4
+# Compile of mem_traversal_tb.v was successful.
+vsim work.mem_traversal_tb
+# vsim work.mem_traversal_tb 
+# Start time: 17:13:21 on Mar 01,2022
+# Loading work.mem_traversal_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.mem_traversal
+# ** Warning: (vsim-3015) [PCDPC] - Port size (10) does not match connection size (1) for port 'free_addr'. The port definition is at: D:/Quartus/NPU_UI/verilog/memory_unit.v(12).
+#    Time: 0 ns  Iteration: 0  Instance: /mem_traversal_tb/mem File: D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v Line: 41
+# Warning in wave window restart: ** UI-Msg: (vish-4014) No objects found matching '/mem_traversal_tb/traversal/read_addr'. 
+# Warning in wave window restart: ** UI-Msg: (vish-4014) No objects found matching '/mem_traversal_tb/traversal/write_addr'. 
+# Compile of mem_traversal_tb.v was successful.
+vsim work.mem_traversal_tb
+# End time: 17:14:02 on Mar 01,2022, Elapsed time: 0:00:41
+# Errors: 0, Warnings: 4
+# vsim work.mem_traversal_tb 
+# Start time: 17:14:02 on Mar 01,2022
+# Loading work.mem_traversal_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.mem_traversal
+onerror {resume}
+#  Warning: onerror command for use within macro
+quietly WaveActivateNextPane {} 0
+add wave -noupdate /mem_traversal_tb/traversal/clk
+add wave -noupdate /mem_traversal_tb/traversal/finished
+add wave -noupdate /mem_traversal_tb/traversal/is_running
+add wave -noupdate /mem_traversal_tb/traversal/execute
+add wave -noupdate /mem_traversal_tb/traversal/sys_func
+add wave -noupdate /mem_traversal_tb/traversal/state
+add wave -noupdate /mem_traversal_tb/traversal/mem_addr
+add wave -noupdate /mem_traversal_tb/traversal/write_return_sys_func
+add wave -noupdate /mem_traversal_tb/traversal/write_return_state
+add wave -noupdate /mem_traversal_tb/traversal/mem_ready
+add wave -noupdate /mem_traversal_tb/traversal/read_addr
+# ** UI-Msg: (vish-4014) No objects found matching '/mem_traversal_tb/traversal/read_addr'.
+add wave -noupdate /mem_traversal_tb/traversal/read_data
+add wave -noupdate -expand /mem_traversal_tb/traversal/mem_tag
+add wave -noupdate /mem_traversal_tb/traversal/hed
+add wave -noupdate /mem_traversal_tb/traversal/tel
+add wave -noupdate /mem_traversal_tb/traversal/trav_P
+add wave -noupdate /mem_traversal_tb/traversal/trav_B
+add wave -noupdate -divider {Can ignore}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[0]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[1]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[2]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[3]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[4]}
+add wave -noupdate {/mem_traversal_tb/mem/ram/ram[5]}
+add wave -noupdate /mem_traversal_tb/mem/ram/ram
+add wave -noupdate /mem_traversal_tb/traversal/mem_func
+add wave -noupdate /mem_traversal_tb/traversal/write_addr
+# ** UI-Msg: (vish-4014) No objects found matching '/mem_traversal_tb/traversal/write_addr'.
+add wave -noupdate /mem_traversal_tb/traversal/mem_execute
+add wave -noupdate /mem_traversal_tb/traversal/write_data
+add wave -noupdate /mem_traversal_tb/traversal/mem_data
+add wave -noupdate /mem_traversal_tb/traversal/debug_sig
+add wave -noupdate /mem_traversal_tb/traversal/start_addr
+add wave -noupdate /mem_traversal_tb/traversal/execute
+TreeUpdate [SetDefaultTree]
+WaveRestoreCursors {{Cursor 1} {16975310 ns} 0}
+quietly wave cursor active 1
+configure wave -namecolwidth 283
+configure wave -valuecolwidth 221
+configure wave -justifyvalue left
+configure wave -signalnamewidth 0
+configure wave -snapdistance 10
+configure wave -datasetprefix 0
+configure wave -rowmargin 4
+configure wave -childrowmargin 2
+configure wave -gridoffset 0
+configure wave -gridperiod 1
+configure wave -griddelta 40
+configure wave -timeline 0
+configure wave -timelineunits ns
+update
+WaveRestoreZoom {16975140 ns} {16975544 ns}
+
+run -all
+restart
+# Compile of mem_traversal_tb.v was successful.
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+# Compile of memory_mux.v was successful.
+run -all
+# Compile of execute_tb.v was successful.
+# Compile canceled.
+# 10 out of 10 compiles, 0 failed with no errors.
+# Compile of mem_traversal_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.mem_traversal_tb
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.mem_traversal
+run -all
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v(97)
+#    Time: 1810 ns  Iteration: 1  Instance: /mem_traversal_tb
+# Break in Module mem_traversal_tb at D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v line 97
+# Compile of execute_tb.v was successful.
+# End time: 17:17:50 on Mar 01,2022, Elapsed time: 0:03:48
+# Errors: 0, Warnings: 2

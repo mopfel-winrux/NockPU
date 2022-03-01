@@ -9,22 +9,22 @@
 
 `include "memory_unit.vh"
 
-module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, data_out, is_ready, state, mem_data_out);
+module memory_unit(power, clk, rst, func, execute, address, write_data, free_addr, read_data, is_ready, state, mem_data_out);
 
    input power, clk, rst;
 
    // Control wires for this module
    input [1:0] func;
    input execute;
-   input [`memory_addr_width - 1:0] addr_in;
-   input [`memory_data_width - 1:0] data_in;
+   input [`memory_addr_width - 1:0] address;
+   input [`memory_data_width - 1:0] write_data;
 
    // Signal wires for this module
    reg is_ready_reg;
    output wire is_ready;
    assign is_ready = !execute && is_ready_reg;
-   output reg [`memory_addr_width - 1:0] addr_out;
-   output reg [`memory_data_width - 1:0] data_out;
+   output reg [`memory_addr_width - 1:0] free_addr;
+   output reg [`memory_data_width - 1:0] read_data;
    
    // Interface with the ram module
    reg [`memory_addr_width - 1:0] mem_addr;
@@ -90,7 +90,7 @@ module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, d
             end
             STATE_INIT_WAIT_1: begin
                state <= STATE_WAIT;
-               addr_out <= free_mem;
+               free_addr <= free_mem;
                
                mem_write <= 0;
             end
@@ -102,18 +102,18 @@ module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, d
                   // Dispatch according to the function
                   case (func)
                      `GET_CONTENTS: begin
-                        mem_addr <= addr_in;
+                        mem_addr <= address;
                         state <= STATE_READ_WAIT_0;
                      end
                      `SET_CONTENTS: begin
-                        mem_addr <= addr_in;
-                        mem_data_in <= data_in;
+                        mem_addr <= address;
+                        mem_data_in <= write_data;
                         mem_write<=1;
                         state <= STATE_WRITE_WAIT_0;
 
                      end
                      `GET_FREE: begin
-                        addr_out <= free_mem;
+                        free_addr <= free_mem;
                         free_mem <= free_mem + `memory_addr_width'b1;
                
                         state <= STATE_FREE_WAIT;
@@ -135,7 +135,7 @@ module memory_unit(power, clk, rst, func, execute, addr_in, data_in, addr_out, d
                state <= STATE_WAIT;
                is_ready_reg <= 1;
                
-               data_out <= mem_data_out;
+               read_data <= mem_data_out;
             end
             // Various wait states used when writing to memory
             STATE_WRITE_WAIT_0: begin
