@@ -35,6 +35,7 @@ wire mem_ready;
 wire [3:0] state;
 
 reg traversal_execute;
+wire traversal_finished;
 
 reg [`memory_addr_width - 1:0] start_addr;
 
@@ -65,7 +66,8 @@ memory_unit mem(.func (mem_func),
                  .mem_execute (mem_execute),
                  .mem_func (mem_func),
                  .write_addr (addr_out),
-                 .write_data (write_data));
+                 .write_data (write_data),
+                 .finished(traversal_finished));
 
 // Setup Clock
 initial begin
@@ -88,7 +90,10 @@ initial begin
     wait (mem_ready == 1'b1);
 
     traversal_execute = 1;
-    repeat (50) @(posedge clk);
+
+    wait (traversal_finished == 1'b1);
+    repeat (2) @(posedge clk);
+
 
 
     $stop;

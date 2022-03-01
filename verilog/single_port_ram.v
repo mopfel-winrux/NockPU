@@ -1,13 +1,13 @@
 module single_port_ram
 (
-	input [67:0] data,
+	input [68:0] data,
 	input [9:0] address,
 	input wren, clock,
-	output [67:0] q
+	output [68:0] q
 );
 
 	// Declare the RAM variable
-	reg [67:0] ram[67:0];
+	reg [68:0] ram[68:0];
 	
 	// Variable to hold the registered read address
 	reg [9:0] addr_reg;

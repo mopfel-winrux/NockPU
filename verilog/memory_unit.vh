@@ -1,9 +1,9 @@
 `ifndef memory_include
 `define memory_include
 
-`define memory_data_width 68
+`define memory_data_width 69
 `define memory_addr_width 10
-`define tag_start         67
+`define tag_start         68
 `define tag_end           64
 `define hed_start         63
 `define hed_end           32
