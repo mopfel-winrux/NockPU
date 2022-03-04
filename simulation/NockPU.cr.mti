@@ -1,23 +1,16 @@
-D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
--- Compiling module memory_unit_tb
-
-Top level modules:
-	memory_unit_tb
-
-} {} {}} D:/Quartus/NPU_UI/verilog/single_port_ram.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/single_port_ram.v
+D:/Quartus/NPU_UI/verilog/single_port_ram.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/single_port_ram.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
 -- Compiling module single_port_ram
 
 Top level modules:
 	single_port_ram
 
-} {} {}} D:/Quartus/NPU_UI/verilog/mem_traversal.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/mem_traversal.v
+} {} {}} D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
--- Compiling module mem_traversal
+-- Compiling module memory_unit_tb
 
 Top level modules:
-	mem_traversal
+	memory_unit_tb
 
 } {} {}} D:/Quartus/NPU_UI/verilog/memory_mux.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/memory_mux.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
@@ -25,6 +18,13 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 
 Top level modules:
 	memory_mux
+
+} {} {}} D:/Quartus/NPU_UI/verilog/mem_traversal.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/mem_traversal.v
+Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+-- Compiling module mem_traversal
+
+Top level modules:
+	mem_traversal
 
 } {} {}} D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
@@ -39,13 +39,6 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 
 Top level modules:
 	ram
-
-} {} {}} D:/Quartus/NPU_UI/testbenches/execute_tb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/testbenches/execute_tb.v
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
--- Compiling module execute_tb
-
-Top level modules:
-	execute_tb
 
 } {} {}} D:/Quartus/NPU_UI/verilog/memory_unit.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/memory_unit.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
@@ -67,5 +60,12 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 
 Top level modules:
 	ram
+
+} {} {}} D:/Quartus/NPU_UI/testbenches/execute_tb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/testbenches/execute_tb.v
+Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+-- Compiling module execute_tb
+
+Top level modules:
+	execute_tb
 
 } {} {}}

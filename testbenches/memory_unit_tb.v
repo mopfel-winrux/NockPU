@@ -37,7 +37,7 @@ wire mem_ready;
 wire [3:0] state;
 
 
-// Instantiate UUT 
+// Instantiate Memory Unit 
 memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
                 .address (addr),

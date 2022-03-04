@@ -1,27 +1,4 @@
-# Compile of execute.v was successful with warnings.
-# Compile of mem_traversal.v was successful.
-# Compile of memory_unit.v was successful.
-# Compile of NPU_UI.v was successful.
-# Compile of ram.v was successful.
-# Compile of ram_bb.v was successful.
-# Compile of memory_unit_tb.v was successful.
-# Compile of single_port_ram.v was successful.
-# Compile of mem_traversal_tb.v was successful.
-# Compile of memory_mux.v was successful.
-# Compile of execute_tb.v was successful.
-# Compile of execute.v was successful with warnings.
-# 11 compiles, 0 failed with no errors.
-vsim work.execute_tb
-# vsim work.execute_tb 
-# Start time: 14:41:24 on Mar 04,2022
-# Loading work.execute_tb
-# Loading work.memory_unit
-# Loading work.single_port_ram
-# Loading work.memory_mux
-# Loading work.mem_traversal
-# Loading work.execute
 onerror {resume}
-#  Warning: onerror command for use within macro
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /execute_tb/execute/clk
 add wave -noupdate /execute_tb/execute/rst
@@ -83,13 +60,3 @@ configure wave -timeline 0
 configure wave -timelineunits ns
 update
 WaveRestoreZoom {145 ns} {1035 ns}
-
-run
-# Compile of execute.v was successful with warnings.
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# Loading work.execute
-run
-# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/execute_tb.v(160)
-#    Time: 710 ns  Iteration: 1  Instance: /execute_tb
-# Break in Module execute_tb at D:/Quartus/NPU_UI/testbenches/execute_tb.v line 160
