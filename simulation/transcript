@@ -1,19 +1,7 @@
-# Compile of execute.v was successful with warnings.
-# Compile of mem_traversal.v was successful.
-# Compile of memory_unit.v was successful.
-# Compile of NPU_UI.v was successful.
-# Compile of ram.v was successful.
-# Compile of ram_bb.v was successful.
-# Compile of memory_unit_tb.v was successful.
-# Compile of single_port_ram.v was successful.
-# Compile of mem_traversal_tb.v was successful.
-# Compile of memory_mux.v was successful.
-# Compile of execute_tb.v was successful.
-# Compile of execute.v was successful with warnings.
-# 11 compiles, 0 failed with no errors.
+# Compile of execute.v was successful.
 vsim work.execute_tb
 # vsim work.execute_tb 
-# Start time: 14:41:24 on Mar 04,2022
+# Start time: 15:34:31 on Apr 21,2022
 # Loading work.execute_tb
 # Loading work.memory_unit
 # Loading work.single_port_ram
@@ -39,18 +27,25 @@ add wave -noupdate /execute_tb/execute/execute_address
 add wave -noupdate /execute_tb/execute/execute_tag
 add wave -noupdate /execute_tb/execute/execute_data
 add wave -noupdate /execute_tb/execute/a
-add wave -noupdate /execute_tb/execute/opcode
 add wave -noupdate /execute_tb/execute/b
 add wave -noupdate /execute_tb/execute/c
 add wave -noupdate /execute_tb/execute/d
+add wave -noupdate -expand /execute_tb/execute/func_tag
+add wave -noupdate /execute_tb/execute/opcode
 add wave -noupdate /execute_tb/execute/execute_return_sys_func
 add wave -noupdate /execute_tb/execute/execute_return_state
 add wave -noupdate /execute_tb/execute/read_data_reg
+add wave -noupdate /execute_tb/execute/address
+add wave -noupdate /execute_tb/execute/write_data
+add wave -noupdate /execute_tb/execute/stack_mem_tag_1
+add wave -noupdate /execute_tb/execute/stack_mem_tag_2
 add wave -noupdate -divider Memory
-add wave -noupdate {/execute_tb/mem/ram/ram[3]}
-add wave -noupdate {/execute_tb/mem/ram/ram[2]}
-add wave -noupdate {/execute_tb/mem/ram/ram[1]}
 add wave -noupdate {/execute_tb/mem/ram/ram[0]}
+add wave -noupdate {/execute_tb/mem/ram/ram[1]}
+add wave -noupdate {/execute_tb/mem/ram/ram[2]}
+add wave -noupdate {/execute_tb/mem/ram/ram[3]}
+add wave -noupdate {/execute_tb/mem/ram/ram[4]}
+add wave -noupdate {/execute_tb/mem/ram/ram[5]}
 add wave -noupdate -divider Misc
 add wave -noupdate /execute_tb/execute/mem_ready
 add wave -noupdate /execute_tb/execute/read_data
@@ -66,10 +61,10 @@ add wave -noupdate /execute_tb/execute/mem_addr
 add wave -noupdate /execute_tb/execute/mem_data
 add wave -noupdate /execute_tb/mem/ram/ram
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {210 ns} 0}
+WaveRestoreCursors {{Cursor 1} {502 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 329
-configure wave -valuecolwidth 100
+configure wave -valuecolwidth 302
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
 configure wave -snapdistance 10
@@ -82,14 +77,84 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {145 ns} {1035 ns}
+WaveRestoreZoom {0 ns} {765 ns}
 
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: amade  Hostname: DESKTOP-CLKJ6R5  ProcessID: 18772
+#           Attempting to use alternate WLF file "./wlftvqcww3".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlftvqcww3
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
 run
-# Compile of execute.v was successful with warnings.
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(327)
+#    Time: 430 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 327
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+add wave -position 24  sim:/execute_tb/execute/func_addr
+restart
+run
+restart
+run
+# Compile of execute.v was successful.
 restart
 # ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
 # Loading work.execute
 run
 # ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/execute_tb.v(160)
-#    Time: 710 ns  Iteration: 1  Instance: /execute_tb
+#    Time: 730 ns  Iteration: 1  Instance: /execute_tb
 # Break in Module execute_tb at D:/Quartus/NPU_UI/testbenches/execute_tb.v line 160
+restart
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/execute_tb.v(160)
+#    Time: 730 ns  Iteration: 1  Instance: /execute_tb
+# Break in Module execute_tb at D:/Quartus/NPU_UI/testbenches/execute_tb.v line 160
+# Compile of execute_tb.v was successful.
+# Compile of execute.v was successful.
+# 2 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute_tb
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(537)
+#    Time: 1250 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 537
+add wave -position 29  sim:/execute_tb/execute/stack_a
+add wave -position 30  sim:/execute_tb/execute/stack_b
+add wave -position 31  sim:/execute_tb/execute/stack_P
+add wave -position 32  sim:/execute_tb/execute/stack_P_tel
+restart
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(537)
+#    Time: 1250 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 537
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(327)
+#    Time: 1270 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 327
+# Compile of execute.v failed with 1 errors.
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(562)
+#    Time: 1370 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 562
+add wave -position 25  sim:/execute_tb/execute/trav_B
+add wave -position 26  sim:/execute_tb/execute/trav_P
+restart
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(562)
+#    Time: 1370 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 562
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf D:/Quartus/NPU_UI/simulation/execute_tb_wave.do

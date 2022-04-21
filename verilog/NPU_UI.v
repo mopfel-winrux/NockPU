@@ -1,99 +1,153 @@
+`timescale 1ns/1ns
 `include "memory_unit.vh"
 
-//
-//---------------- User Interface ----------------
-//
-module NPU_UI (KEY, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 
-//Setup UI for NPU. Hex display and key
- input  [1:0] KEY;
- //input  CLOCK_50;
- output [9:0] LEDR;
- output [7:0] HEX0, HEX1, HEX2, HEX3, HEX4,HEX5;
-  function automatic [7:0] digit;
-   input [3:0] num; 
-   case (num)
-     0:  digit = 8'b11000000;  // 0
-     1:  digit = 8'b11111001;  // 1
-     2:  digit = 8'b10100100;  // 2
-     3:  digit = 8'b10110000;  // 3
-     4:  digit = 8'b10011001;  // 4
-     5:  digit = 8'b10010010;  // 5
-     6:  digit = 8'b10000010;  // 6
-     7:  digit = 8'b11111000;  // 7
-     8:  digit = 8'b10000000;  // 8
-     9:  digit = 8'b10010000;  // 9
-     10: digit = 8'b10001000;  // A
-     11: digit = 8'b10000011;  // b
-     12: digit = 8'b11000110;  // C
-     13: digit = 8'b10100001;  // d
-     14: digit = 8'b10000110;  // E
-     15: digit = 8'b10001110;  // F
-   endcase
-  endfunction
- wire clk,w1,reset;
- nand(clk,KEY[0],w1); // Set up RS FF latch
- nand(w1,KEY[1],clk); // as debounced clock.
- //assign clk = CLOCK_50;
- and(reset,~KEY[0],~KEY[1]); // Reset if both keys pushed
- 
- //NPU State Registers
- reg [2:0] CPU_state;
- parameter start    = 2'b00;
+module NPU_UI(CLOCK_50);
+input CLOCK_50;
+//Test Parameters
+parameter MEM_INIT_FILE = "../memory/constant_tb.hex";
 
- reg [`memory_addr_width - 1:0] start_addr;
+//Signal Declarations
+reg MAX10_CLK1_50;
 
-  
- wire [1:0] mem_func;
- wire mem_execute;
- wire power;
- wire [`memory_addr_width - 1:0] addr;
- wire [`memory_data_width - 1:0] data_in;
- wire [`memory_addr_width - 1:0] addr_out;
- wire [`memory_data_width - 1:0] data_out;
- wire mem_ready;
- 
- memory_unit mem(.func (mem_func),
-                 .execute (mem_execute),
-                 .addr_in (addr),
-                 .data_in (data_in),
-                 .addr_out (addr_out),
-                 .data_out (data_out),
-                 .is_ready (mem_ready),
-                 .power (power),
-                 .clk (clk),
-                 .rst (reset));
+wire clk;
+assign clk = CLOCK_50;
 
- wire traversal_execute;
-                 
- mem_traversal traversal(.power (power),
-                 .clk (clk),
-                 .rst (reset),
-                 .start_addr (start_addr),
-                 .execute (traversal_execute),
-                 .mem_ready (mem_ready),
-                 .read_addr (addr),
-                 .read_data (data_in),
-                 .mem_execute (mem_execute),
-                 .mem_func (mem_func),
-                 .write_addr (addr_out),
-                 .write_data (data_out));
-                 
- 
- 
- reg run; // Flag indicating CPU is running
- always @ (posedge(clk), posedge(reset))
-  begin
-   if (reset)
-   begin
+reg reset;
 
-   end
-   else
-      case (CPU_state)
-      start:
-      begin
-      
-      end
-      endcase
-   end
+
+wire power;
+assign power = 1'b1;
+
+wire [1:0] mem_func;
+wire mem_execute;
+wire [`memory_addr_width - 1:0] address;
+wire [`memory_data_width - 1:0] write_data;
+wire [`memory_addr_width - 1:0] free_addr;
+wire [`memory_data_width - 1:0] read_data;
+wire [`memory_data_width - 1:0] mem_data_out;
+
+
+wire mem_ready;
+
+wire [3:0] state;
+
+reg traversal_execute;
+wire traversal_finished;
+
+reg [`memory_addr_width - 1:0] start_addr;
+
+// Signal from MTU to memory Mux
+wire [1:0] mem_func_mtu;
+wire mem_execute_mtu;
+wire [`memory_addr_width - 1:0] address_mtu;
+wire [`memory_data_width - 1:0] write_data_mtu;
+wire select;
+
+//Signal from NEM (Nock Execution Module) to memory Mux
+wire [1:0] mem_func_nem;
+wire mem_execute_nem;
+wire [`memory_addr_width - 1:0] address_nem;
+wire [`memory_data_width - 1:0] write_data_nem;
+
+//Signal from MTU to NEM
+wire [`memory_addr_width - 1:0] execute_address;
+wire [4:0] execute_tag;
+wire [`memory_data_width - 1:0] execute_data;
+wire execute_finished;
+wire [7:0] error;
+wire [3:0] execute_return_sys_func;
+wire [3:0] execute_return_state;
+
+// Instantiate Memory Unit 
+memory_unit mem(.func (mem_func),
+                .execute (mem_execute),
+                .address (address),
+                .write_data (write_data),
+                .free_addr (free_addr),
+                .read_data (read_data),
+                .is_ready (mem_ready),
+                .power (power),
+                .clk (clk),
+                .state (state),
+                .mem_data_out(mem_data_out),
+                .rst (reset));
+
+// Instantiate Memory Mux
+memory_mux memory_mux(.mem_func_a(mem_func_mtu),
+                      .mem_func_b(mem_func_nem),
+                      .execute_a(mem_execute_mtu),
+                      .execute_b(mem_execute_nem),
+                      .address_a(address_mtu),
+                      .address_b(address_nem),
+                      .write_data_a(write_data_mtu),
+                      .write_data_b(write_data_nem),
+                      .sel(select),
+                      .mem_func(mem_func),
+                      .execute(mem_execute),
+                      .address(address),
+                      .write_data(write_data));
+
+// Instantiate MTU
+mem_traversal traversal(.power (power),
+                        .clk (clk),
+                        .rst (reset),
+                        .start_addr (start_addr),
+                        .execute (traversal_execute),
+                        .mem_ready (mem_ready),
+                        .address (address_mtu),
+                        .read_data (read_data),
+                        .mem_execute (mem_execute_mtu),
+                        .mem_func (mem_func_mtu),
+                        .free_addr (free_addr),
+                        .write_data (write_data_mtu),
+                        .finished(traversal_finished),
+                        .error(error),
+                        .mux_controller(select),
+                        .execute_address(execute_address), 
+                        .execute_tag(execute_tag), 
+                        .execute_data(execute_data), 
+                        .execute_finished(execute_finished),
+                        .execute_return_sys_func(execute_return_sys_func),
+                        .execute_return_state(execute_return_state));
+
+//Instantiate Nock Execute Module
+execute execute(.clk(clk),
+				.rst(reset),
+				.error(error),
+				.execute_start(select),
+				.execute_address(execute_address),
+				.execute_tag(execute_tag),
+				.execute_data(execute_data),
+                .mem_ready(mem_ready),
+				.mem_execute(mem_execute_nem),
+				.mem_func(mem_func_nem),
+				.address(address_nem),
+				.free_addr(free_addr),
+                .read_data(read_data),
+				.write_data(write_data_nem),
+                .finished(execute_finished),
+                .execute_return_sys_func(execute_return_sys_func),
+                .execute_return_state(execute_return_state));
+
+// Perform Test
+initial begin 
+
+    start_addr = 1;
+    // Reset
+    reset = 1'b0;
+    repeat (2) @(posedge clk);
+    reset = 1'b1;
+    wait (mem_ready == 1'b1);
+
+    traversal_execute = 1;
+
+    wait (traversal_finished == 1'b1);
+    repeat (2) @(posedge clk);
+
+
+
+    $stop;
+end
+
 endmodule

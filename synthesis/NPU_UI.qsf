@@ -124,11 +124,13 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-set_global_assignment -name VERILOG_FILE ../verilog/ram.v
+set_global_assignment -name VERILOG_FILE ../verilog/single_port_ram.v
+set_global_assignment -name VERILOG_FILE ../verilog/memory_mux.v
+set_global_assignment -name VERILOG_FILE ../verilog/execute.v
 set_global_assignment -name QIP_FILE ../verilog/ram.qip
 set_global_assignment -name VERILOG_FILE ../verilog/NPU_UI.v
 set_global_assignment -name VERILOG_FILE ../verilog/memory_unit.v
 set_global_assignment -name VERILOG_FILE ../verilog/mem_traversal.v
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name MIF_FILE ../memory/memory.mif
 set_global_assignment -name HEX_FILE ../memory/memory.hex
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
