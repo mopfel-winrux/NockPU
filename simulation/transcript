@@ -158,3 +158,206 @@ run
 #    Time: 1370 ns  Iteration: 1  Instance: /execute_tb/execute
 # Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 562
 write format wave -window .main_pane.wave.interior.cs.body.pw.wf D:/Quartus/NPU_UI/simulation/execute_tb_wave.do
+restart
+# Compile of execute.v was successful.
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(562)
+#    Time: 1370 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 562
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(548)
+#    Time: 1370 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 548
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(549)
+#    Time: 1370 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 549
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(540)
+#    Time: 1370 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 540
+# Compile of execute.v failed with 1 errors.
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(553)
+#    Time: 1450 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 553
+step -over -current
+# Compile of execute.v was successful.
+# Compile of execute.v failed with 1 errors.
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(564)
+#    Time: 1490 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 564
+restart
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(564)
+#    Time: 1490 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 564
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(624)
+#    Time: 1490 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 624
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(565)
+#    Time: 1370 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 565
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(623)
+#    Time: 1490 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 623
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(633)
+#    Time: 1570 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 633
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(634)
+#    Time: 1630 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 634
+restart
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(634)
+#    Time: 1630 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 634
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+run
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# Compile of mem_traversal.v was successful.
+# Compile of memory_unit.v was successful.
+# Compile of NPU_UI.v was successful.
+# Compile of ram.v was successful.
+# Compile of ram_bb.v was successful.
+# Compile of execute.v was successful.
+# Compile of memory_unit_tb.v was successful.
+# Compile of single_port_ram.v was successful.
+# Compile of mem_traversal_tb.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.memory_unit
+# Loading work.single_port_ram
+# Loading work.memory_mux
+# Loading work.mem_traversal
+# Loading work.execute
+# Compile of memory_mux.v was successful.
+# Compile of execute_tb.v was successful.
+# Compile of execute.v was successful.
+# 11 compiles, 0 failed with no errors.
+run
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute_tb
+# Loading work.execute
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(635)
+#    Time: 1630 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 635
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+restart
+run
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# Compile of execute.v failed with 5 errors.
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/verilog/execute.v(588)
+#    Time: 1790 ns  Iteration: 1  Instance: /execute_tb/execute
+# Break in Module execute at D:/Quartus/NPU_UI/verilog/execute.v line 588
+# Compile of execute.v was successful.
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# Loading work.execute
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/execute_tb.v(160)
+#    Time: 2050 ns  Iteration: 1  Instance: /execute_tb
+# Break in Module execute_tb at D:/Quartus/NPU_UI/testbenches/execute_tb.v line 160
+restart
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+run
+run
+# ** Note: $stop    : D:/Quartus/NPU_UI/testbenches/execute_tb.v(160)
+#    Time: 2730 ns  Iteration: 1  Instance: /execute_tb
+# Break in Module execute_tb at D:/Quartus/NPU_UI/testbenches/execute_tb.v line 160

@@ -10,30 +10,30 @@ z2
 cModel Technology
 dD:/intelFPGA_lite/20.1
 vexecute
-!s110 1650570975
+!s110 1650575715
 !i10b 1
-!s100 O???F@hFG>ed:AZ_EV]4g3
+!s100 NMC8]MQR9D``Xz[F?7QUR2
 Z0 !s11b Dg1SIo80bB@j0V0VzS_@n1
-ITVDj3K<PkMj3lEeZ]eWl10
+IOziVhN@C^ONI_2CmFA]_O3
 Z1 VDg1SIo80bB@j0V0VzS_@n1
 Z2 dD:/Quartus/NPU_UI/simulation
-w1650570967
+w1650575710
 8D:/Quartus/NPU_UI/verilog/execute.v
 FD:/Quartus/NPU_UI/verilog/execute.v
-!i122 767
-L0 6 570
+!i122 802
+L0 6 661
 Z3 OV;L;2020.1;71
 r1
 !s85 0
 31
-!s108 1650570974.000000
+!s108 1650575715.000000
 !s107 D:\Quartus\NPU_UI\verilog\execute.vh|D:\Quartus\NPU_UI\verilog\mem_traversal.vh|D:\Quartus\NPU_UI\verilog\memory_unit.vh|D:/Quartus/NPU_UI/verilog/execute.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/verilog/execute.v|
 !i113 1
 Z4 o-work work
 Z5 tCvgOpt 0
 vexecute_tb
-!s110 1650570234
+!s110 1650575005
 !i10b 1
 !s100 c[6SV9Ui0Y;;l>ULHVgJB3
 R0
@@ -43,20 +43,20 @@ R2
 w1650570219
 8D:/Quartus/NPU_UI/testbenches/execute_tb.v
 FD:/Quartus/NPU_UI/testbenches/execute_tb.v
-!i122 764
+!i122 794
 L0 5 159
 R3
 r1
 !s85 0
 31
-!s108 1650570234.000000
+!s108 1650575005.000000
 !s107 ../verilog/memory_unit.vh|D:/Quartus/NPU_UI/testbenches/execute_tb.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/testbenches/execute_tb.v|
 !i113 1
 R4
 R5
 vmem_traversal
-Z6 !s110 1650562127
+Z6 !s110 1650575002
 !i10b 1
 !s100 6ZUNnzcAz6dDUVIXbgPM00
 R0
@@ -66,20 +66,20 @@ R2
 w1646422181
 8D:/Quartus/NPU_UI/verilog/mem_traversal.v
 FD:/Quartus/NPU_UI/verilog/mem_traversal.v
-!i122 723
+!i122 784
 L0 5 364
 R3
 r1
 !s85 0
 31
-!s108 1650562126.000000
+!s108 1650575001.000000
 !s107 D:\Quartus\NPU_UI\verilog\mem_traversal.vh|D:\Quartus\NPU_UI\verilog\memory_unit.vh|D:/Quartus/NPU_UI/verilog/mem_traversal.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/verilog/mem_traversal.v|
 !i113 1
 R4
 R5
 vmem_traversal_tb
-Z7 !s110 1650562129
+Z7 !s110 1650575004
 !i10b 1
 !s100 mla46HRMI_EIgg2ZH@j4R1
 R0
@@ -89,13 +89,13 @@ R2
 w1646172922
 8D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v
 FD:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v
-!i122 730
+!i122 792
 L0 5 96
 R3
 r1
 !s85 0
 31
-Z8 !s108 1650562128.000000
+Z8 !s108 1650575004.000000
 !s107 ../verilog/memory_unit.vh|D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/testbenches/mem_traversal_tb.v|
 !i113 1
@@ -112,13 +112,13 @@ R2
 w1646172317
 8D:/Quartus/NPU_UI/verilog/memory_mux.v
 FD:/Quartus/NPU_UI/verilog/memory_mux.v
-!i122 731
+!i122 793
 L0 7 16
 R3
 r1
 !s85 0
 31
-!s108 1650562129.000000
+R8
 !s107 D:\Quartus\NPU_UI\verilog\memory_unit.vh|D:/Quartus/NPU_UI/verilog/memory_mux.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/verilog/memory_mux.v|
 !i113 1
@@ -135,20 +135,20 @@ R2
 w1646171701
 8D:/Quartus/NPU_UI/verilog/memory_unit.v
 FD:/Quartus/NPU_UI/verilog/memory_unit.v
-!i122 724
+!i122 785
 L0 12 150
 R3
 r1
 !s85 0
 31
-Z9 !s108 1650562127.000000
+Z9 !s108 1650575002.000000
 !s107 D:\Quartus\NPU_UI\verilog\memory_unit.vh|D:/Quartus/NPU_UI/verilog/memory_unit.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/verilog/memory_unit.v|
 !i113 1
 R4
 R5
 vmemory_unit_tb
-Z10 !s110 1650562128
+Z10 !s110 1650575003
 !i10b 1
 !s100 3:W5I`J=A8c]mlndn3MA93
 R0
@@ -158,13 +158,13 @@ R2
 w1646414143
 8D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v
 FD:/Quartus/NPU_UI/testbenches/memory_unit_tb.v
-!i122 728
+!i122 789
 L0 5 123
 R3
 r1
 !s85 0
 31
-R8
+Z11 !s108 1650575003.000000
 !s107 ../verilog/memory_unit.vh|D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v|
 !i113 1
@@ -181,7 +181,7 @@ R2
 w1646435270
 8D:/Quartus/NPU_UI/verilog/NPU_UI.v
 FD:/Quartus/NPU_UI/verilog/NPU_UI.v
-!i122 725
+!i122 786
 L0 5 149
 R3
 r1
@@ -205,13 +205,13 @@ R2
 w1642601818
 8D:/Quartus/NPU_UI/verilog/ram_bb.v
 FD:/Quartus/NPU_UI/verilog/ram_bb.v
-!i122 727
+!i122 788
 L0 35 21
 R3
 r1
 !s85 0
 31
-R8
+R9
 !s107 D:/Quartus/NPU_UI/verilog/ram_bb.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/verilog/ram_bb.v|
 !i113 1
@@ -228,13 +228,13 @@ R2
 w1646154853
 8D:/Quartus/NPU_UI/verilog/single_port_ram.v
 FD:/Quartus/NPU_UI/verilog/single_port_ram.v
-!i122 729
+!i122 791
 L0 1 30
 R3
 r1
 !s85 0
 31
-R8
+R11
 !s107 D:/Quartus/NPU_UI/verilog/single_port_ram.v|
 !s90 -reportprogress|300|-work|work|-stats=none|D:/Quartus/NPU_UI/verilog/single_port_ram.v|
 !i113 1

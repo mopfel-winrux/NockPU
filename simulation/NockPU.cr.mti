@@ -5,12 +5,16 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 Top level modules:
 	single_port_ram
 
-} {} {}} D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+} {} {}} D:/Quartus/NPU_UI/testbenches/memory_unit_tb.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/execute.v
 -- Compiling module memory_unit_tb
 
 Top level modules:
 	memory_unit_tb
+Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+-- Compiling module execute
+
+Top level modules:
+	execute
 
 } {} {}} D:/Quartus/NPU_UI/verilog/memory_mux.v {1 {vlog -work work -stats=none D:/Quartus/NPU_UI/verilog/memory_mux.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
