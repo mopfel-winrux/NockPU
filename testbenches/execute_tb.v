@@ -146,7 +146,7 @@ initial begin
     $dumpfile("waveform.vcd");
     $dumpvars(0, execute_tb);
 
-    for (idx = 0; idx < 256; idx = idx+1) begin
+    for (idx = 0; idx < 1023; idx = idx+1) begin
       $dumpvars(0,mem.ram.ram[idx]);
     end
 

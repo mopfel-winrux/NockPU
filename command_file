@@ -10,3 +10,4 @@ verilog/mem_traversal.v
 verilog/ram.v
 
 testbenches/execute_tb.v
+#testbenches/memory_unit_tb.v

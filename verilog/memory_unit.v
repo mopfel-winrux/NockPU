@@ -2,7 +2,8 @@
  Will have 3 main functions used by external modules.
   - Given an address of a cell, return its value
   - Given an address of a cell, the cell's value, and a type tag, write to memory
-  - Request the next empty cell available in the memory, return address of empty cell
+  - Request the a batch of emprt cells that have a length of write_data. 
+    These are garrenteed to be open and this will cause a GC to run if not. 
  Memory is word addressable. When all the correct values are set, 
  pull execute to high and wait for is_ready to go high. This will mark that your command is finished 
 */
@@ -161,6 +162,7 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
             // Return a new cell
             STATE_GARBAGE_COLLECT: begin             
                state <= STATE_GARBAGE_COLLECT;
+               $stop;
             end
             default:;
          endcase

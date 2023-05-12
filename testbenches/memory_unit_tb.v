@@ -5,7 +5,7 @@
 module memory_unit_tb();
 
 //Test Parameters
-parameter MEM_INIT_FILE = "../memory/memory.hex";
+parameter MEM_INIT_FILE = "./memory/memory.hex";
 parameter MEM_WRITE_DATA = 68'hDEADBEEF;
 
 //Signal Declarations
@@ -31,7 +31,7 @@ wire [`memory_addr_width - 1:0] free_addr;
 wire [`memory_data_width - 1:0] read_data;
 wire [`memory_data_width - 1:0] mem_data_out;
 
-reg [`memory_data_width - 1:0] free_addr_reg;
+reg [`memory_addr_width - 1:0] free_addr_reg;
 
 wire mem_ready;
 wire [3:0] state;
@@ -42,7 +42,7 @@ memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
                 .address (addr),
                 .write_data (write_data),
-                .free_addr (free_addr_out),
+                .free_addr (free_addr),
                 .read_data (read_data),
                 .is_ready (mem_ready),
                 .power (power),
@@ -57,12 +57,20 @@ initial begin
     forever MAX10_CLK1_50 = #10 ~MAX10_CLK1_50;
 end
 
+integer idx;
 
 // Perform Test
 initial begin 
     if (MEM_INIT_FILE != "") begin
         $readmemh(MEM_INIT_FILE, mem.ram.ram);
     end
+    $dumpfile("memory_unit_tb.vcd");
+    $dumpvars(0, memory_unit_tb);
+
+    for (idx = 0; idx < 1023; idx = idx+1) begin
+      $dumpvars(0,mem.ram.ram[idx]);
+    end
+
 
     mem_execute = 0;
     // Reset
@@ -74,7 +82,7 @@ initial begin
 
     // Get Next Free Memory Location
     mem_func = `GET_FREE;
-    write_data <= 4;
+    write_data <= 1;
     mem_execute = 1;
     repeat (2) @(posedge clk);
     mem_execute = 0;
@@ -111,7 +119,7 @@ initial begin
 
     addr = 0;
 
-    while(addr < free_addr_reg)
+    while(addr < free_addr_reg +1)
         begin
             mem_execute = 1;
             repeat (2) @(posedge clk);

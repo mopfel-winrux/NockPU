@@ -7,7 +7,7 @@ module ram(
 );
 
     // Define a 256 byte (2^68) RAM.
-    reg [68:0] ram [255:0];
+    reg [68:0] ram [1023:0];
 
     always @(posedge clock) begin
         if (wren) begin
