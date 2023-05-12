@@ -5,7 +5,7 @@
 module execute_tb();
 
 //Test Parameters
-parameter MEM_INIT_FILE = "../memory/nested_increment.hex";
+parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
@@ -136,12 +136,21 @@ initial begin
     forever MAX10_CLK1_50 = #10 ~MAX10_CLK1_50;
 end
 
+integer idx;
 
 // Perform Test
 initial begin 
     if (MEM_INIT_FILE != "") begin
         $readmemh(MEM_INIT_FILE, mem.ram.ram);
     end
+    $dumpfile("waveform.vcd");
+    $dumpvars(0, execute_tb);
+
+    for (idx = 0; idx < 256; idx = idx+1) begin
+      $dumpvars(0,mem.ram.ram[idx]);
+    end
+
+
 
     start_addr = 1;
     // Reset
@@ -154,8 +163,6 @@ initial begin
 
     wait (traversal_finished == 1'b1);
     repeat (2) @(posedge clk);
-
-
 
     $stop;
 end

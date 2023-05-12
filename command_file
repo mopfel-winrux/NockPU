@@ -1,0 +1,12 @@
+#Command file for iverilog
+
++incdir+./verilog/
+verilog/execute.v
+verilog/memory_unit.v
+verilog/NPU_UI.v
+verilog/single_port_ram.v
+verilog/memory_mux.v
+verilog/mem_traversal.v
+verilog/ram.v
+
+testbenches/execute_tb.v

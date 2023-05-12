@@ -50,7 +50,7 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
              STATE_FREE_WAIT           = 4'hA,
              STATE_GARBAGE_COLLECT     = 4'hB;
              
-   single_port_ram ram(.address (mem_addr),
+   ram ram(.address (mem_addr),
            .clock (clk),
            .data (mem_data_in),
            .wren (mem_write),

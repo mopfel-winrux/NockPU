@@ -381,7 +381,7 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
                                 address <= func_addr;
                                 mem_func <= `SET_CONTENTS;
                                 mem_execute <= 1;
-                                write_data <= {5'b00011, a+1, 32'h0000};
+                                write_data <= {5'b00011, a+32'h1, 32'h0000};
                                 exec_func <= func_return_exec_func;
                                 state <= func_return_state;
                             end

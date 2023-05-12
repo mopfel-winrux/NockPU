@@ -6,6 +6,26 @@ Design and Reference documentation along with a general chat can be found by joi
 
 `~mopfel-winrux/NockPU`
 
+## How to run
+
+This project can be simulated with `iverilog` and the waveform can be viewed with `gtkwave`. Please make sure those are installed on your system.
+
+To compile the project run
+
+`iverilog -o npu.vvp -c command_file`
+
+This will create a file called `npu.vvp`. This can be simulated with `vvp` using the following command
+
+`vvp npu.vvp`
+
+When the simulation stops you can type `finish` to stop the simulation. This will create a file called `waveform.vcd` which will contain the waveform of the model.
+
+This can be viewed using `gtkwave`:
+
+`gtkwave waveform.vcd`
+
+
+
 
 # Project Layout
 

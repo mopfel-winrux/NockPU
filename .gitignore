@@ -71,3 +71,7 @@ PLLJ_PLLSPE_INFO.txt
 *~
 *.swp
 *.swo
+*.vcd
+*.vvp
+
+
