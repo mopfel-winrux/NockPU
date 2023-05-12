@@ -33,7 +33,7 @@
 *.cmp
 *.done
 *.eqn
-*.hex
+#*.hex
 *.html
 *.jdi
 *.jpg
