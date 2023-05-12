@@ -25,8 +25,6 @@ This can be viewed using `gtkwave`:
 `gtkwave waveform.vcd`
 
 
-
-
 # Project Layout
 
 In the `verilog` folder there is the verilog code that can be synthesized into hardware. 
