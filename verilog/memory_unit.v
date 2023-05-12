@@ -37,17 +37,18 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
    output reg [3:0] state;
    
    // States
-   parameter STATE_INIT_SETUP    = 4'h0,
-             STATE_INIT_WAIT_0   = 4'h1,
-             STATE_INIT_STORE_FREE_MEM    = 4'h2,
-             STATE_INIT_CLEAR_NIL = 4'h3,
-             STATE_INIT_WAIT_1   = 4'h4,
-             STATE_WAIT          = 4'h5,
-             STATE_READ_WAIT_0   = 4'h6,
-             STATE_READ_FINISH   = 4'h7,
-             STATE_WRITE_WAIT_0  = 4'h8,
-             STATE_WRITE_FINISH  = 4'h9,
-             STATE_FREE_WAIT     = 4'hA;
+   parameter STATE_INIT_SETUP          = 4'h0,
+             STATE_INIT_WAIT_0         = 4'h1,
+             STATE_INIT_STORE_FREE_MEM = 4'h2,
+             STATE_INIT_CLEAR_NIL      = 4'h3,
+             STATE_INIT_WAIT_1         = 4'h4,
+             STATE_WAIT                = 4'h5,
+             STATE_READ_WAIT_0         = 4'h6,
+             STATE_READ_FINISH         = 4'h7,
+             STATE_WRITE_WAIT_0        = 4'h8,
+             STATE_WRITE_FINISH        = 4'h9,
+             STATE_FREE_WAIT           = 4'hA,
+             STATE_GARBAGE_COLLECT     = 4'hB;
              
    single_port_ram ram(.address (mem_addr),
            .clock (clk),
@@ -113,10 +114,14 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
 
                      end
                      `GET_FREE: begin
-                        free_addr <= free_mem;
-                        free_mem <= free_mem + `memory_addr_width'b1;
-               
-                        state <= STATE_FREE_WAIT;
+                        if(free_addr + write_data <= 1023) begin // if you have enough free memory
+                           free_addr <= free_mem;
+                           free_mem <= free_mem + write_data;
+                           state <= STATE_FREE_WAIT;
+                        end
+                        else begin
+                           state <= STATE_GARBAGE_COLLECT;
+                        end
                      end
                   endcase
                end
@@ -152,6 +157,10 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
                is_ready_reg <= 1;
                
                state <= STATE_WAIT;
+            end
+            // Return a new cell
+            STATE_GARBAGE_COLLECT: begin             
+               state <= STATE_GARBAGE_COLLECT;
             end
             default:;
          endcase

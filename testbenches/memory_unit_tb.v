@@ -74,6 +74,7 @@ initial begin
 
     // Get Next Free Memory Location
     mem_func = `GET_FREE;
+    write_data <= 4;
     mem_execute = 1;
     repeat (2) @(posedge clk);
     mem_execute = 0;
@@ -96,6 +97,7 @@ initial begin
 
     // Get Next Free Memory Location
     mem_func = `GET_FREE;
+    write_data <= 4;
     mem_execute = 1;
     repeat (2) @(posedge clk);
     mem_execute = 0;
