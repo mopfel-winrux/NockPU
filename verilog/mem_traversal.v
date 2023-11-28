@@ -26,7 +26,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
    reg [3:0] sys_func;
    reg [3:0] state;
    reg [7:0] mem_tag;
-   reg [(`memory_data_width-4)/2 - 1:0] hed, tel;
+   reg [`noun_width - 1:0] hed, tel;
    reg [`memory_addr_width - 1:0] mem_addr;
    reg [`memory_data_width - 1:0] mem_data;
    reg [7:0] debug_sig;
@@ -46,8 +46,8 @@ module mem_traversal(power, clk, rst, start_addr, execute,
 
 
    // Traversal Registers needed
-   reg [(`memory_data_width-4)/2 - 1:0] trav_P;
-   reg [(`memory_data_width-4)/2 - 1:0] trav_B;
+   reg [`noun_width - 1:0] trav_P;
+   reg [`noun_width - 1:0] trav_B;
 
    // Write Registers needed
    reg [3:0] write_return_sys_func;

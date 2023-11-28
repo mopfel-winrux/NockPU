@@ -5,7 +5,7 @@
 module mem_traversal_tb();
 
 //Test Parameters
-parameter MEM_INIT_FILE = "../memory/memory.hex";
+parameter MEM_INIT_FILE = "./memory/memory.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
