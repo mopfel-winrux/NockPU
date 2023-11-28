@@ -25,7 +25,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
    // Internal registers needed
    reg [3:0] sys_func;
    reg [3:0] state;
-   reg [7:0] mem_tag;
+   reg [`tag_width - 1:0] mem_tag;
    reg [`noun_width - 1:0] hed, tel;
    reg [`memory_addr_width - 1:0] mem_addr;
    reg [`memory_data_width - 1:0] mem_data;
@@ -36,7 +36,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
 
    // Execute Registers needed
    output reg [`memory_addr_width - 1:0] execute_address;
-   output reg [7:0] execute_tag;
+   output reg [`tag_width - 1:0] execute_tag;
    output reg [`memory_data_width - 1:0] execute_data;
    output reg mux_controller;
    input execute_finished;

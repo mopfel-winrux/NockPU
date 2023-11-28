@@ -4,6 +4,7 @@
 `define memory_data_width 64
 `define memory_addr_width 10
 `define noun_width        28
+`define tag_width         8
 `define tag_start         63
 `define tag_end           56
 `define hed_start         55

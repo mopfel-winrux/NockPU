@@ -12,7 +12,7 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
     // Interface with memory traversal
     input execute_start; // wire to begin execution (mux_conroller from traversal)
     input [`memory_addr_width - 1:0] execute_address;
-    input [7:0] execute_tag;
+    input [`tag_width - 1:0] execute_tag;
     input [`memory_data_width - 1:0] execute_data;
     output reg [3:0] execute_return_sys_func;
     output reg [3:0] execute_return_state;
@@ -39,7 +39,7 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
     reg [3:0] func_return_state;
 
     //Internal Registers
-    reg [7:0] mem_tag;
+    reg [`tag_width - 1:0] mem_tag;
     reg [`noun_width - 1:0] hed, tel;
     reg [`memory_addr_width - 1:0] mem_addr;
     reg [`memory_data_width - 1:0] mem_data;
@@ -48,7 +48,7 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
     // Stack Registers
     reg [`noun_width - 1:0] stack_P, stack_P_tel;
     reg [`noun_width - 1:0] stack_a, stack_b;
-    reg [7:0] stack_mem_tag_1, stack_mem_tag_2;
+    reg [`tag_width - 1:0] stack_mem_tag_1, stack_mem_tag_2;
     reg [3:0] stack_return_exec_func;
     reg [3:0] stack_return_state;
 

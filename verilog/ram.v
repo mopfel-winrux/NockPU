@@ -1,13 +1,13 @@
+`include "memory_unit.vh"
 module ram(
     input wire clock,
-    input wire [9:0] address,
-    input wire [63:0] data,
+    input wire [`memory_addr_width - 1:0] address,
+    input wire [`memory_data_width - 1:0] data,
     input wire wren,
-    output reg [63:0] q
+    output reg [`memory_data_width - 1:0] q
 );
 
-    // Define a 256 byte (2^68) RAM.
-    reg [63:0] ram [1023:0];
+    reg [`memory_data_width - 1:0] ram [1023:0];
 
     always @(posedge clock) begin
         if (wren) begin
