@@ -1,13 +1,13 @@
 module ram(
     input wire clock,
     input wire [9:0] address,
-    input wire [68:0] data,
+    input wire [63:0] data,
     input wire wren,
-    output reg [68:0] q
+    output reg [63:0] q
 );
 
     // Define a 256 byte (2^68) RAM.
-    reg [68:0] ram [1023:0];
+    reg [63:0] ram [1023:0];
 
     always @(posedge clock) begin
         if (wren) begin

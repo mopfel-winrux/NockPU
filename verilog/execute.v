@@ -39,7 +39,7 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
     reg [3:0] func_return_state;
 
     //Internal Registers
-    reg [4:0] mem_tag;
+    reg [7:0] mem_tag;
     reg [(`memory_data_width-4)/2 - 1:0] hed, tel;
     reg [`memory_addr_width - 1:0] mem_addr;
     reg [`memory_data_width - 1:0] mem_data;
@@ -48,7 +48,7 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
     // Stack Registers
     reg [(`memory_data_width-4)/2 - 1:0] stack_P, stack_P_tel;
     reg [(`memory_data_width-4)/2 - 1:0] stack_a, stack_b;
-    reg [4:0] stack_mem_tag_1, stack_mem_tag_2;
+    reg [7:0] stack_mem_tag_1, stack_mem_tag_2;
     reg [3:0] stack_return_exec_func;
     reg [3:0] stack_return_state;
 
@@ -327,7 +327,7 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
                                 mem_execute <= 1;
                                 exec_func <= EXE_FUNC_CONSTANT;
                                 state <= EXE_CONSTANT_WRITE_WAIT;
-                                write_data <= {5'b00011, b, 32'h0000};
+                                write_data <= {8'b00000011, b, 28'h0000};
                             end
                         end
 
@@ -381,7 +381,7 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
                                 address <= func_addr;
                                 mem_func <= `SET_CONTENTS;
                                 mem_execute <= 1;
-                                write_data <= {5'b00011, a+32'h1, 32'h0000};
+                                write_data <= {8'b00000011, a+32'h1, 32'h0000};
                                 exec_func <= func_return_exec_func;
                                 state <= func_return_state;
                             end
@@ -470,8 +470,14 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
                                 stack_mem_tag_2 <= read_data[`tag_start:`tag_end]; // read first 4 bits and store into tag for easier access
 
                                 address <= stack_P;
-                                write_data <= {stack_mem_tag_1[4], read_data[`tag_start-1], stack_mem_tag_1[2], read_data[`tag_start-3], stack_mem_tag_1[0],
-                                                read_data[`hed_start:`hed_end], trav_B}; //Set data to visited tel and b in tel while swaping opcode and a
+                                write_data <= {stack_mem_tag_1[7],
+                                               3'b000,
+                                               read_data[`tag_start-1],
+                                               stack_mem_tag_1[2],
+                                               read_data[`tag_start-3],
+                                               stack_mem_tag_1[0],
+                                               read_data[`hed_start:`hed_end],
+                                               trav_B}; //Set data to visited tel and b in tel while swaping opcode and a
                                 mem_func <= `SET_CONTENTS;
                                 mem_execute <= 1;
                                 state <= EXE_STACK_WRITE_WAIT;
@@ -485,8 +491,14 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
                         EXE_STACK_WRITE_WAIT: begin
                             if(mem_ready) begin
                                 address <= stack_P_tel;
-                                write_data <= {stack_mem_tag_2[4], stack_mem_tag_1[3], stack_mem_tag_2[2], stack_mem_tag_1[1], stack_mem_tag_2[0], 
-                                                stack_a, read_data[`tel_start:`tel_end]};
+                                write_data <= {stack_mem_tag_2[4], 
+                                               3'b000,
+                                               stack_mem_tag_1[3],
+                                               stack_mem_tag_2[2],
+                                               stack_mem_tag_1[1],
+                                               stack_mem_tag_2[0],
+                                               stack_a,
+                                               read_data[`tel_start:`tel_end]};
                                 mem_func <= `SET_CONTENTS;
                                 mem_execute <= 1;
                                 state <= EXE_STACK_CHECK_NEXT;

@@ -5,7 +5,7 @@
 module execute_tb();
 
 //Test Parameters
-parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
+parameter MEM_INIT_FILE = "./memory/constant_tb.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
@@ -52,7 +52,7 @@ wire [`memory_data_width - 1:0] write_data_nem;
 
 //Signal from MTU to NEM
 wire [`memory_addr_width - 1:0] execute_address;
-wire [4:0] execute_tag;
+wire [7:0] execute_tag;
 wire [`memory_data_width - 1:0] execute_data;
 wire execute_finished;
 wire [7:0] error;
