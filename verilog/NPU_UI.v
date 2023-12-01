@@ -52,7 +52,7 @@ wire [`memory_data_width - 1:0] write_data_nem;
 
 //Signal from MTU to NEM
 wire [`memory_addr_width - 1:0] execute_address;
-wire [4:0] execute_tag;
+wire [`tag_width - 1:0] execute_tag;
 wire [`memory_data_width - 1:0] execute_data;
 wire execute_finished;
 wire [7:0] error;

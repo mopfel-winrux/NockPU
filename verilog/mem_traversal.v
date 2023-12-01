@@ -25,8 +25,8 @@ module mem_traversal(power, clk, rst, start_addr, execute,
    // Internal registers needed
    reg [3:0] sys_func;
    reg [3:0] state;
-   reg [4:0] mem_tag;
-   reg [(`memory_data_width-4)/2 - 1:0] hed, tel;
+   reg [`tag_width - 1:0] mem_tag;
+   reg [`noun_width - 1:0] hed, tel;
    reg [`memory_addr_width - 1:0] mem_addr;
    reg [`memory_data_width - 1:0] mem_data;
    reg [7:0] debug_sig;
@@ -36,7 +36,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
 
    // Execute Registers needed
    output reg [`memory_addr_width - 1:0] execute_address;
-   output reg [4:0] execute_tag;
+   output reg [`tag_width - 1:0] execute_tag;
    output reg [`memory_data_width - 1:0] execute_data;
    output reg mux_controller;
    input execute_finished;
@@ -46,8 +46,8 @@ module mem_traversal(power, clk, rst, start_addr, execute,
 
 
    // Traversal Registers needed
-   reg [(`memory_data_width-4)/2 - 1:0] trav_P;
-   reg [(`memory_data_width-4)/2 - 1:0] trav_B;
+   reg [`noun_width - 1:0] trav_P;
+   reg [`noun_width - 1:0] trav_B;
 
    // Write Registers needed
    reg [3:0] write_return_sys_func;
@@ -158,7 +158,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
                   
                   SYS_READ_DECODE: begin
                      // If cell is marked for execution
-                     if(mem_tag[4] == 1) begin
+                     if(mem_tag[7] == 1) begin
                         sys_func <= SYS_FUNC_EXECUTE;
                         state <= SYS_EXECUTE_INIT;
                      end
