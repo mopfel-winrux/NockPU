@@ -5,7 +5,7 @@
 module execute_tb();
 
 //Test Parameters
-parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
+parameter MEM_INIT_FILE = "./memory/slot_tb.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;

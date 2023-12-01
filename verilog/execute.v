@@ -77,7 +77,10 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
               EXE_FUNC_ERROR    = 4'hF;
 
     // slot states
-    parameter EXE_SLOT_INIT                 = 4'h0;
+    parameter EXE_SLOT_INIT                 = 4'h0,
+              EXE_SLOT_CHECK_ADDR           = 4'h1,
+              EXE_SLOT_UPDATE_NODE          = 4'h2,
+              EXE_SLOT_DONE                 = 4'h3;
 
     // Constant states
     parameter EXE_CONSTANT_INIT             = 4'h0,
@@ -212,8 +215,17 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
                             else begin
                                 case(opcode)
                                     `slot: begin
-                                        exec_func <= EXE_FUNC_SLOT;
-                                        state <= EXE_SLOT_INIT;
+                                        if(mem_tag[1] == 1) begin // if b is an atom
+                                            stack_P <= trav_P;
+                                            exec_func <= EXE_FUNC_STACK;
+                                            state <= EXE_STACK_INIT;
+                                        end
+                                        else begin
+                                            // Throw error invalid increment formulation
+                                            error <= 6;
+                                            exec_func <= EXE_FUNC_ERROR;
+                                            state <= EXE_ERROR_INIT;
+                                        end
                                     end
 
                                     `constant: begin
@@ -306,9 +318,16 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
             
 
                 EXE_FUNC_SLOT: begin
-                    //case(state)
-                    $stop;
-                    //endcase
+                    case(state)
+                      EXE_SLOT_INIT: begin
+                        if (b != 1) begin
+                          state <= EXE_SLOT_UPDATE;
+                        end else begin
+                        $stop;
+                        end
+                        //b <= read_data[`tel_start:`tel_end];
+                      end
+                    endcase
                 end
 
                 EXE_FUNC_CONSTANT: begin
@@ -535,7 +554,19 @@ module execute(clk, rst, error, execute_start, execute_address, execute_tag, exe
                               state <= EXE_ERROR_INIT;
                             end
                             else if(read_data[`hed_start:`hed_end] == `slot) begin
-                              $stop;
+                              exec_func <= EXE_FUNC_SLOT;
+                              state <= EXE_SLOT_INIT;
+                              a <= stack_a;
+                              func_tag[0] <= stack_mem_tag_1[1];
+
+                              //b <= read_data[`tel_start:`tel_end];
+                              func_tag[1] <= read_data[`tag_end+1];
+
+                              func_addr <= stack_P_tel;
+                              trav_P <= stack_P_tel;
+
+                              func_return_exec_func <= EXE_FUNC_STACK;
+                              func_return_state <= EXE_STACK_POP;
                             end
                             else if(read_data[`hed_start:`hed_end] == `constant) begin
                               exec_func <= EXE_FUNC_CONSTANT;

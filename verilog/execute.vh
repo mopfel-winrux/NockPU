@@ -26,6 +26,7 @@
 `define ERROR_TEL_NOT_CELL            8'h01
 `define ERROR_INVALID_OPCODE          8'h02
 `define ERROR_INVALID_B               8'h03
+`define ERROR_INVALID_SLOT            8'h04
 
 
 `endif
