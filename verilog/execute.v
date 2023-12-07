@@ -49,7 +49,7 @@ module execute (
 
   //Registers to treat opcodes as "Functions"
   reg [`noun_width - 1:0] a, opcode, b, c, d;
-  reg [0:`noun_width - 1] la, lopcode, lb, lc, ld;
+  reg [`noun_width:0] subject;
   reg [3:0] func_tag;
   reg [`noun_width - 1:0] func_addr;
   reg [3:0] func_return_exec_func;
@@ -58,7 +58,6 @@ module execute (
   //Internal Registers
   reg [`tag_width - 1:0] mem_tag;
   reg [`noun_width - 1:0] hed, tel;
-  reg [`memory_addr_width - 1:0] subject;
   reg [`memory_addr_width - 1:0] mem_addr;
   reg [`memory_data_width - 1:0] mem_data;
   reg [`memory_addr_width - 1:0] execute_address_reg;
@@ -255,8 +254,18 @@ module execute (
                   end
 
                   `cell: begin
-                    exec_func <= EXE_FUNC_CELL;
-                    state <= EXE_CELL_INIT;
+                    if (mem_tag[0] == `CELL) begin  // if b is a cell
+                      stack_P <= trav_P;
+                      exec_func <= EXE_FUNC_STACK;
+                      state <= EXE_STACK_INIT;
+                    end else begin
+                      // Throw error invalid increment formulation
+                      error <= `ERROR_INVALID_B;
+                      exec_func <= EXE_FUNC_ERROR;
+                      state <= EXE_ERROR_INIT;
+                    end
+                    // exec_func <= EXE_FUNC_CELL;
+                    // state <= EXE_CELL_INIT;
                   end
 
                   `increment: begin
@@ -333,6 +342,7 @@ module execute (
             EXE_SLOT_INIT: begin
               b <= (read_data[`tel_start:`tel_end]<<1) | 1;
               address <= execute_data[`hed_start:`hed_end]; // Read subject
+              subject <= {execute_data[`hed_tag],execute_data[`hed_start:`hed_end]};
               mem_reg <= execute_data;
               state <= EXE_SLOT_PREP;
               mem_execute <= 1;
@@ -356,8 +366,13 @@ module execute (
                   address <= func_addr;
                   mem_execute <= 1;
                   write_data <= {
-                    1'b0,
-                    read_data[62:0]};
+                          6'b000000,
+                          subject[`noun_width],
+                          1'b1,
+                          subject[`noun_width-1:0],
+                          `NIL};
+                    //1'b0,
+                    //read_data[62:0]};
                   state <= EXE_SLOT_DONE;
                   a<=1;
                 end 
@@ -370,6 +385,7 @@ module execute (
                     if (b[`noun_width-1] == 0) begin
                       if(read_data[`hed_tag] == `CELL) begin
                         address <= read_data[`hed_start:`hed_end];
+                        subject <= {read_data[`hed_tag],read_data[`hed_start:`hed_end]};
                         mem_func <= `GET_CONTENTS;
                         mem_execute <= 1;
                         state <= EXE_SLOT_CHECK;
@@ -383,7 +399,8 @@ module execute (
                           read_data[`hed_tag],
                           1'b0,
                           read_data[`hed_start:`hed_end],
-                          28'h0000};
+                          `NIL};
+                          //28'h0000};
                         state <= EXE_SLOT_DONE;
                       end else begin
                         exec_func <= EXE_FUNC_ERROR;
@@ -393,6 +410,7 @@ module execute (
                     end else begin
                       if(read_data[`tel_tag] == `CELL) begin
                         address <= read_data[`tel_start:`tel_end];
+                        subject <= {read_data[`tel_tag],read_data[`tel_start:`tel_end]};
                         mem_func <= `GET_CONTENTS;
                         mem_execute <= 1;
                         state <= EXE_SLOT_CHECK;
@@ -406,7 +424,8 @@ module execute (
                           read_data[`tel_tag],
                           1'b0,
                           read_data[`tel_start:`tel_end],
-                          28'h0000};
+                          `NIL};
+                          //28'h0000};
                         state <= EXE_SLOT_DONE;
                       end else begin
                         exec_func <= EXE_FUNC_ERROR;
@@ -453,7 +472,7 @@ module execute (
                 mem_execute <= 1;
                 exec_func <= EXE_FUNC_CONSTANT;
                 state <= EXE_CONSTANT_WRITE_WAIT;
-                write_data <= {8'b00000011, b, 28'h0000};
+                write_data <= {8'b00000011, b, `NIL};
               end
             end
 
@@ -493,21 +512,46 @@ module execute (
         end
 
         EXE_FUNC_CELL: begin
-          //case(state)
-          $stop;
-          //endcase
+          case(state)
+            EXE_CELL_INIT: begin
+              if (mem_ready) begin
+                address <= func_addr;
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                write_data <= {8'b00000011, 27'h0, func_tag[1], 28'h0000};
+                //if(func_tag[1] == `CELL) begin:
+              //    write_data <= {8'b00000011, 28'h0, 28'h0000};
+               // end else begin
+              //    write_data <= {8'b00000011, 28'h1, 28'h0000};
+                //end
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+                read_data_reg <= read_data;
+              end
+            end
+          endcase
         end
 
         EXE_FUNC_INCR: begin
           case (state)
             EXE_INCR_A: begin
               if (mem_ready) begin
-                address <= func_addr;
-                mem_func <= `SET_CONTENTS;
-                mem_execute <= 1;
-                write_data <= {8'b00000011, a + 28'h1, 28'h0000};
-                exec_func <= func_return_exec_func;
-                state <= func_return_state;
+                c<=read_data[`tel_start:`tel_end];
+                if (read_data[`tel_start:`tel_end] != `NIL) begin
+                  error <= `ERROR_INVALID_B;
+                  exec_func <= EXE_FUNC_ERROR;
+                  state <= EXE_ERROR_INIT;
+                end else begin
+                  address <= func_addr;
+                  mem_func <= `SET_CONTENTS;
+                  mem_execute <= 1;
+                  write_data <= {8'b00000011, a + 28'h1, 28'h0000};
+                  exec_func <= func_return_exec_func;
+                  state <= func_return_state;
+                end
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -668,20 +712,6 @@ module execute (
                   func_addr <= stack_P_tel;
                   trav_P <= stack_P_tel;
 
-                  // setup to read the subject before next state
-                  //address <= stack_a;
-                  //mem_func <= `GET_CONTENTS;
-                  //mem_execute <= 1;
-
-                  //a <= stack_a;
-                  //func_tag[0] <= stack_mem_tag_1[1];
-
-                  //b <= read_data[`tel_start:`tel_end];
-                 // func_tag[1] <= read_data[`tag_end+1];
-
-                  //func_addr <= stack_P_tel;
-                  //trav_P <= stack_P_tel;
-
                   func_return_exec_func <= EXE_FUNC_STACK;
                   func_return_state <= EXE_STACK_POP;
                 end else if (read_data[`hed_start:`hed_end] == `constant) begin
@@ -761,6 +791,8 @@ module execute (
                   end
 
                   `cell: begin
+                    exec_func <= EXE_FUNC_CELL;
+                    state <= EXE_CELL_INIT;
                   end
 
                   `increment: begin

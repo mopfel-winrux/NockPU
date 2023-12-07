@@ -5,8 +5,9 @@
 module execute_tb();
 
 //Test Parameters
-//parameter MEM_INIT_FILE = "./memory/slot_tb.hex";
-parameter MEM_INIT_FILE = "./memory/inc_slot.hex";
+parameter MEM_INIT_FILE = "./memory/slot_tb.hex";
+//parameter MEM_INIT_FILE = "./memory/inc_slot.hex";
+//parameter MEM_INIT_FILE = "./memory/cell_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/constant_tb.hex";
 
 //Signal Declarations
