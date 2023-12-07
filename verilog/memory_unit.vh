@@ -4,6 +4,8 @@
 `define memory_data_width 64
 `define memory_addr_width 10
 `define noun_width        28
+`define hed_tag           57
+`define tel_tag           56
 `define tag_width         8
 `define tag_start         63
 `define tag_end           56
@@ -22,6 +24,8 @@
 `define  ATOM_CELL       2'b10
 `define  CELL_ATOM       2'b01
 `define  CELL_CELL       2'b00
+`define  CELL            1'b0
+`define  ATOM            1'b1
 
 //Memory constants
 `define NIL          28'hFFFFFFF
