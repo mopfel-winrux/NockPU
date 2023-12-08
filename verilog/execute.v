@@ -44,16 +44,19 @@ module execute (
 
   output reg mem_execute;
   output reg [`memory_addr_width - 1:0] address;
+  output reg [`memory_addr_width - 1:0] write_addr_reg;
   output reg [1:0] mem_func;
   output reg [`memory_data_width - 1:0] write_data;
 
   //Registers to treat opcodes as "Functions"
   reg [`noun_width - 1:0] a, opcode, b, c, d;
-  reg [`noun_width:0] subject;
   reg [3:0] func_tag;
   reg [`noun_width - 1:0] func_addr;
   reg [3:0] func_return_exec_func;
   reg [3:0] func_return_state;
+  // subject ois a useful register for nouns with a tag.
+  // each opcode can use this howver
+  reg [`noun_width:0] subject;
 
   //Internal Registers
   reg [`tag_width - 1:0] mem_tag;
@@ -107,7 +110,7 @@ module execute (
   parameter EXE_EVAL_INIT = 4'h0;
 
   //cell states
-  parameter EXE_CELL_INIT = 4'h0;
+  parameter EXE_CELL_INIT = 4'h0, EXE_CELL_CHECK = 4'h1, EXE_CELL_WRITE_WAIT = 4'h2;
 
   //increment states
   parameter EXE_INCR_INIT = 4'h0, EXE_INCR_A = 4'h1;
@@ -364,6 +367,7 @@ module execute (
                   state <= EXE_SLOT_DONE;
                   mem_func <= `SET_CONTENTS;
                   address <= func_addr;
+                  write_addr_reg <= func_addr;
                   mem_execute <= 1;
                   write_data <= {
                           6'b000000,
@@ -393,6 +397,7 @@ module execute (
                         state <= EXE_SLOT_DONE;
                         mem_func <= `SET_CONTENTS;
                         address <= func_addr;
+                        write_addr_reg <= func_addr;
                         mem_execute <= 1;
                         write_data <= {
                           6'b000000,
@@ -418,6 +423,7 @@ module execute (
                         state <= EXE_SLOT_DONE;
                         mem_func <= `SET_CONTENTS;
                         address <= func_addr;
+                        write_addr_reg <= func_addr;
                         mem_execute <= 1;
                         write_data <= {
                           6'b000000,
@@ -460,7 +466,7 @@ module execute (
         EXE_FUNC_CONSTANT: begin
           case (state)
             EXE_CONSTANT_INIT: begin
-              if (func_tag[1] == 1) begin
+              if (read_data[`tel_tag] == `CELL) begin
                 address <= b;
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
@@ -468,6 +474,7 @@ module execute (
                 state <= EXE_CONSTANT_READ_B;
               end else begin
                 address <= func_addr;
+                write_addr_reg <= func_addr;
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
                 exec_func <= EXE_FUNC_CONSTANT;
@@ -479,10 +486,16 @@ module execute (
             EXE_CONSTANT_READ_B: begin
               if (mem_ready) begin
                 address <= func_addr;
+                write_addr_reg <= func_addr;
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
                 state <= EXE_CONSTANT_WRITE_WAIT;
-                write_data <= read_data_reg;
+                write_data <= {6'b000000,
+                               read_data_reg[`tel_tag],
+                               1'b1,
+                               read_data_reg[`tel_start:`tel_end],
+                               `NIL};
+                //write_data <= read_data_reg;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -515,15 +528,35 @@ module execute (
           case(state)
             EXE_CELL_INIT: begin
               if (mem_ready) begin
+                address <= write_addr_reg;
+                state <= EXE_CELL_CHECK;
+                mem_execute <= 1;
+                mem_func <= `GET_CONTENTS;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+                read_data_reg <= read_data;
+              end
+            end
+
+            EXE_CELL_CHECK: begin
+              if (mem_ready) begin
                 address <= func_addr;
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
-                write_data <= {8'b00000011, 27'h0, func_tag[1], 28'h0000};
-                //if(func_tag[1] == `CELL) begin:
-              //    write_data <= {8'b00000011, 28'h0, 28'h0000};
-               // end else begin
-              //    write_data <= {8'b00000011, 28'h1, 28'h0000};
-                //end
+                write_data <= {8'b00000011,
+                              27'h0, read_data[`hed_tag],
+                              `NIL};
+                state <= EXE_CELL_WRITE_WAIT;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+                read_data_reg <= read_data;
+              end
+            end
+
+            EXE_CELL_WRITE_WAIT: begin
+              if (mem_ready) begin
                 exec_func <= func_return_exec_func;
                 state <= func_return_state;
               end else begin
@@ -532,23 +565,42 @@ module execute (
                 read_data_reg <= read_data;
               end
             end
+
           endcase
         end
 
         EXE_FUNC_INCR: begin
           case (state)
+            EXE_INCR_INIT: begin
+              if (mem_ready) begin
+                address <= write_addr_reg;
+                mem_reg <= execute_data;
+                state <= EXE_INCR_A;
+                mem_execute <= 1;
+                mem_func <= `GET_CONTENTS;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+                read_data_reg <= read_data;
+              end
+            end
+
             EXE_INCR_A: begin
               if (mem_ready) begin
-                c<=read_data[`tel_start:`tel_end];
-                if (read_data[`tel_start:`tel_end] != `NIL) begin
+                if (read_data[`hed_tag] == `CELL) begin
                   error <= `ERROR_INVALID_B;
                   exec_func <= EXE_FUNC_ERROR;
                   state <= EXE_ERROR_INIT;
                 end else begin
                   address <= func_addr;
+                  write_addr_reg <= func_addr;
                   mem_func <= `SET_CONTENTS;
                   mem_execute <= 1;
-                  write_data <= {8'b00000011, a + 28'h1, 28'h0000};
+                  write_data <= {6'b000000,
+                                 read_data[`hed_tag],
+                                 1'b1, 
+                                 read_data[`hed_start:`hed_end] + 28'h1,
+                                 `NIL};
                   exec_func <= func_return_exec_func;
                   state <= func_return_state;
                 end
@@ -797,7 +849,7 @@ module execute (
 
                   `increment: begin
                     exec_func <= EXE_FUNC_INCR;
-                    state <= EXE_INCR_A;
+                    state <= EXE_INCR_INIT;
                   end
 
                   `equality: begin
