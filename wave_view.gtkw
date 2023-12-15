@@ -1,19 +1,19 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Fri May 12 18:10:22 2023
+[*] Thu Dec  7 18:10:47 2023
 [*]
 [dumpfile] "/home/amadeo/git/NockPU/waveform.vcd"
-[dumpfile_mtime] "Fri May 12 17:43:08 2023"
-[dumpfile_size] 193787
+[dumpfile_mtime] "Thu Dec  7 18:08:37 2023"
+[dumpfile_size] 186355
 [savefile] "/home/amadeo/git/NockPU/wave_view.gtkw"
 [timestart] 0
-[size] 1846 913
-[pos] -39 -39
-*-8.000000 90 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[size] 1882 913
+[pos] -1 -1
+*-9.000000 1398 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] execute_tb.
 [treeopen] execute_tb.mem.
 [sst_width] 233
-[signals_width] 190
+[signals_width] 467
 [sst_expanded] 1
 [sst_vpaned_height] 253
 @200
@@ -26,34 +26,73 @@ execute_tb.traversal_finished
 @200
 -RAM
 @22
-execute_tb.mem.ram.\ram[0][68:0]
-execute_tb.mem.ram.\ram[1][68:0]
-execute_tb.mem.ram.\ram[2][68:0]
-execute_tb.mem.ram.\ram[4][68:0]
-execute_tb.mem.ram.\ram[5][68:0]
-execute_tb.mem.ram.\ram[6][68:0]
+execute_tb.memory_mux.address[9:0]
+execute_tb.mem.ram.\ram[0][63:0]
+execute_tb.mem.ram.\ram[1][63:0]
+execute_tb.mem.ram.\ram[2][63:0]
+execute_tb.mem.ram.\ram[3][63:0]
+execute_tb.mem.ram.\ram[4][63:0]
+execute_tb.mem.ram.\ram[5][63:0]
+execute_tb.mem.ram.\ram[6][63:0]
+execute_tb.execute.error[7:0]
 @200
 -Execute
 @28
 execute_tb.execute.execute_start
 execute_tb.execute.finished
 @22
+execute_tb.execute.address[9:0]
+@28
+execute_tb.execute.mem_func[1:0]
+@22
+execute_tb.execute.read_data[63:0]
+@28
+execute_tb.execute.mem_ready
+@22
 execute_tb.execute.exec_func[3:0]
 execute_tb.execute.state[3:0]
-execute_tb.execute.a[31:0]
-execute_tb.execute.b[31:0]
-execute_tb.execute.mem_tag[4:0]
-execute_tb.execute.stack_a[31:0]
-execute_tb.execute.stack_b[31:0]
-@200
--Traversal
+execute_tb.execute.error[7:0]
 @28
 execute_tb.traversal.execute
 execute_tb.traversal.execute_finished
-@23
-execute_tb.traversal.execute_address[9:0]
 @22
-execute_tb.traversal.execute_data[68:0]
+execute_tb.traversal.execute_address[9:0]
 execute_tb.traversal.address[9:0]
+execute_tb.execute.a[27:0]
+@c00022
+execute_tb.execute.b[27:0]
+@28
+(0)execute_tb.execute.b[27:0]
+(1)execute_tb.execute.b[27:0]
+(2)execute_tb.execute.b[27:0]
+(3)execute_tb.execute.b[27:0]
+(4)execute_tb.execute.b[27:0]
+(5)execute_tb.execute.b[27:0]
+(6)execute_tb.execute.b[27:0]
+(7)execute_tb.execute.b[27:0]
+(8)execute_tb.execute.b[27:0]
+(9)execute_tb.execute.b[27:0]
+(10)execute_tb.execute.b[27:0]
+(11)execute_tb.execute.b[27:0]
+(12)execute_tb.execute.b[27:0]
+(13)execute_tb.execute.b[27:0]
+(14)execute_tb.execute.b[27:0]
+(15)execute_tb.execute.b[27:0]
+(16)execute_tb.execute.b[27:0]
+(17)execute_tb.execute.b[27:0]
+(18)execute_tb.execute.b[27:0]
+(19)execute_tb.execute.b[27:0]
+(20)execute_tb.execute.b[27:0]
+(21)execute_tb.execute.b[27:0]
+(22)execute_tb.execute.b[27:0]
+(23)execute_tb.execute.b[27:0]
+(24)execute_tb.execute.b[27:0]
+(25)execute_tb.execute.b[27:0]
+(26)execute_tb.execute.b[27:0]
+(27)execute_tb.execute.b[27:0]
+@1401200
+-group_end
+@201
+-Traversal
 [pattern_trace] 1
 [pattern_trace] 0

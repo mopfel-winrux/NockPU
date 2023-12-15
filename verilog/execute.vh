@@ -27,6 +27,8 @@
 `define ERROR_INVALID_OPCODE          8'h02
 `define ERROR_INVALID_B               8'h03
 `define ERROR_INVALID_SLOT            8'h04
+`define ERROR_INVALID_SLOT_HED        8'h05
+`define ERROR_INVALID_SLOT_TEL        8'h06
 
 
 `endif
