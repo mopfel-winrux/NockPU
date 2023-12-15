@@ -3,7 +3,7 @@ This document shows how the nockpu should handle the following nock code:
 
 `*[[50 51] [2 [0 3] [1 [4 0 1]]]]` -> `*[*[[50 51] [0 3]] *[[50 51] [1 [4 0 1]]]]`
 
-
+```
 Addr | Data (hex)           | New Data (hex)     | Notes
 0x00 | 00 0000000 0000009   | 00 0000000 000000A | Total Bytes only matters for compiler not for NPU
 0x01 | 80 0000002 0000003   | 80 0000009 0000003 | Step 1: Get N free cells ned to rewrite main
@@ -16,6 +16,7 @@ Addr | Data (hex)           | New Data (hex)     | Notes
 0x08 | 03 0000000 0000001   | 03 0000000 0000001 | Not changing just executing
 0x09 | X                    | 80 0000002 0000005 | Step 2: first execute is [subject tel->tel->hed]
 0x0A | X                    | X
+```
 
 Possible optimizations:
 
@@ -23,6 +24,7 @@ I can save the tel->tel in a register and use its address to place the first exe
 
 That would look like this:
 
+```
 Addr | Data (hex)           | New Data (hex)     | Notes
 0x00 | 00 0000000 0000009   | 00 0000000 000000A | Total Bytes only matters for compiler not for NPU
 0x01 | 80 0000002 0000003   | 80 0000004 0000003 | Step 1: save tel->tel values. write addr to hed
@@ -35,5 +37,5 @@ Addr | Data (hex)           | New Data (hex)     | Notes
 0x08 | 03 0000000 0000001   | 03 0000000 0000001 | Not changing just executing
 0x09 | X                    | X
 0x0A | X                    | X
-
+```
 
