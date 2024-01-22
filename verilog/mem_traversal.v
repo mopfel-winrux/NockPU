@@ -44,6 +44,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
    input [3:0] execute_return_state;
 
 
+   reg [0:0] debug_flag;
 
    // Traversal Registers needed
    reg [`noun_width - 1:0] trav_P;
@@ -91,6 +92,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
          mem_execute <= 0;
          debug_sig <= 0;
          mux_controller <= 0;
+         debug_flag <=0;
          
       end
       else if (execute) begin
@@ -99,6 +101,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
             SYS_FUNC_EXECUTE: begin
                case(state)
                   SYS_EXECUTE_INIT: begin
+                    debug_flag <=0;
                      execute_address <= mem_addr;
                      execute_data <= mem_data;
                      execute_tag <= mem_tag;
@@ -126,6 +129,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
             SYS_FUNC_READ: begin
                case(state)
                   SYS_READ_INIT: begin
+                    debug_flag <=0;
                      if(mem_addr == 1023) begin // mem_addr is only max when you reach the end and use trav_b's inital value
                         is_finished_reg <= 1;
                      end
@@ -176,6 +180,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
             SYS_FUNC_WRITE: begin
                case(state)
                   SYS_WRITE_INIT: begin
+                    debug_flag <=0;
                      address <= mem_addr;
                      write_data <= {mem_tag, hed, tel};
                      mem_func <= `SET_CONTENTS;
@@ -202,6 +207,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
             SYS_FUNC_TRAVERSE: begin
                case(state)
                   SYS_TRAVERSE_INIT: begin
+                    debug_flag <=1;
                         case(mem_tag[1:0])
                            `CELL_CELL: begin
                               if(mem_tag[3:2] == 2'b00) begin // if the hed cell hasn't been visited we push into it

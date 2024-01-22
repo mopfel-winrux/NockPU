@@ -31,7 +31,7 @@ Addr | Data (hex)           | New Data (hex)     | Notes
 0x02 | 03 0000032 0000033   | 03 0000032 0000033 | Not chaning subject, Save this address in register
 0x03 | 02 0000002 0000004   | 80 0000002 0000006 | Step 3: second execute is [subject tel->tel->tel]
 0x04 | 00 0000005 0000006   | 80 0000002 0000005 | Step 2: first execute is [subject tel->tel->hed]
-0x05 | 03 0000000 0000003   | X                  | Don't care GC will take care of this
+0x05 | 03 0000000 0000003   | 80 0000000 0000003 | Not changing just executing
 0x06 | 02 0000001 0000007   | 02 0000001 0000007 | Not changing just executing 
 0x07 | 02 0000004 0000007   | 02 0000004 0000007 | Not changing just executing
 0x08 | 03 0000000 0000001   | 03 0000000 0000001 | Not changing just executing
