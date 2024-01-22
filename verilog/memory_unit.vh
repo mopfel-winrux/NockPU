@@ -5,6 +5,7 @@
 `define memory_addr_width 10
 `define noun_width        28
 `define noun_tag_width    1
+`define execute_bit       63
 `define hed_tag           57
 `define tel_tag           56
 `define tag_width         8

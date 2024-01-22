@@ -570,7 +570,7 @@ module execute (
               mem_func <= `SET_CONTENTS;
               mem_execute <= 1;
               state <= EXE_EVAL_READ_TEL_TEL;
-              write_data <= {6'b000000,
+              write_data <= {6'b100000,
                              read_data_reg[`hed_tag],
                              execute_data[`tel_tag],
                              read_data[`tel_start:`tel_end],
