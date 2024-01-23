@@ -10,6 +10,7 @@ module execute_tb();
 parameter MEM_INIT_FILE = "./memory/evaluate.hex";
 //parameter MEM_INIT_FILE = "./memory/evaluate2.hex";
 //parameter MEM_INIT_FILE = "./memory/evaluate3.hex";
+//parameter MEM_INIT_FILE = "./memory/cell_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/constant_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
 //parameter MEM_INIT_FILE = "./memory/increment.hex";
