@@ -733,12 +733,12 @@ module execute (
             EXE_INCR_A: begin
               if (mem_ready) begin
                 if (read_data[`hed_tag] == `CELL) begin
-                      stack_P <= trav_P;
-                      exec_func <= EXE_FUNC_STACK;
-                      state <= EXE_STACK_INIT;
-                  //error <= `ERROR_INVALID_B_INCR;
-                  //exec_func <= EXE_FUNC_ERROR;
-                  //state <= EXE_ERROR_INIT;
+                      //stack_P <= trav_P;
+                      //exec_func <= EXE_FUNC_STACK;
+                      //state <= EXE_STACK_INIT;
+                  error <= `ERROR_INVALID_B_INCR;
+                  exec_func <= EXE_FUNC_ERROR;
+                  state <= EXE_ERROR_INIT;
                 end else begin
                   address <= func_addr;
                   write_addr_reg <= func_addr;
@@ -908,7 +908,7 @@ module execute (
 
                   b <= read_data[`tel_start:`tel_end];
 
-                  func_addr <= stack_P;
+                  func_addr <= address;
                   trav_P <= stack_P_tel;
 
                   func_return_exec_func <= EXE_FUNC_STACK;
@@ -969,7 +969,6 @@ module execute (
                 func_addr <= trav_B;
 
                 if(read_data[`tel_end+9:`tel_end] ==  1023) begin // mem_addr is only max when you reach the end and use trav_b's inital value
-      debug_sig <= 1;
                   func_return_exec_func <= EXE_FUNC_INIT;
                   func_return_state <= EXE_INIT_FINISHED;
                 end else begin
@@ -977,47 +976,54 @@ module execute (
                   func_return_state <= EXE_STACK_POP;
                 end
 
-                case (read_data[`hed_start:`hed_end])
-                  `slot: begin
-                  end
+                if(read_data[`tel_start:`tel_end] == `NIL && read_data[`tel_tag] == `ATOM) begin
+      debug_sig <= 1;
+                  exec_func <= EXE_FUNC_INIT;
+                  state <= EXE_INIT_FINISHED;
+                end else begin
 
-                  `constant: begin
-                  end
+                  case (read_data[`hed_start:`hed_end])
+                    `slot: begin
+                    end
 
-                  `evaluate: begin
-                  end
+                    `constant: begin
+                    end
 
-                  `cell: begin
-                    exec_func <= EXE_FUNC_CELL;
-                    state <= EXE_CELL_INIT;
-                  end
+                    `evaluate: begin
+                    end
 
-                  `increment: begin
-                    exec_func <= EXE_FUNC_INCR;
-                    state <= EXE_INCR_INIT;
-                  end
+                    `cell: begin
+                      exec_func <= EXE_FUNC_CELL;
+                      state <= EXE_CELL_INIT;
+                    end
 
-                  `equality: begin
-                  end
+                    `increment: begin
+                      exec_func <= EXE_FUNC_INCR;
+                      state <= EXE_INCR_INIT;
+                    end
 
-                  `if_then_else: begin
-                  end
+                    `equality: begin
+                    end
 
-                  `compose: begin
-                  end
+                    `if_then_else: begin
+                    end
 
-                  `extend: begin
-                  end
+                    `compose: begin
+                    end
 
-                  `invoke: begin
-                  end
+                    `extend: begin
+                    end
 
-                  `replace: begin
-                  end
+                    `invoke: begin
+                    end
 
-                  `hint: begin
-                  end
-                endcase
+                    `replace: begin
+                    end
+
+                    `hint: begin
+                    end
+                  endcase
+                end
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
