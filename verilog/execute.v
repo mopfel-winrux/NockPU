@@ -106,7 +106,8 @@ module execute (
   parameter EXE_SLOT_INIT                 = 4'h0,
             EXE_SLOT_PREP                   = 4'h1,
               EXE_SLOT_CHECK                = 4'h2,
-              EXE_SLOT_DONE                 = 4'h3;
+              EXE_SLOT_DONE                 = 4'h3,
+              EXE_SLOT_CELL_OF_NIL          = 4'h4;
 
   // Constant states
   parameter EXE_CONSTANT_INIT = 4'h0, EXE_CONSTANT_READ_B = 4'h1, EXE_CONSTANT_WRITE_WAIT = 4'h2;
@@ -122,7 +123,7 @@ module execute (
   parameter EXE_CELL_INIT = 4'h0, EXE_CELL_CHECK = 4'h1, EXE_CELL_WRITE_WAIT = 4'h2;
 
   //increment states
-  parameter EXE_INCR_INIT = 4'h0, EXE_INCR_A = 4'h1;
+  parameter EXE_INCR_INIT = 4'h0, EXE_INCR_A = 4'h1, EXE_INCR_WAIT = 4'h2;
 
   //equal states
   parameter EXE_EQUAL_INIT = 4'h0;
@@ -423,26 +424,66 @@ module execute (
               b <= b << 1;
             end
 
-
-            // [[32 33] [42 43]] [0 4]
-            EXE_SLOT_CHECK: begin
+            EXE_SLOT_CELL_OF_NIL: begin
               if (mem_ready) begin
-                if ( b == 28'h8000000) begin
-                  state <= EXE_SLOT_DONE;
-                  mem_func <= `SET_CONTENTS;
-                  address <= func_addr;
-                  write_addr_reg <= func_addr;
-                  mem_execute <= 1;
+                debug_sig <= 6;
+                state <= EXE_SLOT_DONE;
+                mem_func <= `SET_CONTENTS;
+                address <= func_addr;
+                write_addr_reg <= func_addr;
+                mem_execute <= 1;
+                state <= EXE_SLOT_DONE;
+
+                if(read_data[`tel_start:`tel_end] == `NIL && read_data[`tel_tag] == `ATOM) begin
+                  write_data <= {
+                          6'b000000,
+                          read_data[`hed_tag],
+                          1'b1,
+                          read_data[`hed_start:`hed_end],
+                          `NIL};
+                end else begin
                   write_data <= {
                           6'b000000,
                           subject_tag,
                           1'b1,
                           subject,
                           `NIL};
-                    //1'b0,
-                    //read_data[62:0]};
-                  state <= EXE_SLOT_DONE;
-                  a<=1;
+                end
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            // [[32 33] [42 43]] [0 4]
+            EXE_SLOT_CHECK: begin
+              if (mem_ready) begin
+                if ( b == 28'h8000000) begin
+                  debug_sig <= 5;
+                  
+                  // need to do check to make sure the cell isn't [atom NIL]
+                  if(subject_tag == `CELL) begin
+                    state <= EXE_SLOT_CELL_OF_NIL;
+                    address <= subject;
+                    mem_func <= `GET_CONTENTS;
+                    mem_execute <= 1;
+                  end else begin
+                    state <= EXE_SLOT_DONE;
+                    mem_func <= `SET_CONTENTS;
+                    address <= func_addr;
+                    write_addr_reg <= func_addr;
+                    mem_execute <= 1;
+                    write_data <= {
+                            6'b000000,
+                            subject_tag,
+                            1'b1,
+                            subject,
+                            `NIL};
+                      //1'b0,
+                      //read_data[62:0]};
+                    state <= EXE_SLOT_DONE;
+                    a<=1;
+                  end
                 end 
                 else if (execute_data[`hed_tag] == `ATOM) begin
                   exec_func <= EXE_FUNC_ERROR;
@@ -733,9 +774,6 @@ module execute (
             EXE_INCR_A: begin
               if (mem_ready) begin
                 if (read_data[`hed_tag] == `CELL) begin
-                      //stack_P <= trav_P;
-                      //exec_func <= EXE_FUNC_STACK;
-                      //state <= EXE_STACK_INIT;
                   error <= `ERROR_INVALID_B_INCR;
                   exec_func <= EXE_FUNC_ERROR;
                   state <= EXE_ERROR_INIT;
@@ -749,8 +787,9 @@ module execute (
                                  1'b1, 
                                  read_data[`hed_start:`hed_end] + 28'h1,
                                  `NIL};
-                  exec_func <= func_return_exec_func;
-                  state <= func_return_state;
+                  //exec_func <= func_return_exec_func;
+                  //state <= func_return_state;
+                  state <= EXE_INCR_WAIT;
                 end
               end else begin
                 mem_func <= 0;
@@ -758,6 +797,18 @@ module execute (
                 read_data_reg <= read_data;
               end
             end
+
+            EXE_INCR_WAIT: begin
+              if(mem_ready) begin
+                  exec_func <= func_return_exec_func;
+                  state <= func_return_state;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+                read_data_reg <= read_data;
+              end
+            end
+
           endcase
         end
 
@@ -833,18 +884,18 @@ module execute (
 
             EXE_STACK_READ_WAIT_2: begin //D2
               if (mem_ready) begin
-                stack_b <= read_data_reg[`tel_start:`tel_end];
-                stack_mem_tag_2 <= read_data_reg[`tag_start:`tag_end];
+                stack_b <= read_data[`tel_start:`tel_end];
+                stack_mem_tag_2 <= read_data[`tag_start:`tag_end];
 
                 address <= stack_P;
                 write_data <= {
                   stack_mem_tag_1[7],
                   3'b000,
-                  read_data_reg[`tag_start-1],
+                  read_data[`tag_start-1],
                   stack_mem_tag_1[2],
-                  read_data_reg[`tag_start-3],
+                  read_data[`tag_start-3],
                   stack_mem_tag_1[0],
-                  read_data_reg[`hed_start:`hed_end],
+                  read_data[`hed_start:`hed_end],
                   trav_B
                 };  //Set data to visited tel and b in tel while swaping opcode and a
                 mem_func <= `SET_CONTENTS;
@@ -977,7 +1028,6 @@ module execute (
                 end
 
                 if(read_data[`tel_start:`tel_end] == `NIL && read_data[`tel_tag] == `ATOM) begin
-      debug_sig <= 1;
                   exec_func <= EXE_FUNC_INIT;
                   state <= EXE_INIT_FINISHED;
                 end else begin
