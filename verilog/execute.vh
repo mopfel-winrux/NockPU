@@ -25,10 +25,11 @@
 // Error Definitions
 `define ERROR_TEL_NOT_CELL            8'h01
 `define ERROR_INVALID_OPCODE          8'h02
-`define ERROR_INVALID_B               8'h03
-`define ERROR_INVALID_SLOT            8'h04
-`define ERROR_INVALID_SLOT_HED        8'h05
-`define ERROR_INVALID_SLOT_TEL        8'h06
+`define ERROR_INVALID_B_CELL          8'h03
+`define ERROR_INVALID_B_INCR          8'h04
+`define ERROR_INVALID_SLOT            8'h05
+`define ERROR_INVALID_SLOT_HED        8'h06
+`define ERROR_INVALID_SLOT_TEL        8'h07
 
 
 `endif
