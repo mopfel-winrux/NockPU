@@ -227,7 +227,6 @@ module execute (
                 // if data is [cell NIL] read hed
                 if(read_data[`tel_start:`tel_end] ==`NIL && read_data[`tel_tag] == `ATOM) begin
                   if(read_data[`hed_tag] == `CELL) begin
-                    debug_sig <= 7;
                     address <= read_data[`hed_start:`hed_end];
                     mem_func <= `GET_CONTENTS;
                     mem_execute <= 1;
@@ -256,7 +255,6 @@ module execute (
 
             EXE_INIT_WRIT_TEL: begin
               if (mem_ready) begin
-                    debug_sig <= 22;
                 write_addr_reg <= execute_address;
                 mem_execute <= 1;
                 write_data <= {execute_data[`tag_start:`tag_end],
@@ -336,7 +334,6 @@ module execute (
                       state <= EXE_STACK_INIT;
                     end else begin
                       // Throw error invalid increment formulation
-                      debug_sig <= 16;
                       error <= `ERROR_INVALID_B_INCR;
                       exec_func <= EXE_FUNC_ERROR;
                       state <= EXE_ERROR_INIT;
@@ -736,7 +733,6 @@ module execute (
             EXE_INCR_A: begin
               if (mem_ready) begin
                 if (read_data[`hed_tag] == `CELL) begin
-                  debug_sig <= 12;
                       stack_P <= trav_P;
                       exec_func <= EXE_FUNC_STACK;
                       state <= EXE_STACK_INIT;
@@ -851,7 +847,6 @@ module execute (
                   read_data_reg[`hed_start:`hed_end],
                   trav_B
                 };  //Set data to visited tel and b in tel while swaping opcode and a
-                if(trav_B == `NIL) debug_sig <= 32;
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
                 state <= EXE_STACK_WRITE_WAIT;
@@ -913,7 +908,7 @@ module execute (
 
                   b <= read_data[`tel_start:`tel_end];
 
-                  func_addr <= stack_P_tel;
+                  func_addr <= stack_P;
                   trav_P <= stack_P_tel;
 
                   func_return_exec_func <= EXE_FUNC_STACK;
@@ -931,7 +926,6 @@ module execute (
                   func_return_exec_func <= EXE_FUNC_STACK;
                   func_return_state <= EXE_STACK_POP;
                 end else begin
-                  debug_sig<=33;
                   stack_P <= stack_P_tel;
                   state   <= EXE_STACK_INIT;
                 end
@@ -975,6 +969,7 @@ module execute (
                 func_addr <= trav_B;
 
                 if(read_data[`tel_end+9:`tel_end] ==  1023) begin // mem_addr is only max when you reach the end and use trav_b's inital value
+      debug_sig <= 1;
                   func_return_exec_func <= EXE_FUNC_INIT;
                   func_return_state <= EXE_INIT_FINISHED;
                 end else begin
