@@ -37,7 +37,7 @@ wire mem_ready;
 wire [3:0] state;
 
 
-// Instantiate Memory Unit 
+// Instantiate Memory Unit
 memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
                 .address (addr),
@@ -53,85 +53,85 @@ memory_unit mem(.func (mem_func),
 
 // Setup Clock
 initial begin
-    MAX10_CLK1_50 =0;
-    forever MAX10_CLK1_50 = #10 ~MAX10_CLK1_50;
+  MAX10_CLK1_50 =0;
+  forever MAX10_CLK1_50 = #10 ~MAX10_CLK1_50;
 end
 
 integer idx;
 
 // Perform Test
-initial begin 
-    if (MEM_INIT_FILE != "") begin
-        $readmemh(MEM_INIT_FILE, mem.ram.ram);
-    end
-    $dumpfile("memory_unit_tb.vcd");
-    $dumpvars(0, memory_unit_tb);
+initial begin
+  if (MEM_INIT_FILE != "") begin
+    $readmemh(MEM_INIT_FILE, mem.ram.ram);
+  end
+  $dumpfile("memory_unit_tb.vcd");
+  $dumpvars(0, memory_unit_tb);
 
-    for (idx = 0; idx < 1023; idx = idx+1) begin
-      $dumpvars(0,mem.ram.ram[idx]);
-    end
-
-
-    mem_execute = 0;
-    // Reset
-    reset = 1'b0;
-    repeat (2) @(posedge clk);
-    reset = 1'b1;
-    wait (mem_ready == 1'b1);
+  for (idx = 0; idx < 1023; idx = idx+1) begin
+    $dumpvars(0,mem.ram.ram[idx]);
+  end
 
 
-    // Get Next Free Memory Location
-    mem_func = `GET_FREE;
-    write_data <= 1;
+  mem_execute = 0;
+  // Reset
+  reset = 1'b0;
+  repeat (2) @(posedge clk);
+  reset = 1'b1;
+  wait (mem_ready == 1'b1);
+
+
+  // Get Next Free Memory Location
+  mem_func = `GET_FREE;
+  write_data <= 1;
+  mem_execute = 1;
+  repeat (2) @(posedge clk);
+  mem_execute = 0;
+  free_addr_reg = free_addr;
+  wait (mem_ready == 1'b1);
+
+  repeat (1) @(posedge clk);
+
+
+  // Write to Free Addr
+  write_data = MEM_WRITE_DATA;
+  addr = free_addr_reg;
+  mem_func = `SET_CONTENTS;
+  mem_execute = 1;
+  repeat (2) @(posedge clk);
+  mem_execute = 0;
+  wait (mem_ready == 1'b1);
+
+  repeat (1) @(posedge clk);
+
+  // Get Next Free Memory Location
+  mem_func = `GET_FREE;
+  write_data <= 4;
+  mem_execute = 1;
+  repeat (2) @(posedge clk);
+  mem_execute = 0;
+  free_addr_reg = free_addr;
+  wait (mem_ready == 1'b1);
+
+  repeat (1) @(posedge clk);
+
+  // Begin Read
+  mem_func = `GET_CONTENTS;
+
+  addr = 0;
+
+  while(addr < free_addr_reg +1) begin
     mem_execute = 1;
     repeat (2) @(posedge clk);
+
     mem_execute = 0;
-    free_addr_reg = free_addr;
+
     wait (mem_ready == 1'b1);
 
-    repeat (1) @(posedge clk);
-
-
-    // Write to Free Addr
-    write_data = MEM_WRITE_DATA;
-    addr = free_addr_reg;
-    mem_func = `SET_CONTENTS;
-    mem_execute = 1;
+    addr = addr +1;
     repeat (2) @(posedge clk);
-    mem_execute = 0;
-    wait (mem_ready == 1'b1);
-    
-    repeat (1) @(posedge clk);
+  end
 
-    // Get Next Free Memory Location
-    mem_func = `GET_FREE;
-    write_data <= 4;
-    mem_execute = 1;
-    repeat (2) @(posedge clk);
-    mem_execute = 0;
-    free_addr_reg = free_addr;
-    wait (mem_ready == 1'b1);
-    
-    repeat (1) @(posedge clk);
-
-    // Begin Read
-    mem_func = `GET_CONTENTS;
-
-    addr = 0;
-
-    while(addr < free_addr_reg +1)
-        begin
-            mem_execute = 1;
-            repeat (2) @(posedge clk);
-
-            mem_execute = 0;
-
-            wait (mem_ready == 1'b1);
-
-            addr = addr +1;
-            repeat (2) @(posedge clk);
-        end
-    $stop;
+  $stop;
 end
 
 endmodule

@@ -59,7 +59,7 @@ wire [7:0] error;
 wire [3:0] execute_return_sys_func;
 wire [3:0] execute_return_state;
 
-// Instantiate Memory Unit 
+// Instantiate Memory Unit
 memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
                 .address (address),
@@ -104,9 +104,9 @@ mem_traversal traversal(.power (power),
                         .finished(traversal_finished),
                         .error(error),
                         .mux_controller(select),
-                        .execute_address(execute_address), 
-                        .execute_tag(execute_tag), 
-                        .execute_data(execute_data), 
+                        .execute_address(execute_address),
+                        .execute_tag(execute_tag),
+                        .execute_data(execute_data),
                         .execute_finished(execute_finished),
                         .execute_return_sys_func(execute_return_sys_func),
                         .execute_return_state(execute_return_state));
@@ -131,7 +131,7 @@ execute execute(.clk(clk),
                 .execute_return_state(execute_return_state));
 
 // Perform Test
-initial begin 
+initial begin
 
     start_addr = 1;
     // Reset
