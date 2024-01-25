@@ -1,5 +1,6 @@
 `include "memory_unit.vh"
 `include "mem_traversal.vh"
+`include "execute.vh"
 
 
 module mem_traversal(power, clk, rst, start_addr, execute, 
@@ -43,6 +44,12 @@ module mem_traversal(power, clk, rst, start_addr, execute,
    input [3:0] execute_return_sys_func;
    input [3:0] execute_return_state;
 
+   // General Purpose Regsiters
+   output reg [`memory_addr_width - 1:0] address_gp;
+   output reg [`memory_data_width - 1:0] mem_data_gp;
+   output reg [`noun_width - 1:0] noun_gp;
+   output reg [`noun_tag_width - 1:0] noun_tag_gp;
+   // [[50 51] [2 [0 3] [1 [4 0 1]]]]
 
 
    // Traversal Registers needed
@@ -76,8 +83,11 @@ module mem_traversal(power, clk, rst, start_addr, execute,
    
    // Execute States
    parameter SYS_EXECUTE_INIT       = 4'h0,
-             SYS_EXECUTE_WAIT       = 4'h1,
-             SYS_EXECUTE_DECODE     = 4'h2,
+             SYS_EXECUTE_READ_HED   = 4'h1,
+             SYS_EXECUTE_READ_TEL   = 4'h2,
+             SYS_EXECUTE_WAIT       = 4'h3,
+             SYS_EXECUTE_DECODE     = 4'h4,
+             SYS_EXECUTE_READ_ADDR  = 4'h5,
              SYS_EXECUTE_ERROR       = 4'hF;
    
    always@(posedge clk or negedge rst) begin
@@ -99,25 +109,134 @@ module mem_traversal(power, clk, rst, start_addr, execute,
             SYS_FUNC_EXECUTE: begin
                case(state)
                   SYS_EXECUTE_INIT: begin
+                    if(read_data[`hed_tag] == `CELL) begin
+                      //Read head and check if it is execute
+                      mem_data_gp <= read_data;
+                      address <= read_data[`hed_start:`hed_end];
+                      mem_func <= `GET_CONTENTS;
+                      mem_execute <= 1;
+                      state <= SYS_EXECUTE_READ_HED;
+
+                    end else if (read_data[`tel_tag] == `CELL) begin
+                      //Read head and check if it is execute
+                      mem_data_gp <= read_data;
+                      address <= read_data[`tel_start:`tel_end];
+                      mem_func <= `GET_CONTENTS;
+                      mem_execute <= 1;
+                      state <= SYS_EXECUTE_READ_TEL;
+                    end 
+                    else begin
+                      address <= mem_data[`tel_start:`tel_end];
+                      mem_func <= `GET_CONTENTS;
+                      mem_execute <= 1;
+                      execute_address <= mem_addr;
+                      execute_data <= mem_data;
+                      execute_tag <= mem_tag;
+                      mux_controller <= 1;
+                      debug_sig <= 3;
+                      state <= SYS_EXECUTE_WAIT;
+                    end
+                  end
+
+                  SYS_EXECUTE_READ_HED: begin
+                    if(mem_ready) begin
+                      if(read_data[`execute_bit]==1) begin
+                        // If we need to execute the hed
+                        sys_func <= SYS_FUNC_TRAVERSE;
+                        state <= SYS_TRAVERSE_INIT;
+                      end
+                      else begin
+                        if (mem_data_gp[`tel_tag]==`CELL) begin
+                          // if the tel of the parent is a cell
+                          mem_data_gp <= read_data;
+                          address <= mem_data_gp[`tel_start:`tel_end];
+                          mem_func <= `GET_CONTENTS;
+                          mem_execute <= 1;
+                          state <= SYS_EXECUTE_READ_TEL;
+                        end
+                        else begin
+                          // if not executing hed and parent then pass data to
+                          // the execute block
+                          address <= mem_data_gp[`tel_start:`tel_end];
+                          mem_func <= `GET_CONTENTS;
+                          mem_execute <= 1;
+                          execute_address <= mem_addr;
+                          execute_data <= mem_data;
+                          execute_tag <= mem_tag;
+                          mux_controller <= 1;
+                          debug_sig <= 2;
+                          state <= SYS_EXECUTE_WAIT;      
+                        end
+                      end
+                    end
+                    else begin
+                      mem_func <= 0;
+                      mem_execute <= 0;
+                    end
+
+                  end
+
+                  SYS_EXECUTE_READ_TEL: begin
+                    if(mem_ready) begin
+                      if(read_data[`execute_bit]==1) begin
+                        // If we need to execute the tel
+                        sys_func <= SYS_FUNC_TRAVERSE;
+                        state <= SYS_TRAVERSE_INIT;
+                      end
+                      else begin
+                       // if not executing hed and parent then pass data to
+                       // the execute block
+                       debug_sig <= 1;
+                       if(trav_B != `NIL) mem_addr <= trav_B;
+                       execute_address <= mem_addr;
+                       execute_data <= {mem_tag,hed,tel};//read_data;
+                       execute_tag <= mem_tag;//read_data[`tag_start:`tag_end];
+                       //execute_data <= mem_data;
+                       //execute_tag <= mem_tag;
+                       mux_controller <= 1;
+                       state <= SYS_EXECUTE_WAIT;      
+                       //address <= mem_addr;
+                       //mem_func <= `GET_CONTENTS;
+                       //mem_execute <= 1;
+
+                       //state <= SYS_EXECUTE_READ_ADDR;      
+                   end
+                  end
+                  else begin
+                    mem_func <= 0;
+                    mem_execute <= 0;
+                  end
+
+                end
+                
+                SYS_EXECUTE_READ_ADDR: begin
+                  if(mem_ready) begin
+                     debug_sig <= 6;
+                     if(trav_B != `NIL) mem_addr <= trav_B;
                      execute_address <= mem_addr;
-                     execute_data <= mem_data;
-                     execute_tag <= mem_tag;
+                     execute_data <= {mem_tag,hed,tel};//read_data;
+                     execute_tag <= mem_tag;//read_data[`tag_start:`tag_end];
                      mux_controller <= 1;
-                     state <= SYS_EXECUTE_WAIT;
-                  end
+                     state <= SYS_EXECUTE_WAIT;      
+                   end else begin
+                    mem_func <= 0;
+                    mem_execute <= 0;
+                   end
+                end
 
-                  SYS_EXECUTE_WAIT: begin
-                     if(execute_finished) begin
-                        sys_func = execute_return_sys_func;
-                        state = execute_return_state;
-                        mux_controller <= 0;
-                     end
-                  end
+                SYS_EXECUTE_WAIT: begin
+                   if(execute_finished) begin
+                     debug_sig <= 0;
+                      sys_func = execute_return_sys_func;
+                      state = execute_return_state;
+                      mux_controller <= 0;
+                   end
+                end
 
-                  SYS_EXECUTE_ERROR: begin
-                     state <= SYS_EXECUTE_ERROR;
-                     is_finished_reg <= 1;
-                  end
+                SYS_EXECUTE_ERROR: begin
+                   state <= SYS_EXECUTE_ERROR;
+                   is_finished_reg <= 1;
+                end
 
                endcase
 
@@ -142,31 +261,32 @@ module mem_traversal(power, clk, rst, start_addr, execute,
                   SYS_READ_WAIT: begin
                      
                      if(mem_ready) begin
-                        mem_data <= read_data;
-                        mem_tag <= read_data[`tag_start:`tag_end]; // read first 4 bits and store into tag for easier access
-                        
-                        hed <= read_data[`hed_start:`hed_end];
-                        tel <= read_data[`tel_start:`tel_end];
-                        state <= SYS_READ_DECODE;
+                       mem_data <= read_data;
+                       mem_tag <= read_data[`tag_start:`tag_end]; // read first 4 bits and store into tag for easier access
+                       
+                       hed <= read_data[`hed_start:`hed_end];
+                       tel <= read_data[`tel_start:`tel_end];
+                       //if tel is nil do soemthing?
+                       // If cell is marked for execution
+                       if(read_data[`execute_bit] == 1) begin
+                         if (read_data[`tel_start:`tel_end] == `NIL) begin
+                           sys_func <= SYS_FUNC_TRAVERSE;
+                           state <= SYS_TRAVERSE_INIT;
+                         end else begin
+                           sys_func <= SYS_FUNC_EXECUTE;
+                           state <= SYS_EXECUTE_INIT;
+                         end
+                       end
+                       else begin
+                         sys_func <= SYS_FUNC_TRAVERSE;
+                         state <= SYS_TRAVERSE_INIT;
+                       end
                      end
                      else begin
                         mem_func <= 0;
                         mem_execute <= 0;
                      end
                   
-                  end
-                  
-                  SYS_READ_DECODE: begin
-                     // If cell is marked for execution
-                     if(mem_tag[7] == 1) begin
-                        sys_func <= SYS_FUNC_EXECUTE;
-                        state <= SYS_EXECUTE_INIT;
-                     end
-                     else begin
-                        sys_func <= SYS_FUNC_TRAVERSE;
-                        state <= SYS_TRAVERSE_INIT;
-                     end
-                     
                   end
                endcase
                
@@ -239,8 +359,13 @@ module mem_traversal(power, clk, rst, start_addr, execute,
                               end
                               else if(mem_tag[3:2] == 2'b11) begin // if both were visited
                                  // Set the command after write to pop
-                                 write_return_sys_func <= SYS_FUNC_TRAVERSE;
-                                 write_return_state <= SYS_TRAVERSE_POP;
+                                 if(mem_tag[7] == 1) begin // If we still need to execute
+                                   write_return_sys_func <= SYS_FUNC_EXECUTE;
+                                   write_return_state <= SYS_EXECUTE_INIT;
+                                 end else begin
+                                   write_return_sys_func <= SYS_FUNC_TRAVERSE;
+                                   write_return_state <= SYS_TRAVERSE_POP;
+                                 end
                                  
                                  mem_tag[3:2] <= 2'b00;
                                  
@@ -262,6 +387,7 @@ module mem_traversal(power, clk, rst, start_addr, execute,
                            `ATOM_CELL: begin
                               if(mem_tag[2] == 1'b0) begin // if both were visited
                                  
+                                 debug_sig <= 1;
 
                                  // Set the command after write to traverse the tel
                                  write_return_sys_func <= SYS_FUNC_TRAVERSE;
@@ -280,9 +406,17 @@ module mem_traversal(power, clk, rst, start_addr, execute,
                                  state <= SYS_WRITE_INIT;
                               end
                               else begin
+                                 debug_sig <= 2;
                                  // Set the command after write to pop
-                                 write_return_sys_func <= SYS_FUNC_TRAVERSE;
-                                 write_return_state <= SYS_TRAVERSE_POP;
+                                 if(mem_tag[7] == 1) begin // If we still need to execute
+                                   write_return_sys_func <= SYS_FUNC_EXECUTE;
+                                   write_return_state <= SYS_EXECUTE_INIT;
+                                 end else begin
+                                   write_return_sys_func <= SYS_FUNC_TRAVERSE;
+                                   write_return_state <= SYS_TRAVERSE_POP;
+                                 end
+                                 //write_return_sys_func <= SYS_FUNC_TRAVERSE;
+                                 //write_return_state <= SYS_TRAVERSE_POP;
                                  
                                  mem_tag[3:2] <= 2'b00;
                                  
@@ -316,8 +450,15 @@ module mem_traversal(power, clk, rst, start_addr, execute,
                               end
                               else begin
                                  // Set the command after write to pop
-                                 write_return_sys_func <= SYS_FUNC_TRAVERSE;
-                                 write_return_state <= SYS_TRAVERSE_POP;
+                                 if(mem_tag[7] == 1) begin // If we still need to execute
+                                   write_return_sys_func <= SYS_FUNC_EXECUTE;
+                                   write_return_state <= SYS_EXECUTE_INIT;
+                                 end else begin
+                                   write_return_sys_func <= SYS_FUNC_TRAVERSE;
+                                   write_return_state <= SYS_TRAVERSE_POP;
+                                 end
+                                 //write_return_sys_func <= SYS_FUNC_TRAVERSE;
+                                 //write_return_state <= SYS_TRAVERSE_POP;
                                  
                                  mem_tag[3:2] <= 2'b00;
                                  
