@@ -36,8 +36,8 @@ wire traversal_finished;
 
 reg [`memory_addr_width - 1:0] start_addr;
 
-                 
-// Instantiate MTU 
+
+// Instantiate MTU
 memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
                 .address (address),
@@ -75,7 +75,7 @@ end
 
 
 // Perform Test
-initial begin 
+initial begin
     if (MEM_INIT_FILE != "") begin
         $readmemh(MEM_INIT_FILE, mem.ram.ram);
     end

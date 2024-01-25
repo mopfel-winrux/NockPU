@@ -67,7 +67,7 @@ wire [`tag_width - 1:0] error;
 wire [3:0] execute_return_sys_func;
 wire [3:0] execute_return_state;
 
-// Instantiate Memory Unit 
+// Instantiate Memory Unit
 memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
                 .address (address),
@@ -112,9 +112,9 @@ mem_traversal traversal(.power (power),
                         .finished(traversal_finished),
                         .error(error),
                         .mux_controller(select),
-                        .execute_address(execute_address), 
-                        .execute_tag(execute_tag), 
-                        .execute_data(execute_data), 
+                        .execute_address(execute_address),
+                        .execute_tag(execute_tag),
+                        .execute_data(execute_data),
                         .execute_finished(execute_finished),
                         .execute_return_sys_func(execute_return_sys_func),
                         .execute_return_state(execute_return_state));
@@ -147,7 +147,7 @@ end
 integer idx;
 
 // Perform Test
-initial begin 
+initial begin
     if (MEM_INIT_FILE != "") begin
         $readmemh(MEM_INIT_FILE, mem.ram.ram);
     end

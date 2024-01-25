@@ -37,7 +37,7 @@ wire mem_ready;
 wire [3:0] state;
 
 
-// Instantiate Memory Unit 
+// Instantiate Memory Unit
 memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
                 .address (addr),
@@ -60,7 +60,7 @@ end
 integer idx;
 
 // Perform Test
-initial begin 
+initial begin
     if (MEM_INIT_FILE != "") begin
         $readmemh(MEM_INIT_FILE, mem.ram.ram);
     end
@@ -100,7 +100,7 @@ initial begin
     repeat (2) @(posedge clk);
     mem_execute = 0;
     wait (mem_ready == 1'b1);
-    
+
     repeat (1) @(posedge clk);
 
     // Get Next Free Memory Location
@@ -111,7 +111,7 @@ initial begin
     mem_execute = 0;
     free_addr_reg = free_addr;
     wait (mem_ready == 1'b1);
-    
+
     repeat (1) @(posedge clk);
 
     // Begin Read
