@@ -121,58 +121,56 @@ mem_traversal traversal(.power (power),
 
 //Instantiate Nock Execute Module
 execute execute(.clk(clk),
-				.rst(reset),
-				.error(error),
-				.execute_start(select),
-				.execute_address(execute_address),
-				.execute_tag(execute_tag),
-				.execute_data(execute_data),
+                .rst(reset),
+                .error(error),
+                .execute_start(select),
+                .execute_address(execute_address),
+                .execute_tag(execute_tag),
+                .execute_data(execute_data),
                 .mem_ready(mem_ready),
-				.mem_execute(mem_execute_nem),
-				.mem_func(mem_func_nem),
-				.address(address_nem),
-				.free_addr(free_addr),
+                .mem_execute(mem_execute_nem),
+                .mem_func(mem_func_nem),
+                .address(address_nem),
+                .free_addr(free_addr),
                 .read_data(read_data),
-				.write_data(write_data_nem),
+                .write_data(write_data_nem),
                 .finished(execute_finished),
                 .execute_return_sys_func(execute_return_sys_func),
                 .execute_return_state(execute_return_state));
 
 // Setup Clock
 initial begin
-    MAX10_CLK1_50 =0;
-    forever MAX10_CLK1_50 = #10 ~MAX10_CLK1_50;
+  MAX10_CLK1_50 =0;
+  forever MAX10_CLK1_50 = #10 ~MAX10_CLK1_50;
 end
 
 integer idx;
 
 // Perform Test
 initial begin
-    if (MEM_INIT_FILE != "") begin
-        $readmemh(MEM_INIT_FILE, mem.ram.ram);
-    end
-    $dumpfile("waveform.vcd");
-    $dumpvars(0, execute_tb);
+  if (MEM_INIT_FILE != "") begin
+    $readmemh(MEM_INIT_FILE, mem.ram.ram);
+  end
+  $dumpfile("waveform.vcd");
+  $dumpvars(0, execute_tb);
 
-    for (idx = 0; idx < 1023; idx = idx+1) begin
-      $dumpvars(0,mem.ram.ram[idx]);
-    end
+  for (idx = 0; idx < 1023; idx = idx+1) begin
+    $dumpvars(0,mem.ram.ram[idx]);
+  end
 
+  start_addr = 1;
+  // Reset
+  reset = 1'b0;
+  repeat (2) @(posedge clk);
+  reset = 1'b1;
+  wait (mem_ready == 1'b1);
 
+  traversal_execute = 1;
 
-    start_addr = 1;
-    // Reset
-    reset = 1'b0;
-    repeat (2) @(posedge clk);
-    reset = 1'b1;
-    wait (mem_ready == 1'b1);
+  wait (traversal_finished == 1'b1);
+  repeat (2) @(posedge clk);
 
-    traversal_execute = 1;
-
-    wait (traversal_finished == 1'b1);
-    repeat (2) @(posedge clk);
-
-    $stop;
+  $stop;
 end
 
 endmodule
