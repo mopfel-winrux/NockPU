@@ -87,30 +87,32 @@ module execute (
 
   //Execute Functions
   parameter EXE_FUNC_SLOT     = 4'h0,
-              EXE_FUNC_CONSTANT = 4'h1,
-              EXE_FUNC_EVAL     = 4'h2,
-              EXE_FUNC_CELL     = 4'h3,
-              EXE_FUNC_INCR     = 4'h4,
-              EXE_FUNC_EQUAL    = 4'h5,
-              EXE_FUNC_IF       = 4'h6,
-              EXE_FUNC_COMPOSE  = 4'h7,
-              EXE_FUNC_EXTEND   = 4'h8,
-              EXE_FUNC_INVOKE   = 4'h9,
-              EXE_FUNC_REPLACE  = 4'hA,
-              EXE_FUNC_HINT     = 4'hB,
-              EXE_FUNC_INIT     = 4'hC,
-              EXE_FUNC_STACK    = 4'hD,
-              EXE_FUNC_ERROR    = 4'hF;
+            EXE_FUNC_CONSTANT = 4'h1,
+            EXE_FUNC_EVAL     = 4'h2,
+            EXE_FUNC_CELL     = 4'h3,
+            EXE_FUNC_INCR     = 4'h4,
+            EXE_FUNC_EQUAL    = 4'h5,
+            EXE_FUNC_IF       = 4'h6,
+            EXE_FUNC_COMPOSE  = 4'h7,
+            EXE_FUNC_EXTEND   = 4'h8,
+            EXE_FUNC_INVOKE   = 4'h9,
+            EXE_FUNC_REPLACE  = 4'hA,
+            EXE_FUNC_HINT     = 4'hB,
+            EXE_FUNC_INIT     = 4'hC,
+            EXE_FUNC_STACK    = 4'hD,
+            EXE_FUNC_ERROR    = 4'hF;
 
   // slot states
-  parameter EXE_SLOT_INIT                 = 4'h0,
-            EXE_SLOT_PREP                   = 4'h1,
-              EXE_SLOT_CHECK                = 4'h2,
-              EXE_SLOT_DONE                 = 4'h3,
-              EXE_SLOT_CELL_OF_NIL          = 4'h4;
+  parameter EXE_SLOT_INIT        = 4'h0,
+            EXE_SLOT_PREP        = 4'h1,
+            EXE_SLOT_CHECK       = 4'h2,
+            EXE_SLOT_DONE        = 4'h3,
+            EXE_SLOT_CELL_OF_NIL = 4'h4;
 
   // Constant states
-  parameter EXE_CONSTANT_INIT = 4'h0, EXE_CONSTANT_READ_B = 4'h1, EXE_CONSTANT_WRITE_WAIT = 4'h2;
+  parameter EXE_CONSTANT_INIT       = 4'h0, 
+            EXE_CONSTANT_READ_B     = 4'h1,
+            EXE_CONSTANT_WRITE_WAIT = 4'h2;
 
   //eval states
   parameter EXE_EVAL_INIT           = 4'h0,
@@ -120,10 +122,14 @@ module execute (
             EXE_EVAL_DONE           = 4'h4;
 
   //cell states
-  parameter EXE_CELL_INIT = 4'h0, EXE_CELL_CHECK = 4'h1, EXE_CELL_WRITE_WAIT = 4'h2;
+  parameter EXE_CELL_INIT       = 4'h0, 
+            EXE_CELL_CHECK      = 4'h1, 
+            EXE_CELL_WRITE_WAIT = 4'h2;
 
   //increment states
-  parameter EXE_INCR_INIT = 4'h0, EXE_INCR_A = 4'h1, EXE_INCR_WAIT = 4'h2;
+  parameter EXE_INCR_INIT = 4'h0,
+            EXE_INCR_A    = 4'h1, 
+            EXE_INCR_WAIT = 4'h2;
 
   //equal states
   parameter EXE_EQUAL_INIT = 4'h0;
@@ -151,22 +157,22 @@ module execute (
 
   // Init States
   parameter EXE_INIT_INIT                 = 4'h0,
-              EXE_INIT_READ_TEL             = 4'h1,
-              EXE_INIT_DECODE               = 4'h2,
-              EXE_INIT_WRIT_TEL             = 4'h3,
-              EXE_INIT_FINISHED             = 4'hF;
+            EXE_INIT_READ_TEL             = 4'h1,
+            EXE_INIT_DECODE               = 4'h2,
+            EXE_INIT_WRIT_TEL             = 4'h3,
+            EXE_INIT_FINISHED             = 4'hF;
 
   //Stacking States
   parameter EXE_STACK_INIT                = 4'h0,
-              EXE_STACK_READ_WAIT           = 4'h1,
-              EXE_STACK_READ_WAIT_2         = 4'h2,
-              EXE_STACK_WRITE_WAIT          = 4'h3,
-              EXE_STACK_CHECK_NEXT          = 4'h4,
-              EXE_STACK_CHECK_WAIT          = 4'h5,
-              EXE_STACK_POP                 = 4'h6,
-              EXE_STACK_POP_READ            = 4'h7,
-              EXE_STACK_POP_WAIT            = 4'h8,
-              EXE_STACK_POP_ERR             = 4'h9;
+            EXE_STACK_READ_WAIT           = 4'h1,
+            EXE_STACK_READ_WAIT_2         = 4'h2,
+            EXE_STACK_WRITE_WAIT          = 4'h3,
+            EXE_STACK_CHECK_NEXT          = 4'h4,
+            EXE_STACK_CHECK_WAIT          = 4'h5,
+            EXE_STACK_POP                 = 4'h6,
+            EXE_STACK_POP_READ            = 4'h7,
+            EXE_STACK_POP_WAIT            = 4'h8,
+            EXE_STACK_POP_ERR             = 4'h9;
 
   always @(posedge clk) begin
     // Flip-flop to store the previous state of execute_start
@@ -188,7 +194,8 @@ module execute (
       mem_execute<=0;
       debug_sig <= 0;
       address <=0;
-    end else if (execute_start) begin
+    end 
+    else if (execute_start) begin
       case (exec_func)
         EXE_FUNC_INIT: begin
           case (state)
