@@ -21,7 +21,7 @@
 `define  SET_CONTENTS    2'b01
 `define  GET_FREE        2'b10
 
-// Memory tag defines 
+// Memory tag defines
 `define  ATOM_ATOM       2'b11
 `define  ATOM_CELL       2'b10
 `define  CELL_ATOM       2'b01
