@@ -3,25 +3,30 @@
 `include "execute.vh"
 
 
-module mem_traversal(power, clk, rst, start_addr, execute,
-              mem_ready, address, read_data, mem_execute, mem_func, free_addr, write_data,
-              finished, error, mux_controller, execute_address, execute_tag, execute_data, execute_finished, execute_return_sys_func, execute_return_state);
-  input power, clk, rst;
-  input [`memory_addr_width - 1:0] start_addr; //Address to start traversal at
-  input execute; // wire to begin traversal
+module mem_traversal(
+  input power, clk, rst,
+  input [`memory_addr_width - 1:0] start_addr,
+  input execute,
+  output wire finished,
+  input mem_ready,
+  input [`memory_data_width - 1:0] read_data,
+  input [`memory_addr_width - 1:0] free_addr,
+  output reg mem_execute,
+  output reg [`memory_addr_width - 1:0] address,
+  output reg [1:0] mem_func,
+  output reg [`memory_data_width - 1:0] write_data,
+  input [7:0] error,
+  output reg [`memory_addr_width - 1:0] execute_address,
+  output reg [`tag_width - 1:0] execute_tag,
+  output reg [`memory_data_width - 1:0] execute_data,
+  output reg mux_controller,
+  input execute_finished,
+  input [3:0] execute_return_sys_func,
+  input [3:0] execute_return_state
+);
+  // finish signal
   reg is_finished_reg;
-  output wire finished;
   assign finished = is_finished_reg;
-
-  //Interface with memory unit
-  input mem_ready;
-  input [`memory_data_width - 1:0] read_data;
-  input [`memory_addr_width - 1:0] free_addr; // Not sure if needed
-
-  output reg mem_execute;
-  output reg [`memory_addr_width - 1:0] address;
-  output reg [1:0] mem_func;
-  output reg [`memory_data_width - 1:0] write_data; // Not sure if needed
 
   // Internal registers needed
   reg [3:0] sys_func;
@@ -33,24 +38,12 @@ module mem_traversal(power, clk, rst, start_addr, execute,
   reg [7:0] debug_sig;
   wire is_running;
   assign is_running = !finished && execute;
-  input [7:0] error;
-
-  // Execute Registers needed
-  output reg [`memory_addr_width - 1:0] execute_address;
-  output reg [`tag_width - 1:0] execute_tag;
-  output reg [`memory_data_width - 1:0] execute_data;
-  output reg mux_controller;
-  input execute_finished;
-  input [3:0] execute_return_sys_func;
-  input [3:0] execute_return_state;
 
   // General Purpose Regsiters
-  output reg [`memory_addr_width - 1:0] address_gp;
-  output reg [`memory_data_width - 1:0] mem_data_gp;
-  output reg [`noun_width - 1:0] noun_gp;
-  output reg [`noun_tag_width - 1:0] noun_tag_gp;
-  // [[50 51] [2 [0 3] [1 [4 0 1]]]]
-
+  reg [`memory_addr_width - 1:0] address_gp;
+  reg [`memory_data_width - 1:0] mem_data_gp;
+  reg [`noun_width - 1:0] noun_gp;
+  reg [`noun_tag_width - 1:0] noun_tag_gp;
 
   // Traversal Registers needed
   reg [`noun_width - 1:0] trav_P;

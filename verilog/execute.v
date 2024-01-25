@@ -4,51 +4,34 @@
 
 
 module execute (
-    clk,
-    rst,
-    error,
-    execute_start,
-    execute_address,
-    execute_tag,
-    execute_data,
-    mem_ready,
-    mem_execute,
-    mem_func,
-    address,
-    free_addr,
-    read_data,
-    write_data,
-    finished,
-    execute_return_sys_func,
-    execute_return_state
+  input clk,
+  input rst,
+  output reg [7:0] error,
+  input execute_start,  // wire to begin execution (mux_conroller from traversal)
+  input [`memory_addr_width - 1:0] execute_address,
+  input [`tag_width - 1:0] execute_tag,
+  input [`memory_data_width - 1:0] execute_data,
+  output reg [3:0] execute_return_sys_func,
+  output reg [3:0] execute_return_state,
+  input mem_ready,
+  input [`memory_data_width - 1:0] read_data,
+  input [`memory_addr_width - 1:0] free_addr,
+  output reg mem_execute,
+  output reg [`memory_addr_width - 1:0] address,
+  output reg [`memory_addr_width - 1:0] write_addr_reg,
+  output reg [1:0] mem_func,
+  output reg [`memory_data_width - 1:0] write_data,
+  output wire finished
 );
-  input clk, rst;
-  output reg [7:0] error;
-
   reg [7:0] debug_sig;
+
   // Interface with memory traversal
-  input execute_start;  // wire to begin execution (mux_conroller from traversal)
   reg execute_start_ff;
-  input [`memory_addr_width - 1:0] execute_address;
-  input [`tag_width - 1:0] execute_tag;
-  input [`memory_data_width - 1:0] execute_data;
-  output reg [3:0] execute_return_sys_func;
-  output reg [3:0] execute_return_state;
   reg is_finished_reg;
-  output wire finished;
   assign finished = is_finished_reg;
 
   //Interface with memory unit
-  input mem_ready;
-  input [`memory_data_width - 1:0] read_data;
   reg [`memory_data_width - 1:0] read_data_reg;
-  input [`memory_addr_width - 1:0] free_addr;
-
-  output reg mem_execute;
-  output reg [`memory_addr_width - 1:0] address;
-  output reg [`memory_addr_width - 1:0] write_addr_reg;
-  output reg [1:0] mem_func;
-  output reg [`memory_data_width - 1:0] write_data;
 
   //Registers to treat opcodes as "Functions"
   reg [`noun_width - 1:0] a, opcode, b, c, d;
@@ -862,7 +845,6 @@ module execute (
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 state <= EXE_STACK_READ_WAIT_2;
-
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -911,10 +893,7 @@ module execute (
                 mem_execute <= 1;
                 state <= EXE_STACK_CHECK_NEXT;
                 trav_B <= trav_P;
-
-
               end else begin
-
                 mem_func <= 0;
                 mem_execute <= 0;
               end
@@ -926,7 +905,6 @@ module execute (
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 state <= EXE_STACK_CHECK_WAIT;
-
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
