@@ -167,7 +167,7 @@ module execute (
               EXE_STACK_POP_READ            = 4'h7,
               EXE_STACK_POP_WAIT            = 4'h8,
               EXE_STACK_POP_ERR             = 4'h9;
-  
+
   always @(posedge clk) begin
     // Flip-flop to store the previous state of execute_start
     execute_start_ff <= execute_start;
@@ -460,7 +460,7 @@ module execute (
               if (mem_ready) begin
                 if ( b == 28'h8000000) begin
                   debug_sig <= 5;
-                  
+
                   // need to do check to make sure the cell isn't [atom NIL]
                   if(subject_tag == `CELL) begin
                     state <= EXE_SLOT_CELL_OF_NIL;
@@ -484,12 +484,12 @@ module execute (
                     state <= EXE_SLOT_DONE;
                     a<=1;
                   end
-                end 
+                end
                 else if (execute_data[`hed_tag] == `ATOM) begin
                   exec_func <= EXE_FUNC_ERROR;
                   state <= EXE_ERROR_INIT;
                   error <= `ERROR_INVALID_SLOT;
-                end 
+                end
                 else begin
                     if (b[`noun_width-1] == 0) begin
                       if(read_data[`hed_tag] == `CELL) begin
@@ -669,7 +669,7 @@ module execute (
                                read_data[`hed_tag],
                                subject,
                                read_data[`hed_start:`hed_end]};
-               
+
                 state <= EXE_EVAL_WRIT_2_EXE;
               end else begin
                 mem_func <= 0;
@@ -784,7 +784,7 @@ module execute (
                   mem_execute <= 1;
                   write_data <= {6'b000000,
                                  read_data[`hed_tag],
-                                 1'b1, 
+                                 1'b1,
                                  read_data[`hed_start:`hed_end] + 28'h1,
                                  `NIL};
                   //exec_func <= func_return_exec_func;

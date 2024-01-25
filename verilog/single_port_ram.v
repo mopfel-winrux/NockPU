@@ -24,7 +24,7 @@ module single_port_ram
 		
 	// Continuous assignment implies read returns NEW data.
 	// This is the natural behavior of the TriMatrix memory
-	// blocks in Single Port mode.  
+	// blocks in Single Port mode.
 	assign q = ram[addr_reg];
 	
 endmodule

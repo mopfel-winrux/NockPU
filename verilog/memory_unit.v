@@ -2,10 +2,10 @@
  Will have 3 main functions used by external modules.
   - Given an address of a cell, return its value
   - Given an address of a cell, the cell's value, and a type tag, write to memory
-  - Request the a batch of emprt cells that have a length of write_data. 
-    These are garrenteed to be open and this will cause a GC to run if not. 
- Memory is word addressable. When all the correct values are set, 
- pull execute to high and wait for is_ready to go high. This will mark that your command is finished 
+  - Request the a batch of emprt cells that have a length of write_data.
+    These are garrenteed to be open and this will cause a GC to run if not.
+ Memory is word addressable. When all the correct values are set,
+ pull execute to high and wait for is_ready to go high. This will mark that your command is finished
 */
 
 `include "memory_unit.vh"
@@ -26,17 +26,17 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
    assign is_ready = !execute && is_ready_reg;
    output reg [`memory_addr_width - 1:0] free_addr;
    output reg [`memory_data_width - 1:0] read_data;
-   
+
    // Interface with the ram module
    reg [`memory_addr_width - 1:0] mem_addr;
    reg mem_write;
    reg [`memory_data_width - 1:0] mem_data_in;
    output wire [`memory_data_width - 1:0] mem_data_out;
-   
+
    // Internal regs and wires
    reg [`memory_addr_width - 1:0] free_mem;
    output reg [3:0] state;
-   
+
    // States
    parameter STATE_INIT_SETUP          = 4'h0,
              STATE_INIT_WAIT_0         = 4'h1,
@@ -50,22 +50,22 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
              STATE_WRITE_FINISH        = 4'h9,
              STATE_FREE_WAIT           = 4'hA,
              STATE_GARBAGE_COLLECT     = 4'hB;
-             
+
    ram ram(.address (mem_addr),
            .clock (clk),
            .data (mem_data_in),
            .wren (mem_write),
            .q (mem_data_out));
-   
+
    always@(posedge clk or negedge rst) begin
       if(!rst) begin
          state <= STATE_INIT_SETUP;
-         
+
          free_mem <= 0;
-         
+
          mem_addr <= 0;
          mem_data_in <= 0;
-         
+
          is_ready_reg <= 0;
       end
       else if (power) begin
@@ -86,17 +86,17 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
             // Clear the nil pointer
             STATE_INIT_CLEAR_NIL: begin
                state <= STATE_INIT_WAIT_1;
-               
+
                mem_addr <= 0;
                mem_data_in <= 0;
             end
             STATE_INIT_WAIT_1: begin
                state <= STATE_WAIT;
                free_addr <= free_mem;
-               
+
                mem_write <= 0;
             end
-            
+
             // Wait for a command dispatch
             STATE_WAIT: begin
                if(execute) begin
@@ -140,7 +140,7 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
             STATE_READ_FINISH: begin
                state <= STATE_WAIT;
                is_ready_reg <= 1;
-               
+
                read_data <= mem_data_out;
             end
             // Various wait states used when writing to memory
@@ -148,19 +148,19 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
                state <= STATE_WRITE_FINISH;
                mem_write<=0;
             end
-     
+
             STATE_WRITE_FINISH: begin
                state <= STATE_WAIT;
                is_ready_reg <= 1;
             end
             // Return a new cell
-            STATE_FREE_WAIT: begin             
+            STATE_FREE_WAIT: begin
                is_ready_reg <= 1;
-               
+
                state <= STATE_WAIT;
             end
             // Return a new cell
-            STATE_GARBAGE_COLLECT: begin             
+            STATE_GARBAGE_COLLECT: begin
                state <= STATE_GARBAGE_COLLECT;
                $stop;
             end
