@@ -9,10 +9,12 @@ module mem_traversal(
   input execute,
   output wire finished,
   input mem_ready,
-  input [`memory_data_width - 1:0] read_data,
+  input [`memory_data_width - 1:0] read_data1,
+  input [`memory_data_width - 1:0] read_data2,
   input [`memory_addr_width - 1:0] free_addr,
   output reg mem_execute,
-  output reg [`memory_addr_width - 1:0] address,
+  output reg [`memory_addr_width - 1:0] address1,
+  output reg [`memory_addr_width - 1:0] address2,
   output reg [1:0] mem_func,
   output reg [`memory_data_width - 1:0] write_data,
   input [7:0] error,
@@ -99,23 +101,23 @@ module mem_traversal(
         SYS_FUNC_EXECUTE: begin
           case(state)
             SYS_EXECUTE_INIT: begin
-              if(read_data[`hed_tag] == `CELL) begin
+              if(read_data1[`hed_tag] == `CELL) begin
                 //Read head and check if it is execute
-                mem_data_gp <= read_data;
-                address <= read_data[`hed_start:`hed_end];
+                mem_data_gp <= read_data1;
+                address1 <= read_data1[`hed_start:`hed_end];
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 state <= SYS_EXECUTE_READ_HED;
-              end else if (read_data[`tel_tag] == `CELL) begin
+              end else if (read_data1[`tel_tag] == `CELL) begin
                 //Read head and check if it is execute
-                mem_data_gp <= read_data;
-                address <= read_data[`tel_start:`tel_end];
+                mem_data_gp <= read_data1;
+                address1 <= read_data1[`tel_start:`tel_end];
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 state <= SYS_EXECUTE_READ_TEL;
               end
               else begin
-                address <= mem_data[`tel_start:`tel_end];
+                address1 <= mem_data[`tel_start:`tel_end];
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 execute_address <= mem_addr;
@@ -129,15 +131,15 @@ module mem_traversal(
 
             SYS_EXECUTE_READ_HED: begin
               if(mem_ready) begin
-                if(read_data[`execute_bit]==1) begin
+                if(read_data1[`execute_bit]==1) begin
                   // If we need to execute the hed
                   sys_func <= SYS_FUNC_TRAVERSE;
                   state <= SYS_TRAVERSE_INIT;
                 end
                 else if (mem_data_gp[`tel_tag]==`CELL) begin
                   // if the tel of the parent is a cell
-                  mem_data_gp <= read_data;
-                  address <= mem_data_gp[`tel_start:`tel_end];
+                  mem_data_gp <= read_data1;
+                  address1 <= mem_data_gp[`tel_start:`tel_end];
                   mem_func <= `GET_CONTENTS;
                   mem_execute <= 1;
                   state <= SYS_EXECUTE_READ_TEL;
@@ -145,7 +147,7 @@ module mem_traversal(
                 else begin
                   // if not executing hed and parent then pass data to
                   // the execute block
-                  address <= mem_data_gp[`tel_start:`tel_end];
+                  address1 <= mem_data_gp[`tel_start:`tel_end];
                   mem_func <= `GET_CONTENTS;
                   mem_execute <= 1;
                   execute_address <= mem_addr;
@@ -164,7 +166,7 @@ module mem_traversal(
 
             SYS_EXECUTE_READ_TEL: begin
               if(mem_ready) begin
-                if(read_data[`execute_bit]==1) begin
+                if(read_data1[`execute_bit]==1) begin
                   // If we need to execute the tel
                   sys_func <= SYS_FUNC_TRAVERSE;
                   state <= SYS_TRAVERSE_INIT;
@@ -190,8 +192,8 @@ module mem_traversal(
              if(mem_ready) begin
                if(trav_B != `NIL) mem_addr <= trav_B;
                execute_address <= mem_addr;
-               execute_data <= {mem_tag,hed,tel};//read_data;
-               execute_tag <= mem_tag;//read_data[`tag_start:`tag_end];
+               execute_data <= {mem_tag,hed,tel};//read_data1;
+               execute_tag <= mem_tag;//read_data1[`tag_start:`tag_end];
                mux_controller <= 1;
                state <= SYS_EXECUTE_WAIT;
              end else begin
@@ -225,7 +227,7 @@ module mem_traversal(
               end
               else begin
                 is_finished_reg <= 0;
-                address <= mem_addr;
+                address1 <= mem_addr;
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 state <= SYS_READ_WAIT;
@@ -234,12 +236,12 @@ module mem_traversal(
 
             SYS_READ_WAIT: begin
               if(mem_ready) begin
-                mem_data <= read_data;
-                mem_tag <= read_data[`tag_start:`tag_end];
-                hed <= read_data[`hed_start:`hed_end];
-                tel <= read_data[`tel_start:`tel_end];
-                if(read_data[`execute_bit] == 1) begin
-                  if (read_data[`tel_start:`tel_end] == `NIL) begin
+                mem_data <= read_data1;
+                mem_tag <= read_data1[`tag_start:`tag_end];
+                hed <= read_data1[`hed_start:`hed_end];
+                tel <= read_data1[`tel_start:`tel_end];
+                if(read_data1[`execute_bit] == 1) begin
+                  if (read_data1[`tel_start:`tel_end] == `NIL) begin
                     sys_func <= SYS_FUNC_TRAVERSE;
                     state <= SYS_TRAVERSE_INIT;
                   end else begin
@@ -262,7 +264,7 @@ module mem_traversal(
         SYS_FUNC_WRITE: begin
           case(state)
             SYS_WRITE_INIT: begin
-              address <= mem_addr;
+              address1 <= mem_addr;
               write_data <= {mem_tag, hed, tel};
               mem_func <= `SET_CONTENTS;
               mem_execute <= 1;
@@ -275,7 +277,7 @@ module mem_traversal(
                   state <= write_return_state;
               end
               else begin
-                address <= 0;
+                address1 <= 0;
                 write_data <= 0;
                 mem_func <= 0;
                 mem_execute <= 0;

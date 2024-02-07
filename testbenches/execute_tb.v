@@ -7,12 +7,12 @@ module execute_tb();
 //Test Parameters
 //parameter MEM_INIT_FILE = "./memory/slot_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/inc_slot.hex";
-//parameter MEM_INIT_FILE = "./memory/evaluate.hex";
+parameter MEM_INIT_FILE = "./memory/evaluate.hex";
 //parameter MEM_INIT_FILE = "./memory/evaluate2.hex";
 //parameter MEM_INIT_FILE = "./memory/evaluate3.hex";
 //parameter MEM_INIT_FILE = "./memory/cell_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/constant_tb.hex";
-parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
+//parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
 //parameter MEM_INIT_FILE = "./memory/increment.hex";
 
 //Signal Declarations
@@ -29,11 +29,14 @@ assign power = 1'b1;
 
 wire [1:0] mem_func;
 wire mem_execute;
-wire [`memory_addr_width - 1:0] address;
+wire [`memory_addr_width - 1:0] address1;
+wire [`memory_addr_width - 1:0] address2;
 wire [`memory_data_width - 1:0] write_data;
 wire [`memory_addr_width - 1:0] free_addr;
-wire [`memory_data_width - 1:0] read_data;
-wire [`memory_data_width - 1:0] mem_data_out;
+wire [`memory_data_width - 1:0] read_data1;
+wire [`memory_data_width - 1:0] read_data2;
+wire [`memory_data_width - 1:0] mem_data_out1;
+wire [`memory_data_width - 1:0] mem_data_out2;
 
 
 wire mem_ready;
@@ -48,14 +51,16 @@ reg [`memory_addr_width - 1:0] start_addr;
 // Signal from MTU to memory Mux
 wire [1:0] mem_func_mtu;
 wire mem_execute_mtu;
-wire [`memory_addr_width - 1:0] address_mtu;
+wire [`memory_addr_width - 1:0] address1_mtu;
+wire [`memory_addr_width - 1:0] address2_mtu;
 wire [`memory_data_width - 1:0] write_data_mtu;
 wire select;
 
 //Signal from NEM (Nock Execution Module) to memory Mux
 wire [1:0] mem_func_nem;
 wire mem_execute_nem;
-wire [`memory_addr_width - 1:0] address_nem;
+wire [`memory_addr_width - 1:0] address1_nem;
+wire [`memory_addr_width - 1:0] address2_nem;
 wire [`memory_data_width - 1:0] write_data_nem;
 
 //Signal from MTU to NEM
@@ -70,31 +75,37 @@ wire [3:0] execute_return_state;
 // Instantiate Memory Unit
 memory_unit mem(.func (mem_func),
                 .execute (mem_execute),
-                .address (address),
+                .address1 (address1),
+                .address2 (address2),
                 .write_data (write_data),
                 .free_addr (free_addr),
-                .read_data (read_data),
+                .read_data1 (read_data1),
+                .read_data2 (read_data2),
                 .is_ready (mem_ready),
                 .power (power),
                 .clk (clk),
                 .state (state),
-                .mem_data_out(mem_data_out),
+                .mem_data_out1 (mem_data_out1),
+                .mem_data_out2 (mem_data_out2),
                 .rst (reset));
 
 // Instantiate Memory Mux
-memory_mux memory_mux(.mem_func_a(mem_func_mtu),
-                      .mem_func_b(mem_func_nem),
-                      .execute_a(mem_execute_mtu),
-                      .execute_b(mem_execute_nem),
-                      .address_a(address_mtu),
-                      .address_b(address_nem),
-                      .write_data_a(write_data_mtu),
-                      .write_data_b(write_data_nem),
-                      .sel(select),
-                      .mem_func(mem_func),
-                      .execute(mem_execute),
-                      .address(address),
-                      .write_data(write_data));
+memory_mux memory_mux(.mem_func_a (mem_func_mtu),
+                      .mem_func_b (mem_func_nem),
+                      .execute_a (mem_execute_mtu),
+                      .execute_b (mem_execute_nem),
+                      .address1_a (address1_mtu),
+                      .address2_a (address2_mtu),
+                      .address1_b (address1_nem),
+                      .address2_b (address2_nem),
+                      .write_data_a (write_data_mtu),
+                      .write_data_b (write_data_nem),
+                      .sel (select),
+                      .mem_func (mem_func),
+                      .execute (mem_execute),
+                      .address1 (address1),
+                      .address2 (address2),
+                      .write_data (write_data));
 
 // Instantiate MTU
 mem_traversal traversal(.power (power),
@@ -103,8 +114,10 @@ mem_traversal traversal(.power (power),
                         .start_addr (start_addr),
                         .execute (traversal_execute),
                         .mem_ready (mem_ready),
-                        .address (address_mtu),
-                        .read_data (read_data),
+                        .address1 (address1_mtu),
+                        .address2 (address2_mtu),
+                        .read_data1 (read_data1),
+                        .read_data2 (read_data2),
                         .mem_execute (mem_execute_mtu),
                         .mem_func (mem_func_mtu),
                         .free_addr (free_addr),
@@ -130,9 +143,11 @@ execute execute(.clk(clk),
                 .mem_ready(mem_ready),
                 .mem_execute(mem_execute_nem),
                 .mem_func(mem_func_nem),
-                .address(address_nem),
+                .address1(address1_nem),
+                .address2(address2_nem),
                 .free_addr(free_addr),
-                .read_data(read_data),
+                .read_data1(read_data1),
+                .read_data2(read_data2),
                 .write_data(write_data_nem),
                 .finished(execute_finished),
                 .execute_return_sys_func(execute_return_sys_func),
