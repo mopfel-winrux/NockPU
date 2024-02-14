@@ -259,6 +259,9 @@ module execute (
             end
 
             EXE_INIT_DECODE: begin
+              if (mem_data[`hed_tag] == `CELL) begin
+                $stop;
+              end
               if ((opcode < 0) || (opcode > 11)) begin  //If invalid opcode
                 error <= `ERROR_INVALID_OPCODE;
                 exec_func <= EXE_FUNC_ERROR;
