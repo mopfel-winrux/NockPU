@@ -10,32 +10,35 @@
 
 `include "memory_unit.vh"
 
-module memory_unit(power, clk, rst, func, execute, address, write_data, free_addr, read_data, is_ready, state, mem_data_out);
-
-  input power, clk, rst;
-
-  // Control wires for this module
-  input [1:0] func;
-  input execute;
-  input [`memory_addr_width - 1:0] address;
-  input [`memory_data_width - 1:0] write_data;
-
+module memory_unit(
+  input power,
+  input clk,
+  input rst,
+  input [1:0] func, 
+  input execute,
+  input [`memory_addr_width - 1:0] address1,
+  input [`memory_addr_width - 1:0] address2,
+  input [`memory_data_width - 1:0] write_data,
+  output reg [`memory_addr_width - 1:0] free_addr,
+  output reg [`memory_data_width - 1:0] read_data1,
+  output reg [`memory_data_width - 1:0] read_data2,
+  output wire is_ready,
+  output reg [3:0] state,
+  output wire [`memory_data_width - 1:0] mem_data_out1,
+  output wire [`memory_data_width - 1:0] mem_data_out2
+);
   // Signal wires for this module
   reg is_ready_reg;
-  output wire is_ready;
   assign is_ready = !execute && is_ready_reg;
-  output reg [`memory_addr_width - 1:0] free_addr;
-  output reg [`memory_data_width - 1:0] read_data;
 
   // Interface with the ram module
-  reg [`memory_addr_width - 1:0] mem_addr;
+  reg [`memory_addr_width - 1:0] mem_addr1;
+  reg [`memory_addr_width - 1:0] mem_addr2;
   reg mem_write;
   reg [`memory_data_width - 1:0] mem_data_in;
-  output wire [`memory_data_width - 1:0] mem_data_out;
 
   // Internal regs and wires
   reg [`memory_addr_width - 1:0] free_mem;
-  output reg [3:0] state;
 
   // States
   parameter STATE_INIT_SETUP          = 4'h0,
@@ -51,18 +54,21 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
             STATE_FREE_WAIT           = 4'hA,
             STATE_GARBAGE_COLLECT     = 4'hB;
 
-  ram ram(.address (mem_addr),
+  ram ram(.address1 (mem_addr1),
+          .address2 (mem_addr2),
           .clock (clk),
           .data (mem_data_in),
           .wren (mem_write),
-          .q (mem_data_out));
+          .q1 (mem_data_out1),
+          .q2 (mem_data_out2));
 
   always@(posedge clk or negedge rst) begin
   if(!rst) begin
     state <= STATE_INIT_SETUP;
     free_mem <= 0;
 
-    mem_addr <= 0;
+    mem_addr1 <= 0;
+    mem_addr2 <= 0;
     mem_data_in <= 0;
 
     is_ready_reg <= 0;
@@ -71,28 +77,30 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
     case (state)
     // Initialize the free memory register
     STATE_INIT_SETUP: begin
-       state <= STATE_INIT_WAIT_0;
-       mem_addr <= 0;
+      state <= STATE_INIT_WAIT_0;
+      mem_addr1 <= 0;
+      mem_addr2 <= 0;
     end
     STATE_INIT_WAIT_0: begin
-       state <= STATE_INIT_STORE_FREE_MEM;
+      state <= STATE_INIT_STORE_FREE_MEM;
     end
     // Record the start of the free memory store
     STATE_INIT_STORE_FREE_MEM: begin
-       state <= STATE_INIT_CLEAR_NIL;
-       free_mem <= mem_data_out[9:0];
+      state <= STATE_INIT_CLEAR_NIL;
+      free_mem <= mem_data_out1[9:0];
     end
     // Clear the nil pointer
     STATE_INIT_CLEAR_NIL: begin
-       state <= STATE_INIT_WAIT_1;
-       mem_addr <= 0;
-       mem_data_in <= 0;
+      state <= STATE_INIT_WAIT_1;
+      mem_addr1 <= 0;
+      mem_addr2 <= 0;
+      mem_data_in <= 0;
     end
     STATE_INIT_WAIT_1: begin
-       state <= STATE_WAIT;
-       free_addr <= free_mem;
+      state <= STATE_WAIT;
+      free_addr <= free_mem;
 
-       mem_write <= 0;
+      mem_write <= 0;
     end
 
     // Wait for a command dispatch
@@ -102,12 +110,13 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
         // Dispatch according to the function
         case (func)
         `GET_CONTENTS: begin
-          mem_addr <= address;
+          mem_addr1 <= address1;
+          mem_addr2 <= address2;
           state <= STATE_READ_WAIT_0;
         end
 
         `SET_CONTENTS: begin
-          mem_addr <= address;
+          mem_addr1 <= address1;
           mem_data_in <= write_data;
           mem_write<=1;
           state <= STATE_WRITE_WAIT_0;
@@ -138,7 +147,8 @@ module memory_unit(power, clk, rst, func, execute, address, write_data, free_add
     STATE_READ_FINISH: begin
       state <= STATE_WAIT;
       is_ready_reg <= 1;
-      read_data <= mem_data_out;
+      read_data1 <= mem_data_out1;
+      read_data2 <= mem_data_out2;
     end
     
     // Various wait states used when writing to memory

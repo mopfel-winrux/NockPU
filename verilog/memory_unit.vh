@@ -6,6 +6,10 @@
 `define noun_width        28
 `define noun_tag_width    1
 `define execute_bit       63
+`define stack_bit         62
+`define large_atom_bit    60
+`define hed_trav          59
+`define tel_trav          58
 `define hed_tag           57
 `define tel_tag           56
 `define tag_width         8
@@ -15,6 +19,7 @@
 `define hed_end           28
 `define tel_start         27
 `define tel_end           0
+
 
 // Memory unit functions
 `define  GET_CONTENTS    2'b00
@@ -31,5 +36,6 @@
 
 //Memory constants
 `define NIL          28'hFFFFFFF
+`define ADDR_PAD     18'h0
 
 `endif

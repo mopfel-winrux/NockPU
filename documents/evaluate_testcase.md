@@ -5,7 +5,7 @@ This document shows how the nockpu should handle the following nock code:
 
 ```
 Addr | Data (hex)           | New Data (hex)     | Notes
-0x00 | 00 0000000 0000009   | 00 0000000 000000A | Total Bytes only matters for compiler not for NPU
+0x00 | 00 0000000 0000009   | 00 0000000 000000A | Total Bytes only matters for the memory unit
 0x01 | 80 0000002 0000003   | 80 0000009 0000003 | Step 1: Get N free cells ned to rewrite main
 0x02 | 03 0000032 0000033   | 03 0000032 0000033 | Not chaning subject, Save this address in register
 0x03 | 02 0000002 0000004   | 80 0000002 0000006 | Step 3: second execute is [subject tel->tel->tel]
@@ -26,7 +26,7 @@ That would look like this:
 
 ```
 Addr | Data (hex)           | New Data (hex)     | Notes
-0x00 | 00 0000000 0000009   | 00 0000000 000000A | Total Bytes only matters for compiler not for NPU
+0x00 | 00 0000000 0000009   | 00 0000000 000000A | Total Bytes only matters for the memory unit
 0x01 | 80 0000002 0000003   | 80 0000004 0000003 | Step 1: save tel->tel values. write addr to hed
 0x02 | 03 0000032 0000033   | 03 0000032 0000033 | Not chaning subject, Save this address in register
 0x03 | 02 0000002 0000004   | 80 0000002 0000006 | Step 3: second execute is [subject tel->tel->tel]
