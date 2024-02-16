@@ -16,6 +16,7 @@
 `define tel_start         27
 `define tel_end           0
 
+
 // Memory unit functions
 `define  GET_CONTENTS    2'b00
 `define  SET_CONTENTS    2'b01
@@ -31,5 +32,6 @@
 
 //Memory constants
 `define NIL          28'hFFFFFFF
+`define ADDR_PAD     18'h0
 
 `endif

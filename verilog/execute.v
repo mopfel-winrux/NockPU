@@ -85,6 +85,7 @@ module execute (
             EXE_FUNC_HINT     = 4'hB,
             EXE_FUNC_INIT     = 4'hC,
             EXE_FUNC_STACK    = 4'hD,
+            EXE_FUNC_AUTOCONS = 4'hE,
             EXE_FUNC_ERROR    = 4'hF;
 
   // slot states
@@ -158,6 +159,14 @@ module execute (
             EXE_STACK_POP_READ            = 4'h7,
             EXE_STACK_POP_WAIT            = 4'h8,
             EXE_STACK_POP_ERR             = 4'h9;
+
+  // Autocons States
+  parameter EXE_AUTO_INIT                 = 4'h0,
+            EXE_AUTO_WRITE_ROOT           = 4'h1,
+            EXE_AUTO_READ_TEL             = 4'h2,
+            EXE_AUTO_WRITE_TEL            = 4'h3,
+            EXE_AUTO_WRITE_MEM            = 4'h4,
+            EXE_AUTO_FINISH               = 4'h5;
 
   always @(posedge clk) begin
     // Flip-flop to store the previous state of execute_start
@@ -260,110 +269,113 @@ module execute (
 
             EXE_INIT_DECODE: begin
               if (mem_data[`hed_tag] == `CELL) begin
-                $stop;
-              end
-              if ((opcode < 0) || (opcode > 11)) begin  //If invalid opcode
-                error <= `ERROR_INVALID_OPCODE;
-                exec_func <= EXE_FUNC_ERROR;
-                state <= EXE_ERROR_INIT;
+
+                exec_func <= EXE_FUNC_AUTOCONS;
+                state <= EXE_AUTO_INIT;
               end else begin
-                case (opcode)
-                  `slot: begin
-                    if (mem_tag[1] == `ATOM) begin  // if b is an atom
-                      stack_P <= trav_P;
-                      exec_func <= EXE_FUNC_SLOT;
-                      state <= EXE_SLOT_INIT;
+                if ((opcode < 0) || (opcode > 11)) begin  //If invalid opcode
+                  error <= `ERROR_INVALID_OPCODE;
+                  exec_func <= EXE_FUNC_ERROR;
+                  state <= EXE_ERROR_INIT;
+                end else begin
+                  case (opcode)
+                    `slot: begin
+                      if (mem_tag[1] == `ATOM) begin  // if b is an atom
+                        stack_P <= trav_P;
+                        exec_func <= EXE_FUNC_SLOT;
+                        state <= EXE_SLOT_INIT;
+                        func_addr <= trav_P;
+                        func_return_exec_func <= EXE_FUNC_INIT;
+                        func_return_state <= EXE_INIT_FINISHED;
+                      end else begin
+                        // Throw error invalid increment formulation
+                        error <= `ERROR_INVALID_SLOT;
+                        exec_func <= EXE_FUNC_ERROR;
+                        state <= EXE_ERROR_INIT;
+                      end
+                    end
+
+                    `constant: begin
+                      exec_func <= EXE_FUNC_CONSTANT;
+                      state <= EXE_CONSTANT_INIT;
                       func_addr <= trav_P;
                       func_return_exec_func <= EXE_FUNC_INIT;
                       func_return_state <= EXE_INIT_FINISHED;
-                    end else begin
-                      // Throw error invalid increment formulation
-                      error <= `ERROR_INVALID_SLOT;
-                      exec_func <= EXE_FUNC_ERROR;
-                      state <= EXE_ERROR_INIT;
-                    end
-                  end
-
-                  `constant: begin
-                    exec_func <= EXE_FUNC_CONSTANT;
-                    state <= EXE_CONSTANT_INIT;
-                    func_addr <= trav_P;
-                    func_return_exec_func <= EXE_FUNC_INIT;
-                    func_return_state <= EXE_INIT_FINISHED;
-                  end
-
-                  `evaluate: begin
-                    exec_func <= EXE_FUNC_EVAL;
-                    state <= EXE_EVAL_INIT;
-                    func_addr <= trav_P;
-                    func_return_exec_func <= EXE_FUNC_INIT;
-                    func_return_state <= EXE_INIT_FINISHED;
-                  end
-
-                  `cell: begin
-                    if (mem_tag[0] == `CELL) begin  // if b is a cell
-                      stack_P <= trav_P;
-                      exec_func <= EXE_FUNC_STACK;
-                      state <= EXE_STACK_INIT;
-                    end else begin
-                      // Throw error invalid increment formulation
-                      error <= `ERROR_INVALID_B_CELL;
-                      exec_func <= EXE_FUNC_ERROR;
-                      state <= EXE_ERROR_INIT;
-                    end
-                    // exec_func <= EXE_FUNC_CELL;
-                    // state <= EXE_CELL_INIT;
-                  end
-
-                  `increment: begin
-                    if (mem_tag[0] == `CELL) begin  // if b is a cell
-                      stack_P <= trav_P;
-                      exec_func <= EXE_FUNC_STACK;
-                      state <= EXE_STACK_INIT;
-                    end else begin
-                      // Throw error invalid increment formulation
-                      error <= `ERROR_INVALID_B_INCR;
-                      exec_func <= EXE_FUNC_ERROR;
-                      state <= EXE_ERROR_INIT;
                     end
 
-                  end
+                    `evaluate: begin
+                      exec_func <= EXE_FUNC_EVAL;
+                      state <= EXE_EVAL_INIT;
+                      func_addr <= trav_P;
+                      func_return_exec_func <= EXE_FUNC_INIT;
+                      func_return_state <= EXE_INIT_FINISHED;
+                    end
 
-                  `equality: begin
-                    exec_func <= EXE_FUNC_EQUAL;
-                    state <= EXE_EQUAL_INIT;
-                  end
+                    `cell: begin
+                      if (mem_tag[0] == `CELL) begin  // if b is a cell
+                        stack_P <= trav_P;
+                        exec_func <= EXE_FUNC_STACK;
+                        state <= EXE_STACK_INIT;
+                      end else begin
+                        // Throw error invalid increment formulation
+                        error <= `ERROR_INVALID_B_CELL;
+                        exec_func <= EXE_FUNC_ERROR;
+                        state <= EXE_ERROR_INIT;
+                      end
+                      // exec_func <= EXE_FUNC_CELL;
+                      // state <= EXE_CELL_INIT;
+                    end
 
-                  `if_then_else: begin
-                    exec_func <= EXE_FUNC_IF;
-                    state <= EXE_IF_INIT;
-                  end
+                    `increment: begin
+                      if (mem_tag[0] == `CELL) begin  // if b is a cell
+                        stack_P <= trav_P;
+                        exec_func <= EXE_FUNC_STACK;
+                        state <= EXE_STACK_INIT;
+                      end else begin
+                        // Throw error invalid increment formulation
+                        error <= `ERROR_INVALID_B_INCR;
+                        exec_func <= EXE_FUNC_ERROR;
+                        state <= EXE_ERROR_INIT;
+                      end
 
-                  `compose: begin
-                    exec_func <= EXE_FUNC_COMPOSE;
-                    state <= EXE_COMPOSE_INIT;
-                  end
+                    end
 
-                  `extend: begin
-                    exec_func <= EXE_FUNC_EXTEND;
-                    state <= EXE_EXTEND_INIT;
-                  end
+                    `equality: begin
+                      exec_func <= EXE_FUNC_EQUAL;
+                      state <= EXE_EQUAL_INIT;
+                    end
 
-                  `invoke: begin
-                    exec_func <= EXE_FUNC_INVOKE;
-                    state <= EXE_INVOKE_INIT;
-                  end
+                    `if_then_else: begin
+                      exec_func <= EXE_FUNC_IF;
+                      state <= EXE_IF_INIT;
+                    end
 
-                  `replace: begin
-                    exec_func <= EXE_FUNC_REPLACE;
-                    state <= EXE_REPLACE_INIT;
-                  end
+                    `compose: begin
+                      exec_func <= EXE_FUNC_COMPOSE;
+                      state <= EXE_COMPOSE_INIT;
+                    end
 
-                  `hint: begin
-                    exec_func <= EXE_FUNC_HINT;
-                    state <= EXE_HINT_INIT;
-                  end
-                endcase
+                    `extend: begin
+                      exec_func <= EXE_FUNC_EXTEND;
+                      state <= EXE_EXTEND_INIT;
+                    end
+
+                    `invoke: begin
+                      exec_func <= EXE_FUNC_INVOKE;
+                      state <= EXE_INVOKE_INIT;
+                    end
+
+                    `replace: begin
+                      exec_func <= EXE_FUNC_REPLACE;
+                      state <= EXE_REPLACE_INIT;
+                    end
+
+                    `hint: begin
+                      exec_func <= EXE_FUNC_HINT;
+                      state <= EXE_HINT_INIT;
+                    end
+                  endcase
+                end
               end
             end
 
@@ -1010,6 +1022,97 @@ module execute (
             EXE_STACK_POP_ERR: begin // D9
               if (mem_ready) begin
                 $stop;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+          endcase
+        end
+
+        EXE_FUNC_AUTOCONS: begin
+          case(state)
+            EXE_AUTO_INIT: begin
+              mem_func <= `GET_FREE;
+              write_data <= 1;
+              mem_execute <= 1;
+              state<= EXE_AUTO_WRITE_ROOT;
+            end
+
+            EXE_AUTO_WRITE_ROOT: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= execute_address;
+                mem_execute <= 1;
+                write_data <= {
+                        6'b000000, // remove execute
+                        `CELL, // Mark as CELL
+                        `CELL, // Mark as CELL
+                        execute_data[`tel_start:`tel_end],
+                        `ADDR_PAD,
+                        free_addr};
+                state <= EXE_AUTO_READ_TEL;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+            
+            EXE_AUTO_READ_TEL: begin
+              if (mem_ready) begin
+                mem_func <= `GET_CONTENTS;
+                address1 <= execute_data[`tel_start:`tel_end];
+                mem_execute <= 1;
+                state <= EXE_AUTO_WRITE_TEL;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+            
+            EXE_AUTO_WRITE_TEL: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= execute_data[`tel_start:`tel_end];
+                mem_execute <= 1;
+                write_data <= {
+                        6'b100000, // mark as execute
+                        execute_data[`hed_tag], // Mark as CELL
+                        read_data1[`tel_tag],
+                        execute_data[`hed_start:`hed_end],
+                        read_data1[`hed_start:`hed_end]};
+                state <= EXE_AUTO_WRITE_MEM;
+                read_data_reg <= read_data1;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_AUTO_WRITE_MEM: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= free_addr;
+                mem_execute <= 1;
+                write_data <= {
+                        6'b100000, // mark as execute
+                        execute_data[`hed_tag], // Mark as CELL
+                        read_data_reg[`tel_tag], // Mark as CELL
+                        execute_data[`hed_start:`hed_end],
+                        read_data_reg[`tel_start:`tel_end]};
+                state <= EXE_AUTO_FINISH;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_AUTO_FINISH: begin
+              if (mem_ready) begin
+                exec_func <= EXE_FUNC_INIT;
+                state <= EXE_INIT_FINISHED;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
