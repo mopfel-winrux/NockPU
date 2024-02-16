@@ -6,6 +6,11 @@
 `define noun_width        28
 `define noun_tag_width    1
 `define execute_bit       63
+`define equality_bit      62
+`define edit_bit          61
+`define large_atom_bit    60
+`define hed_trav          59
+`define tel_trav          58
 `define hed_tag           57
 `define tel_tag           56
 `define tag_width         8

@@ -13,7 +13,8 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/cell_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/constant_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
-parameter MEM_INIT_FILE = "./memory/autocons.hex";
+//parameter MEM_INIT_FILE = "./memory/autocons.hex";
+parameter MEM_INIT_FILE = "./memory/autocons2.hex";
 //parameter MEM_INIT_FILE = "./memory/increment.hex";
 
 //Signal Declarations
