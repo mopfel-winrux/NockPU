@@ -82,8 +82,7 @@ module mem_traversal(
             SYS_EXECUTE_WAIT       = 4'h1,
             SYS_EXECUTE_DECODE     = 4'h2,
             SYS_EXECUTE_READ_ADDR  = 4'h3,
-            SYS_EXECUTE_STACK_TEL  = 4'h4,
-            SYS_EXECUTE_STACK_CHK  = 4'h5,
+            SYS_EXECUTE_STACK      = 4'h4,
             SYS_EXECUTE_ERROR      = 4'hF;
 
   // Operation States
@@ -108,7 +107,8 @@ module mem_traversal(
           case(state)
             SYS_EXECUTE_INIT: begin
               if(read_data1[`stack_bit] ==1) begin
-                $stop;
+                debug_sig <= 7;
+                state <= SYS_EXECUTE_STACK;
               end else begin
                 address1 <= mem_addr;
                 mem_func <= `GET_CONTENTS;
@@ -139,6 +139,10 @@ module mem_traversal(
              end
            end
 
+           SYS_EXECUTE_STACK: begin
+             $stop;
+           end
+
            SYS_EXECUTE_ERROR: begin
              state <= SYS_EXECUTE_ERROR;
              is_finished_reg <= 1;
@@ -166,7 +170,7 @@ module mem_traversal(
 
             SYS_READ_WAIT: begin
               if(mem_ready) begin
-                         debug_sig <= 6;
+                debug_sig <= 6;
                 mem_data <= read_data1;
                 mem_tag <= read_data1[`tag_start:`tag_end];
                 hed <= read_data1[`hed_start:`hed_end];
@@ -286,7 +290,7 @@ module mem_traversal(
                     end
                     else begin
                       // Set the command after write to pop
-                      if(mem_tag[7:6] == 2'b10) begin // If we still need to execute
+                      if(mem_tag[7] == 1'b1) begin // If we still need to execute
                         write_return_sys_func <= SYS_FUNC_EXECUTE;
                         write_return_state <= SYS_EXECUTE_INIT;
                       end else begin
