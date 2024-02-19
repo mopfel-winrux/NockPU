@@ -36,8 +36,7 @@ module cell_block (
   parameter INIT        = 4'h0,
             WRITE       = 4'h1,
             WRITE_WAIT  = 4'h2,
-            READ_TEL    = 4'h3,
-            PREP        = 4'h5;
+            READ_TEL    = 4'h3;
 
   always @(posedge clk or negedge rst) begin
     if (!rst || (cell_start==`MUX_CELL && !(cell_start_ff==`MUX_CELL))) begin
@@ -52,7 +51,6 @@ module cell_block (
         INIT: begin
           cell_debug_sig <=1;
           if(cell_data[`tel_tag] == `ATOM) begin
-            //write [atom nil]
             write_value <= `ATOM;
             state <= WRITE;
           end else begin
@@ -60,7 +58,6 @@ module cell_block (
             mem_func <= `GET_CONTENTS;
             mem_execute <= 1;
             state <= READ_TEL;
-            //check tel to make sure its not an indirect atom
           end
         end
 
@@ -93,10 +90,6 @@ module cell_block (
           mem_func <= `SET_CONTENTS;
           mem_execute <= 1;
           state <= WRITE_WAIT;
-        end
-
-        PREP: begin
-          $stop;
         end
 
         WRITE_WAIT: begin
