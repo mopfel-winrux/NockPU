@@ -6,6 +6,6 @@
 `define  MUX_CELL        3'b010
 `define  MUX_INCR        3'b011
 `define  MUX_EQUAL       3'b100
-`define  MUX_EDITL       3'b101
+`define  MUX_EDIT        3'b101
 
 `endif

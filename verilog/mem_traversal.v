@@ -18,11 +18,10 @@ module mem_traversal(
   output reg [1:0] mem_func,
   output reg [`memory_data_width - 1:0] write_data,
   input [7:0] error,
-  output reg [`memory_addr_width - 1:0] execute_address,
-  output reg [`tag_width - 1:0] execute_tag,
-  output reg [`memory_data_width - 1:0] execute_data,
-  output reg mux_controller,
-  input execute_finished,
+  output reg [`memory_addr_width - 1:0] module_address,
+  output reg [`memory_data_width - 1:0] module_data,
+  output reg [2:0] mux_controller,
+  input module_finished,
   input [3:0] execute_return_sys_func,
   input [3:0] execute_return_state
 );
@@ -99,7 +98,7 @@ module mem_traversal(
       trav_P <= start_addr;
       mem_execute <= 0;
       debug_sig <= 0;
-      mux_controller <= 0;
+      mux_controller <= `MUX_TRAVERSAL;
     end
     else if (execute) begin
       case (sys_func)
@@ -120,10 +119,9 @@ module mem_traversal(
            SYS_EXECUTE_READ_ADDR: begin
              if(mem_ready) begin
                if(trav_B != `NIL) mem_addr <= trav_B;
-               execute_address <= mem_addr;
-               execute_data <= read_data1;
-               execute_tag <= read_data1[`tag_start:`tag_end];
-               mux_controller <= 1;
+               module_address <= mem_addr;
+               module_data <= read_data1;
+               mux_controller <= `MUX_EXECUTE;
                state <= SYS_EXECUTE_WAIT;
              end else begin
                mem_func <= 0;
@@ -132,15 +130,39 @@ module mem_traversal(
            end
 
            SYS_EXECUTE_WAIT: begin
-             if(execute_finished) begin
+             if(module_finished) begin
                sys_func = execute_return_sys_func;
                state = execute_return_state;
-               mux_controller <= 0;
+               mux_controller <= `MUX_TRAVERSAL;
              end
            end
 
            SYS_EXECUTE_STACK: begin
-             $stop;
+             case(read_data1[`hed_start:`hed_end]) 
+               `cell: begin
+                 module_address <= mem_addr;
+                 module_data <= {mem_tag, hed, tel};//read_data1;
+                 mux_controller <= `MUX_CELL;
+                 state <= SYS_EXECUTE_WAIT;
+               end
+               `increment: begin
+                 mux_controller <= `MUX_INCR;
+                 state <= SYS_EXECUTE_WAIT;
+               end
+               `equality: begin
+                 mux_controller <= `MUX_EQUAL;
+                 state <= SYS_EXECUTE_WAIT;
+                 $stop;
+               end
+               `replace: begin
+                 mux_controller <= `MUX_EDIT;
+                 state <= SYS_EXECUTE_WAIT;
+                 $stop;
+               end
+               default: begin
+                 state <= SYS_EXECUTE_ERROR;
+               end
+             endcase
            end
 
            SYS_EXECUTE_ERROR: begin
