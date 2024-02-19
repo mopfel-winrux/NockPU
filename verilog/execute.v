@@ -247,6 +247,7 @@ module execute (
 
             EXE_INIT_DECODE: begin
               if (mem_data[`hed_tag] == `CELL) begin
+                $stop;
                 exec_func <= EXE_FUNC_AUTOCONS;
                 state <= EXE_AUTO_INIT;
               end else begin
@@ -295,8 +296,11 @@ module execute (
                      end
 
                     `increment: begin
+                      $stop;
                       exec_func <= EXE_FUNC_INCR;
                       state <= EXE_INCR_INIT;
+                      func_return_exec_func <= EXE_FUNC_INIT;
+                      func_return_state <= EXE_INIT_FINISHED;
                     end
 
                     `equality: begin

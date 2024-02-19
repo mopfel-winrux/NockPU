@@ -15,9 +15,9 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/evaluate4.hex";
 //parameter MEM_INIT_FILE = "./memory/inc_slot.hex";
 //parameter MEM_INIT_FILE = "./memory/cell_tb.hex";
-parameter MEM_INIT_FILE = "./memory/cell_auto.hex";
+//parameter MEM_INIT_FILE = "./memory/cell_auto.hex";
 //parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
-//parameter MEM_INIT_FILE = "./memory/increment.hex";
+parameter MEM_INIT_FILE = "./memory/increment.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
@@ -91,6 +91,21 @@ wire [3:0] cell_return_sys_func;
 wire [3:0] cell_return_state;
 wire [`tag_width - 1:0] cell_error;
 
+//Signal from incr module to memory Mux
+wire [1:0] mem_func_incr;
+wire mem_execute_incr;
+wire [`memory_addr_width - 1:0] address1_incr;
+wire [`memory_addr_width - 1:0] address2_incr;
+wire [`memory_data_width - 1:0] write_data_incr;
+
+//Signal from MTU to incr Module
+wire [`memory_addr_width - 1:0] incr_address;
+wire [`memory_data_width - 1:0] incr_data;
+wire incr_finished;
+wire [3:0] incr_return_sys_func;
+wire [3:0] incr_return_state;
+wire [`tag_width - 1:0] incr_error;
+
 
 // Instantiate Memory Unit
 memory_unit mem(.func (mem_func),
@@ -110,20 +125,25 @@ memory_unit mem(.func (mem_func),
 
 // Instantiate Memory Mux
 memory_mux memory_mux(.mem_func_a (mem_func_mtu),
-                      .mem_func_b (mem_func_nem),
-                      .mem_func_c (mem_func_cell),
                       .execute_a (mem_execute_mtu),
-                      .execute_b (mem_execute_nem),
-                      .execute_c (mem_execute_cell),
                       .address1_a (address1_mtu),
-                      .address1_b (address1_nem),
-                      .address1_c (address1_cell),
                       .address2_a (address2_mtu),
-                      .address2_b (address2_nem),
-                      .address2_c (address2_cell),
                       .write_data_a (write_data_mtu),
+                      .mem_func_b (mem_func_nem),
+                      .execute_b (mem_execute_nem),
+                      .address1_b (address1_nem),
+                      .address2_b (address2_nem),
                       .write_data_b (write_data_nem),
+                      .mem_func_c (mem_func_cell),
+                      .execute_c (mem_execute_cell),
+                      .address1_c (address1_cell),
+                      .address2_c (address2_cell),
                       .write_data_c (write_data_cell),
+                      .mem_func_d (mem_func_incr),
+                      .execute_d (mem_execute_incr),
+                      .address1_d (address1_incr),
+                      .address2_d (address2_incr),
+                      .write_data_d (write_data_incr),
                       .sel (select),
                       .mem_func (mem_func),
                       .execute (mem_execute),
@@ -147,7 +167,13 @@ control_mux control_mux(.sel (select),
                         .cell_return_sys_func (cell_return_sys_func),
                         .cell_return_state (cell_return_state),
                         .cell_address (cell_address),
-                        .cell_data (cell_data));
+                        .cell_data (cell_data),
+                        .incr_finished (incr_finished),
+                        .incr_return_sys_func (incr_return_sys_func),
+                        .incr_return_state (incr_return_state),
+                        .incr_address (incr_address),
+                        .incr_data (incr_data)
+                      );
 // Instantiate MTU
 mem_traversal traversal(.power (power),
                         .clk (clk),
@@ -208,7 +234,30 @@ cell_block cell_block(.clk(clk),
                       .read_data1(read_data1),
                       .read_data2(read_data2),
                       .write_data(write_data_cell),
-                      .finished(cell_finished));
+                      .finished(cell_finished),
+                      .cell_return_sys_func(cell_return_sys_func),
+                      .cell_return_state(cell_return_state));
+
+//Instantiate Nock Execute Module
+incr_block incr_block(.clk(clk),
+                      .rst(reset),
+                      .incr_error(incr_error),
+                      .incr_start(select),
+                      .incr_address(incr_address),
+                      .incr_data(incr_data),
+                      .mem_ready(mem_ready),
+                      .mem_execute(mem_execute_incr),
+                      .mem_func(mem_func_incr),
+                      .address1(address1_incr),
+                      .address2(address2_incr),
+                      .free_addr(free_addr),
+                      .read_data1(read_data1),
+                      .read_data2(read_data2),
+                      .write_data(write_data_incr),
+                      .finished(incr_finished),
+                      .incr_return_sys_func(incr_return_sys_func),
+                      .incr_return_state(incr_return_state));
+
 
 // Setup Clock
 initial begin

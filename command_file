@@ -3,6 +3,7 @@
 +incdir+./verilog/
 verilog/execute.v
 verilog/cell_block.v
+verilog/incr_block.v
 verilog/memory_unit.v
 #verilog/NPU_UI.v
 verilog/single_port_ram.v

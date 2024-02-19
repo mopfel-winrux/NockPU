@@ -11,6 +11,8 @@ module incr_block (
   input [2:0] incr_start,  // wire to begin execution (mux_conroller from traversal)
   input [`memory_addr_width - 1:0] incr_address,
   input [`memory_data_width - 1:0] incr_data,
+  output reg [3:0] incr_return_sys_func,
+  output reg [3:0] incr_return_state,
   input mem_ready,
   input [`memory_data_width - 1:0] read_data1,
   input [`memory_data_width - 1:0] read_data2,

@@ -11,6 +11,8 @@ module cell_block (
   input [2:0] cell_start,  // wire to begin execution (mux_conroller from traversal)
   input [`memory_addr_width - 1:0] cell_address,
   input [`memory_data_width - 1:0] cell_data,
+  output reg [3:0] cell_return_sys_func,
+  output reg [3:0] cell_return_state,
   input mem_ready,
   input [`memory_data_width - 1:0] read_data1,
   input [`memory_data_width - 1:0] read_data2,
@@ -45,6 +47,7 @@ module cell_block (
       address1 <=0;
       state <= INIT;
       cell_debug_sig <=0;
+      is_finished_reg <= 0;
     end 
     else if (cell_start == `MUX_CELL) begin
       case (state)
@@ -94,7 +97,9 @@ module cell_block (
 
         WRITE_WAIT: begin
           if (mem_ready) begin
-            $stop;
+            cell_return_sys_func <= `SYS_FUNC_READ;
+            cell_return_state <= `SYS_READ_INIT;
+            is_finished_reg <= 1;
           end else begin
             mem_func <= 0;
             mem_execute <= 0;
