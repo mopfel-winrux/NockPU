@@ -16,8 +16,8 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/inc_slot.hex";
 //parameter MEM_INIT_FILE = "./memory/cell_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/cell_auto.hex";
-//parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
-parameter MEM_INIT_FILE = "./memory/increment.hex";
+parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
+//parameter MEM_INIT_FILE = "./memory/increment.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;

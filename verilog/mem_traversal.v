@@ -82,6 +82,7 @@ module mem_traversal(
             SYS_EXECUTE_DECODE     = 4'h2,
             SYS_EXECUTE_READ_ADDR  = 4'h3,
             SYS_EXECUTE_STACK      = 4'h4,
+            SYS_EXECUTE_STACK_WAIT = 4'h5,
             SYS_EXECUTE_ERROR      = 4'hF;
 
   // Operation States
@@ -119,6 +120,7 @@ module mem_traversal(
            SYS_EXECUTE_READ_ADDR: begin
              if(mem_ready) begin
                if(trav_B != `NIL) mem_addr <= trav_B;
+                debug_sig <= 10;
                module_address <= mem_addr;
                module_data <= read_data1;
                mux_controller <= `MUX_EXECUTE;
@@ -130,6 +132,15 @@ module mem_traversal(
            end
 
            SYS_EXECUTE_WAIT: begin
+             if(module_finished) begin
+               mem_addr <= module_address;
+               sys_func = execute_return_sys_func;
+               state = execute_return_state;
+               mux_controller <= `MUX_TRAVERSAL;
+             end
+           end
+
+           SYS_EXECUTE_STACK_WAIT: begin
              if(module_finished) begin
                sys_func = execute_return_sys_func;
                state = execute_return_state;
@@ -143,22 +154,22 @@ module mem_traversal(
                  module_address <= mem_addr;
                  module_data <= {mem_tag, hed, tel};//read_data1;
                  mux_controller <= `MUX_CELL;
-                 state <= SYS_EXECUTE_WAIT;
+                 state <= SYS_EXECUTE_STACK_WAIT;
                end
                `increment: begin
                  module_address <= mem_addr;
                  module_data <= {mem_tag, hed, tel};//read_data1;
                  mux_controller <= `MUX_INCR;
-                 state <= SYS_EXECUTE_WAIT;
+                 state <= SYS_EXECUTE_STACK_WAIT;
                end
                `equality: begin
                  mux_controller <= `MUX_EQUAL;
-                 state <= SYS_EXECUTE_WAIT;
+                 state <= SYS_EXECUTE_STACK_WAIT;
                  $stop;
                end
                `replace: begin
                  mux_controller <= `MUX_EDIT;
-                 state <= SYS_EXECUTE_WAIT;
+                 state <= SYS_EXECUTE_STACK_WAIT;
                  $stop;
                end
                default: begin
