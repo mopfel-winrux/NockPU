@@ -23,7 +23,6 @@ module memory_unit(
   output reg [`memory_data_width - 1:0] read_data1,
   output reg [`memory_data_width - 1:0] read_data2,
   output wire is_ready,
-  output reg [3:0] state,
   output wire [`memory_data_width - 1:0] mem_data_out1,
   output wire [`memory_data_width - 1:0] mem_data_out2
 );
@@ -40,6 +39,7 @@ module memory_unit(
   // Internal regs and wires
   reg [`memory_addr_width - 1:0] free_mem;
 
+  reg [3:0] state;
   // States
   parameter STATE_INIT_SETUP          = 4'h0,
             STATE_INIT_WAIT_0         = 4'h1,
