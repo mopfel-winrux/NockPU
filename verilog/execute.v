@@ -1,4 +1,5 @@
 `include "memory_unit.vh"
+`include "memory_mux.vh"
 `include "mem_traversal.vh"
 `include "execute.vh"
 
@@ -7,7 +8,7 @@ module execute (
   input clk,
   input rst,
   output reg [7:0] error,
-  input execute_start,  // wire to begin execution (mux_conroller from traversal)
+  input [2:0] execute_start,  // wire to begin execution (mux_conroller from traversal)
   input [`memory_addr_width - 1:0] execute_address,
   input [`tag_width - 1:0] execute_tag,
   input [`memory_data_width - 1:0] execute_data,
@@ -28,7 +29,7 @@ module execute (
   reg [7:0] debug_sig;
 
   // Interface with memory traversal
-  reg execute_start_ff;
+  reg [2:0] execute_start_ff;
   reg is_finished_reg;
   assign finished = is_finished_reg;
 
@@ -55,14 +56,6 @@ module execute (
   reg [`memory_data_width - 1:0] mem_data;
   reg [`memory_addr_width - 1:0] execute_address_reg;
 
-  // Stack Registers
-  reg [`noun_width - 1:0] stack_P, stack_P_tel;
-  reg [`noun_width - 1:0] stack_a, stack_b;
-  reg [`tag_width - 1:0] stack_mem_tag_1, stack_mem_tag_2;
-  reg [3:0] stack_return_exec_func;
-  reg [3:0] stack_return_state;
-  reg [`memory_data_width - 1:0] mem_reg;
-
   // Traversal Registers needed
   reg [`noun_width - 1:0] trav_P;
   reg [`noun_width - 1:0] trav_B;
@@ -84,8 +77,7 @@ module execute (
             EXE_FUNC_REPLACE  = 4'hA,
             EXE_FUNC_HINT     = 4'hB,
             EXE_FUNC_INIT     = 4'hC,
-            EXE_FUNC_STACK    = 4'hD,
-            EXE_FUNC_AUTOCONS = 4'hE,
+            EXE_FUNC_AUTOCONS = 4'hD,
             EXE_FUNC_ERROR    = 4'hF;
 
   // slot states
@@ -113,9 +105,9 @@ module execute (
             EXE_CELL_WRITE_WAIT = 4'h2;
 
   //increment states
-  parameter EXE_INCR_INIT = 4'h0,
-            EXE_INCR_A    = 4'h1, 
-            EXE_INCR_WAIT = 4'h2;
+  parameter EXE_INCR_INIT       = 4'h0, 
+            EXE_INCR_CHECK      = 4'h1, 
+            EXE_INCR_WRITE_WAIT = 4'h2;
 
   //equal states
   parameter EXE_EQUAL_INIT = 4'h0;
@@ -148,18 +140,6 @@ module execute (
             EXE_INIT_WRIT_TEL             = 4'h3,
             EXE_INIT_FINISHED             = 4'hF;
 
-  //Stacking States
-  parameter EXE_STACK_INIT                = 4'h0,
-            EXE_STACK_READ_WAIT           = 4'h1,
-            EXE_STACK_READ_WAIT_2         = 4'h2,
-            EXE_STACK_WRITE_WAIT          = 4'h3,
-            EXE_STACK_CHECK_NEXT          = 4'h4,
-            EXE_STACK_CHECK_WAIT          = 4'h5,
-            EXE_STACK_POP                 = 4'h6,
-            EXE_STACK_POP_READ            = 4'h7,
-            EXE_STACK_POP_WAIT            = 4'h8,
-            EXE_STACK_POP_ERR             = 4'h9;
-
   // Autocons States
   parameter EXE_AUTO_INIT                 = 4'h0,
             EXE_AUTO_WRITE_ROOT           = 4'h1,
@@ -174,7 +154,7 @@ module execute (
   end
 
   always @(posedge clk or negedge rst) begin
-    if (!rst || (execute_start && !execute_start_ff)) begin
+    if (!rst || (execute_start==`MUX_EXECUTE && !(execute_start_ff==`MUX_EXECUTE))) begin
       exec_func <= EXE_FUNC_INIT;
       state <= EXE_INIT_INIT;
       trav_B <= `NIL;
@@ -182,20 +162,18 @@ module execute (
       read_data_reg <= 0;
       execute_return_sys_func <= 0;
       execute_return_state <= 0;
-      stack_mem_tag_1 <= 0;
-      stack_mem_tag_2 <= 0;
       write_data <= 0;
       mem_execute<=0;
       debug_sig <= 0;
       address1 <=0;
     end 
-    else if (execute_start) begin
+    else if (execute_start == `MUX_EXECUTE) begin
       case (exec_func)
         EXE_FUNC_INIT: begin
           case (state)
             EXE_INIT_INIT: begin
               is_finished_reg <=0;
-              if (execute_start) begin
+              if (execute_start == `MUX_EXECUTE) begin
                 if (execute_tag[0] == `ATOM) begin
                   error <= `ERROR_TEL_NOT_CELL;
                   state <= EXE_ERROR_INIT;
@@ -269,7 +247,6 @@ module execute (
 
             EXE_INIT_DECODE: begin
               if (mem_data[`hed_tag] == `CELL) begin
-
                 exec_func <= EXE_FUNC_AUTOCONS;
                 state <= EXE_AUTO_INIT;
               end else begin
@@ -281,7 +258,6 @@ module execute (
                   case (opcode)
                     `slot: begin
                       if (mem_tag[1] == `ATOM) begin  // if b is an atom
-                        stack_P <= trav_P;
                         exec_func <= EXE_FUNC_SLOT;
                         state <= EXE_SLOT_INIT;
                         func_addr <= trav_P;
@@ -312,32 +288,17 @@ module execute (
                     end
 
                     `cell: begin
-                      if (mem_tag[0] == `CELL) begin  // if b is a cell
-                        stack_P <= trav_P;
-                        exec_func <= EXE_FUNC_STACK;
-                        state <= EXE_STACK_INIT;
-                      end else begin
-                        // Throw error invalid increment formulation
-                        error <= `ERROR_INVALID_B_CELL;
-                        exec_func <= EXE_FUNC_ERROR;
-                        state <= EXE_ERROR_INIT;
-                      end
-                      // exec_func <= EXE_FUNC_CELL;
-                      // state <= EXE_CELL_INIT;
-                    end
+                      exec_func <= EXE_FUNC_CELL;
+                      state <= EXE_CELL_INIT;
+                      func_return_exec_func <= EXE_FUNC_INIT;
+                      func_return_state <= EXE_INIT_FINISHED;
+                     end
 
                     `increment: begin
-                      if (mem_tag[0] == `CELL) begin  // if b is a cell
-                        stack_P <= trav_P;
-                        exec_func <= EXE_FUNC_STACK;
-                        state <= EXE_STACK_INIT;
-                      end else begin
-                        // Throw error invalid increment formulation
-                        error <= `ERROR_INVALID_B_INCR;
-                        exec_func <= EXE_FUNC_ERROR;
-                        state <= EXE_ERROR_INIT;
-                      end
-
+                      exec_func <= EXE_FUNC_INCR;
+                      state <= EXE_INCR_INIT;
+                      func_return_exec_func <= EXE_FUNC_INIT;
+                      func_return_state <= EXE_INIT_FINISHED;
                     end
 
                     `equality: begin
@@ -380,7 +341,7 @@ module execute (
             end
 
             EXE_INIT_FINISHED: begin
-              if (execute_start == 0) begin  // If still high don't do anything
+              if (execute_start != `MUX_EXECUTE) begin  // If still high don't do anything
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_INIT;
                 trav_B <= `NIL;
@@ -410,7 +371,6 @@ module execute (
               address1 <= execute_data[`hed_start:`hed_end]; // Read subject
               subject <= execute_data[`hed_start:`hed_end];
               subject_tag <= execute_data[`hed_tag];
-              mem_reg <= execute_data;
               state <= EXE_SLOT_PREP;
               mem_execute <= 1;
               mem_func <= `GET_CONTENTS;
@@ -701,10 +661,17 @@ module execute (
           case(state)
             EXE_CELL_INIT: begin
               if (mem_ready) begin
-                address1 <= write_addr_reg;
+                //rewrite value in addr to *[a tel]
+                address1 <= address1;
                 state <= EXE_CELL_CHECK;
                 mem_execute <= 1;
-                mem_func <= `GET_CONTENTS;
+                mem_func <= `SET_CONTENTS;
+                write_data <= {
+                        6'b100000, // add execute
+                        execute_data[`hed_tag], 
+                        read_data1[`tel_tag], // Mark as CELL
+                        execute_data[`hed_start:`hed_end],
+                        read_data1[`tel_start:`tel_end]};
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -714,13 +681,16 @@ module execute (
 
             EXE_CELL_CHECK: begin
               if (mem_ready) begin
-                address1 <= func_addr;
+                address1 <= execute_address;
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
-                write_data <= {6'b000000,
-                               2'b11,
-                               27'h0, read_data1[`hed_tag],
-                              `NIL};
+                write_data <= {
+                        6'b110000, // mark stack bit
+                        `ATOM, 
+                        `CELL,
+                        `noun_width'h3,//opcode 3
+                        `ADDR_PAD,
+                        address1};
                 state <= EXE_CELL_WRITE_WAIT;
               end else begin
                 mem_func <= 0;
@@ -733,6 +703,8 @@ module execute (
               if (mem_ready) begin
                 exec_func <= func_return_exec_func;
                 state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -744,14 +716,20 @@ module execute (
         end
 
         EXE_FUNC_INCR: begin
-          case (state)
+          case(state)
             EXE_INCR_INIT: begin
               if (mem_ready) begin
-                address1 <= write_addr_reg;
-                mem_reg <= execute_data;
-                state <= EXE_INCR_A;
+                //rewrite value in addr to *[a tel]
+                address1 <= address1;
+                state <= EXE_INCR_CHECK;
                 mem_execute <= 1;
-                mem_func <= `GET_CONTENTS;
+                mem_func <= `SET_CONTENTS;
+                write_data <= {
+                        6'b100000, // add execute
+                        execute_data[`hed_tag], 
+                        read_data1[`tel_tag], // Mark as CELL
+                        execute_data[`hed_start:`hed_end],
+                        read_data1[`tel_start:`tel_end]};
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -759,24 +737,19 @@ module execute (
               end
             end
 
-            EXE_INCR_A: begin
+            EXE_INCR_CHECK: begin
               if (mem_ready) begin
-                if (read_data1[`hed_tag] == `CELL) begin
-                  error <= `ERROR_INVALID_B_INCR;
-                  exec_func <= EXE_FUNC_ERROR;
-                  state <= EXE_ERROR_INIT;
-                end else begin
-                  address1 <= func_addr;
-                  write_addr_reg <= func_addr;
-                  mem_func <= `SET_CONTENTS;
-                  mem_execute <= 1;
-                  write_data <= {6'b000000,
-                                 read_data1[`hed_tag],
-                                 1'b1,
-                                 read_data1[`hed_start:`hed_end] + 28'h1,
-                                 `NIL};
-                  state <= EXE_INCR_WAIT;
-                end
+                address1 <= execute_address;
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                write_data <= {
+                        6'b110000, // mark stack bit
+                        `ATOM, 
+                        `CELL,
+                        `noun_width'h4,//opcode 4
+                        `ADDR_PAD,
+                        address1};
+                state <= EXE_INCR_WRITE_WAIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -784,17 +757,18 @@ module execute (
               end
             end
 
-            EXE_INCR_WAIT: begin
-              if(mem_ready) begin
-                  exec_func <= func_return_exec_func;
-                  state <= func_return_state;
+            EXE_INCR_WRITE_WAIT: begin
+              if (mem_ready) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
                 read_data_reg <= read_data1;
               end
             end
-
           endcase
         end
 
@@ -839,197 +813,7 @@ module execute (
           $stop;
           //endcase
         end
-
-        EXE_FUNC_STACK: begin
-          case (state)
-            EXE_STACK_INIT: begin // D0
-              address1 <= stack_P;
-              trav_P <= stack_P;
-              mem_func <= `GET_CONTENTS;
-              mem_execute <= 1;
-              state <= EXE_STACK_READ_WAIT;
-            end
-
-            EXE_STACK_READ_WAIT: begin // D1
-              if (mem_ready) begin
-                read_data_reg <= read_data1;
-                stack_a <= read_data1[`hed_start:`hed_end];
-                address1 <= read_data1[`tel_start:`tel_end];
-                stack_P_tel <= read_data1[`tel_start:`tel_end];
-                stack_mem_tag_1 <= read_data1[`tag_start:`tag_end];
-
-                mem_func <= `GET_CONTENTS;
-                mem_execute <= 1;
-                state <= EXE_STACK_READ_WAIT_2;
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
-            EXE_STACK_READ_WAIT_2: begin //D2
-              if (mem_ready) begin
-                stack_b <= read_data1[`tel_start:`tel_end];
-                stack_mem_tag_2 <= read_data1[`tag_start:`tag_end];
-
-                address1 <= stack_P;
-                write_data <= {
-                  stack_mem_tag_1[7],
-                  3'b000,
-                  read_data1[`tag_start-1],
-                  stack_mem_tag_1[2],
-                  read_data1[`tag_start-3],
-                  stack_mem_tag_1[0],
-                  read_data1[`hed_start:`hed_end],
-                  trav_B
-                };  //Set data to visited tel and b in tel while swaping opcode and a
-                mem_func <= `SET_CONTENTS;
-                mem_execute <= 1;
-                state <= EXE_STACK_WRITE_WAIT;
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
-            EXE_STACK_WRITE_WAIT: begin //D3
-              if (mem_ready) begin
-                address1 <= stack_P_tel;
-                write_data <= {
-                  stack_mem_tag_2[7],
-                  3'b000,
-                  stack_mem_tag_1[3],
-                  stack_mem_tag_2[2],
-                  stack_mem_tag_1[1],
-                  stack_mem_tag_2[0],
-                  stack_a,
-                  read_data1[`tel_start:`tel_end]
-                };
-                mem_func <= `SET_CONTENTS;
-                mem_execute <= 1;
-                state <= EXE_STACK_CHECK_NEXT;
-                trav_B <= trav_P;
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
-            EXE_STACK_CHECK_NEXT: begin //D4
-              if (mem_ready) begin
-                address1 <= read_data1[`tel_start:`tel_end];
-                mem_func <= `GET_CONTENTS;
-                mem_execute <= 1;
-                state <= EXE_STACK_CHECK_WAIT;
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
-            EXE_STACK_CHECK_WAIT: begin //D5
-              if (mem_ready) begin
-                //If invalid opcode
-                if((read_data1[`hed_start:`hed_end] < 0) || 
-                   (read_data1[`hed_start:`hed_end] > 11)) begin 
-                  error <= `ERROR_INVALID_OPCODE;
-                  exec_func <= EXE_FUNC_ERROR;
-                  state <= EXE_ERROR_INIT;
-                end else if (read_data1[`hed_start:`hed_end] == `slot) begin
-                  exec_func <= EXE_FUNC_SLOT;
-                  state <= EXE_SLOT_INIT;
-                  a <= stack_a;
-                  b <= read_data1[`tel_start:`tel_end];
-                  func_addr <= address1;
-                  trav_P <= stack_P_tel;
-                  func_return_exec_func <= EXE_FUNC_STACK;
-                  func_return_state <= EXE_STACK_POP;
-                end else if (read_data1[`hed_start:`hed_end] == `constant) begin
-                  exec_func <= EXE_FUNC_CONSTANT;
-                  state <= EXE_CONSTANT_INIT;
-                  a <= stack_a;
-                  b <= read_data1[`tel_start:`tel_end];
-                  func_addr <= stack_P_tel;
-                  trav_P <= stack_P_tel;
-                  func_return_exec_func <= EXE_FUNC_STACK;
-                  func_return_state <= EXE_STACK_POP;
-                end else begin
-                  stack_P <= stack_P_tel;
-                  state   <= EXE_STACK_INIT;
-                end
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
-            EXE_STACK_POP: begin //D6
-              if (mem_ready) begin
-                trav_P <= trav_B;
-                address1 <= trav_P;
-                mem_func <= `GET_CONTENTS;
-                mem_execute <= 1;
-                state <= EXE_STACK_POP_READ;
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
-            EXE_STACK_POP_READ: begin //D7
-              if (mem_ready) begin
-                a <= read_data1[`hed_start:`hed_end];
-                address1 <= trav_B;
-                mem_func <= `GET_CONTENTS;
-                mem_execute <= 1;
-                state <= EXE_STACK_POP_WAIT;
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
-            EXE_STACK_POP_WAIT: begin //D8
-              if (mem_ready) begin
-                opcode <= read_data1[`hed_start:`hed_end];
-                trav_B <= read_data1[`tel_start:`tel_end];
-                func_addr <= trav_B;
-                if(read_data1[`tel_end+9:`tel_end] ==  1023) begin 
-                  // mem_addr is only max when you reach the end and use trav_b's inital value
-                  func_return_exec_func <= EXE_FUNC_INIT;
-                  func_return_state <= EXE_INIT_FINISHED;
-                end else begin
-                  func_return_exec_func <= EXE_FUNC_STACK;
-                  func_return_state <= EXE_STACK_POP;
-                end
-
-                if(read_data1[`tel_start:`tel_end] == `NIL && 
-                   read_data1[`tel_tag] == `ATOM) begin
-                  exec_func <= EXE_FUNC_INIT;
-                  state <= EXE_INIT_FINISHED;
-                end else begin
-                  // THis only works because the exec_functions are defined as
-                  // the same numer as an opcode
-                  exec_func <= read_data1[`hed_start:`hed_end];
-                  state <= 0;
-                end
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
-            EXE_STACK_POP_ERR: begin // D9
-              if (mem_ready) begin
-                $stop;
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-          endcase
-        end
-
+        
         EXE_FUNC_AUTOCONS: begin
           case(state)
             EXE_AUTO_INIT: begin
