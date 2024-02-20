@@ -30,14 +30,15 @@ module incr_block (
   reg [2:0] incr_start_ff;
   reg is_finished_reg;
   assign finished = is_finished_reg;
+  reg [`noun_width-1:0] write_value;
 
   // State Machine Stuff
   reg [3:0] state;
   parameter INIT        = 4'h0,
-            PREP        = 4'h1,
-            CHECK       = 4'h2,
-            DONE        = 4'h3,
-            CELL_OF_NIL = 4'h4;
+            WRITE       = 4'h1,
+            WRITE_WAIT  = 4'h2,
+            READ_TEL    = 4'h3,
+            INCR_ERROR  = 4'h4;
 
   always @(posedge clk or negedge rst) begin
     if (!rst || (incr_start==`MUX_INCR && !(incr_start_ff==`MUX_INCR))) begin
@@ -50,11 +51,57 @@ module incr_block (
     else if (incr_start == `MUX_INCR) begin
       case (state)
         INIT: begin
-          incr_debug_sig <= 1;
-          state <= PREP;
+          if(incr_data[`tel_tag] == `ATOM) begin
+            write_value <= incr_data[`tel_start:`tel_end]+`noun_width'h1;
+            state <= WRITE;
+          end else begin
+            address1 <= incr_data[`tel_start:`tel_end];
+            mem_func <= `GET_CONTENTS;
+            mem_execute <= 1;
+            state <= READ_TEL;
+          end
         end
 
-        PREP: begin
+        READ_TEL: begin
+          if (mem_ready) begin
+            if(read_data1[`tel_start:`tel_end] ==`NIL && read_data1[`tel_tag] == `ATOM && read_data1[`hed_tag] == `ATOM) begin
+              write_value <= read_data1[`hed_start:`hed_end]+`noun_width'h1;
+              state <= WRITE;
+            end else begin
+              //TODO Check for large atom
+              state <= INCR_ERROR;
+            end
+          end else begin
+            mem_func <= 0;
+            mem_execute <= 0;
+          end
+        end
+
+        WRITE: begin
+          write_data <= {
+            6'b000000,
+            `ATOM,
+            `ATOM,
+            write_value,
+            `NIL};
+          address1 <= incr_address;
+          mem_func <= `SET_CONTENTS;
+          mem_execute <= 1;
+          state <= WRITE_WAIT;
+        end
+
+        WRITE_WAIT: begin
+          if (mem_ready) begin
+            incr_return_sys_func <= `SYS_FUNC_READ;
+            incr_return_state <= `SYS_READ_INIT;
+            is_finished_reg <= 1;
+          end else begin
+            mem_func <= 0;
+            mem_execute <= 0;
+          end
+        end
+
+        INCR_ERROR: begin
           $stop;
         end
       endcase

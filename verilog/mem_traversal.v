@@ -146,6 +146,8 @@ module mem_traversal(
                  state <= SYS_EXECUTE_WAIT;
                end
                `increment: begin
+                 module_address <= mem_addr;
+                 module_data <= {mem_tag, hed, tel};//read_data1;
                  mux_controller <= `MUX_INCR;
                  state <= SYS_EXECUTE_WAIT;
                end

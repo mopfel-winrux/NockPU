@@ -105,9 +105,9 @@ module execute (
             EXE_CELL_WRITE_WAIT = 4'h2;
 
   //increment states
-  parameter EXE_INCR_INIT = 4'h0,
-            EXE_INCR_A    = 4'h1, 
-            EXE_INCR_WAIT = 4'h2;
+  parameter EXE_INCR_INIT       = 4'h0, 
+            EXE_INCR_CHECK      = 4'h1, 
+            EXE_INCR_WRITE_WAIT = 4'h2;
 
   //equal states
   parameter EXE_EQUAL_INIT = 4'h0;
@@ -247,7 +247,6 @@ module execute (
 
             EXE_INIT_DECODE: begin
               if (mem_data[`hed_tag] == `CELL) begin
-                $stop;
                 exec_func <= EXE_FUNC_AUTOCONS;
                 state <= EXE_AUTO_INIT;
               end else begin
@@ -296,7 +295,6 @@ module execute (
                      end
 
                     `increment: begin
-                      $stop;
                       exec_func <= EXE_FUNC_INCR;
                       state <= EXE_INCR_INIT;
                       func_return_exec_func <= EXE_FUNC_INIT;
@@ -718,14 +716,20 @@ module execute (
         end
 
         EXE_FUNC_INCR: begin
-          case (state)
+          case(state)
             EXE_INCR_INIT: begin
-              $stop;
               if (mem_ready) begin
-                address1 <= write_addr_reg;
-                state <= EXE_INCR_A;
+                //rewrite value in addr to *[a tel]
+                address1 <= address1;
+                state <= EXE_INCR_CHECK;
                 mem_execute <= 1;
-                mem_func <= `GET_CONTENTS;
+                mem_func <= `SET_CONTENTS;
+                write_data <= {
+                        6'b100000, // add execute
+                        execute_data[`hed_tag], 
+                        read_data1[`tel_tag], // Mark as CELL
+                        execute_data[`hed_start:`hed_end],
+                        read_data1[`tel_start:`tel_end]};
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -733,24 +737,19 @@ module execute (
               end
             end
 
-            EXE_INCR_A: begin
+            EXE_INCR_CHECK: begin
               if (mem_ready) begin
-                if (read_data1[`hed_tag] == `CELL) begin
-                  error <= `ERROR_INVALID_B_INCR;
-                  exec_func <= EXE_FUNC_ERROR;
-                  state <= EXE_ERROR_INIT;
-                end else begin
-                  address1 <= func_addr;
-                  write_addr_reg <= func_addr;
-                  mem_func <= `SET_CONTENTS;
-                  mem_execute <= 1;
-                  write_data <= {6'b000000,
-                                 read_data1[`hed_tag],
-                                 1'b1,
-                                 read_data1[`hed_start:`hed_end] + 28'h1,
-                                 `NIL};
-                  state <= EXE_INCR_WAIT;
-                end
+                address1 <= execute_address;
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                write_data <= {
+                        6'b110000, // mark stack bit
+                        `ATOM, 
+                        `CELL,
+                        `noun_width'h4,//opcode 4
+                        `ADDR_PAD,
+                        address1};
+                state <= EXE_INCR_WRITE_WAIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -758,17 +757,18 @@ module execute (
               end
             end
 
-            EXE_INCR_WAIT: begin
-              if(mem_ready) begin
-                  exec_func <= func_return_exec_func;
-                  state <= func_return_state;
+            EXE_INCR_WRITE_WAIT: begin
+              if (mem_ready) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
                 read_data_reg <= read_data1;
               end
             end
-
           endcase
         end
 
