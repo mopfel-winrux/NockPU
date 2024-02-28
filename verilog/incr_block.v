@@ -38,7 +38,13 @@ module incr_block (
             WRITE       = 4'h1,
             WRITE_WAIT  = 4'h2,
             READ_TEL    = 4'h3,
-            INCR_ERROR  = 4'h4;
+            PAUSE       = 4'h4,
+            INCR_ERROR  = 4'h5;
+
+  always @(posedge clk) begin
+    // Flip-flop to store the previous state of incr_start
+    incr_start_ff <= incr_start;
+  end
 
   always @(posedge clk or negedge rst) begin
     if (!rst || (incr_start==`MUX_INCR && !(incr_start_ff==`MUX_INCR))) begin
@@ -46,6 +52,7 @@ module incr_block (
       mem_execute<=0;
       address1 <=0;
       state <= INIT;
+      is_finished_reg <=0;
       incr_debug_sig <=0;
     end 
     else if (incr_start == `MUX_INCR) begin
@@ -95,10 +102,15 @@ module incr_block (
             incr_return_sys_func <= `SYS_FUNC_READ;
             incr_return_state <= `SYS_READ_INIT;
             is_finished_reg <= 1;
+            state <= PAUSE;
           end else begin
             mem_func <= 0;
             mem_execute <= 0;
           end
+        end
+
+        PAUSE: begin
+          if (incr_start == `MUX_INCR) state<= INIT;
         end
 
         INCR_ERROR: begin

@@ -110,7 +110,14 @@ module execute (
             EXE_INCR_WRITE_WAIT = 4'h2;
 
   //equal states
-  parameter EXE_EQUAL_INIT = 4'h0;
+  parameter EXE_EQUAL_INIT          = 4'h0,
+            EXE_EQUAL_WRITE_ROOT    = 4'h1,
+            EXE_EQUAL_READ_TEL      = 4'h2,
+            EXE_EQUAL_READ_TEL_TEL  = 4'h3,
+            EXE_EQUAL_WRITE_TEL     = 4'h4,
+            EXE_EQUAL_WRITE_TEL_TEL = 4'h5,
+            EXE_EQUAL_WRITE_MEM     = 4'h6,
+            EXE_EQUAL_FINISH        = 4'h7;
 
   //if then else states
   parameter EXE_IF_INIT = 4'h0;
@@ -773,9 +780,126 @@ module execute (
         end
 
         EXE_FUNC_EQUAL: begin
-          //case(state)
-          $stop;
-          //endcase
+          case(state)
+            EXE_EQUAL_INIT: begin
+              mem_func <= `GET_FREE;
+              write_data <= 1;
+              mem_execute <= 1;
+              state<= EXE_EQUAL_WRITE_ROOT;
+            end
+
+            EXE_EQUAL_WRITE_ROOT: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= execute_address;
+                mem_execute <= 1;
+                write_data <= {
+                        6'b110000, // mark as execute opcode
+                        `ATOM, // Mark as ATOM
+                        `CELL, // Mark as CELL
+                        `noun_width'h5,
+                        `ADDR_PAD,
+                        free_addr};
+                state <= EXE_EQUAL_READ_TEL;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+          EXE_EQUAL_READ_TEL: begin
+              if (mem_ready) begin
+                mem_func <= `GET_CONTENTS;
+                address1 <= execute_data[`tel_start:`tel_end];
+                mem_execute <= 1;
+                state <= EXE_EQUAL_READ_TEL_TEL;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+          EXE_EQUAL_READ_TEL_TEL: begin
+              if (mem_ready) begin
+                mem_func <= `GET_CONTENTS;
+                read_data_reg <= read_data1;
+                address1 <= read_data1[`tel_start:`tel_end];
+                mem_execute <= 1;
+                state <= EXE_EQUAL_WRITE_TEL;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+
+          EXE_EQUAL_WRITE_TEL: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= execute_data[`tel_start:`tel_end];
+                mem_execute <= 1;
+                write_data <= {
+                        6'b100000, // mark as execute opcode
+                        execute_data[`hed_tag],
+                        read_data1[`hed_tag],
+                        execute_data[`hed_start:`hed_end],
+                        read_data1[`hed_start:`hed_end]};
+                state <= EXE_EQUAL_WRITE_TEL_TEL;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+          EXE_EQUAL_WRITE_TEL_TEL: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= read_data_reg[`tel_start:`tel_end];
+                mem_execute <= 1;
+                write_data <= {
+                        6'b100000, // mark as execute opcode
+                        execute_data[`hed_tag],
+                        read_data1[`tel_tag],
+                        execute_data[`hed_start:`hed_end],
+                        read_data1[`tel_start:`tel_end]};
+                state <= EXE_EQUAL_WRITE_MEM;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+          EXE_EQUAL_WRITE_MEM: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= free_addr;
+                mem_execute <= 1;
+                write_data <= {
+                        6'b000000, // mark as execute opcode
+                        `CELL,
+                        `CELL,
+                        execute_data[`tel_start:`tel_end],
+                        read_data_reg[`tel_start:`tel_end]};
+                state <= EXE_EQUAL_FINISH;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_EQUAL_FINISH: begin
+              if (mem_ready) begin
+                exec_func <= EXE_FUNC_INIT;
+                state <= EXE_INIT_FINISHED;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+          endcase
         end
 
         EXE_FUNC_IF: begin

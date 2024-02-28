@@ -38,7 +38,13 @@ module cell_block (
   parameter INIT        = 4'h0,
             WRITE       = 4'h1,
             WRITE_WAIT  = 4'h2,
-            READ_TEL    = 4'h3;
+            READ_TEL    = 4'h3,
+            PAUSE       = 4'h4;
+
+  always @(posedge clk) begin
+    // Flip-flop to store the previous state of cell_start
+    cell_start_ff <= cell_start;
+  end
 
   always @(posedge clk or negedge rst) begin
     if (!rst || (cell_start==`MUX_CELL && !(cell_start_ff==`MUX_CELL))) begin
@@ -100,10 +106,15 @@ module cell_block (
             cell_return_sys_func <= `SYS_FUNC_READ;
             cell_return_state <= `SYS_READ_INIT;
             is_finished_reg <= 1;
+            state <= PAUSE;
           end else begin
             mem_func <= 0;
             mem_execute <= 0;
           end
+        end
+
+        PAUSE: begin
+          if (cell_start == `MUX_CELL) state<= INIT;
         end
       endcase
     end

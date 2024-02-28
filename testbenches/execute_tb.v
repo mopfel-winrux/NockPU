@@ -17,7 +17,15 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/cell_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/cell_auto.hex";
 //parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
-parameter MEM_INIT_FILE = "./memory/increment.hex";
+//parameter MEM_INIT_FILE = "./memory/increment.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/yes_atom.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/yes_cell.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/yes_deep_cell.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/nested_yes.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom_cell.hex";
+parameter MEM_INIT_FILE = "./memory/opcode_5/no_deep_cell.hex";
+//parameter MEM_INIT_FILE = "./memory/add_equal.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
@@ -106,6 +114,22 @@ wire [3:0] incr_return_sys_func;
 wire [3:0] incr_return_state;
 wire [`tag_width - 1:0] incr_error;
 
+//Signal from incr module to memory Mux
+wire [1:0] mem_func_equal;
+wire mem_execute_equal;
+wire [`memory_addr_width - 1:0] address1_equal;
+wire [`memory_addr_width - 1:0] address2_equal;
+wire [`memory_data_width - 1:0] write_data_equal;
+
+//Signal from MTU to equal Module
+wire [`memory_addr_width - 1:0] equal_address;
+wire [`memory_data_width - 1:0] equal_data;
+wire equal_finished;
+wire [3:0] equal_return_sys_func;
+wire [3:0] equal_return_state;
+wire [`tag_width - 1:0] equal_error;
+
+
 
 // Instantiate Memory Unit
 memory_unit mem(.func (mem_func),
@@ -144,6 +168,11 @@ memory_mux memory_mux(.mem_func_a (mem_func_mtu),
                       .address1_d (address1_incr),
                       .address2_d (address2_incr),
                       .write_data_d (write_data_incr),
+                      .mem_func_e (mem_func_equal),
+                      .execute_e (mem_execute_equal),
+                      .address1_e (address1_equal),
+                      .address2_e (address2_equal),
+                      .write_data_e (write_data_equal),
                       .sel (select),
                       .mem_func (mem_func),
                       .execute (mem_execute),
@@ -172,7 +201,12 @@ control_mux control_mux(.sel (select),
                         .incr_return_sys_func (incr_return_sys_func),
                         .incr_return_state (incr_return_state),
                         .incr_address (incr_address),
-                        .incr_data (incr_data)
+                        .incr_data (incr_data),
+                        .equal_finished (equal_finished),
+                        .equal_return_sys_func (equal_return_sys_func),
+                        .equal_return_state (equal_return_state),
+                        .equal_address (equal_address),
+                        .equal_data (equal_data)
                       );
 // Instantiate MTU
 mem_traversal traversal(.power (power),
@@ -218,7 +252,7 @@ execute execute(.clk(clk),
                 .execute_return_sys_func(execute_return_sys_func),
                 .execute_return_state(execute_return_state));
 
-//Instantiate Nock Execute Module
+//Instantiate Nock cell Module
 cell_block cell_block(.clk(clk),
                       .rst(reset),
                       .cell_error(cell_error),
@@ -238,7 +272,7 @@ cell_block cell_block(.clk(clk),
                       .cell_return_sys_func(cell_return_sys_func),
                       .cell_return_state(cell_return_state));
 
-//Instantiate Nock Execute Module
+//Instantiate Nock increment Module
 incr_block incr_block(.clk(clk),
                       .rst(reset),
                       .incr_error(incr_error),
@@ -257,6 +291,26 @@ incr_block incr_block(.clk(clk),
                       .finished(incr_finished),
                       .incr_return_sys_func(incr_return_sys_func),
                       .incr_return_state(incr_return_state));
+
+//Instantiate Nock Equal Module
+equal_block equal_block(.clk(clk),
+                        .rst(reset),
+                        .equal_error(equal_error),
+                        .equal_start(select),
+                        .equal_address(equal_address),
+                        .equal_data(equal_data),
+                        .mem_ready(mem_ready),
+                        .mem_execute(mem_execute_equal),
+                        .mem_func(mem_func_equal),
+                        .address1(address1_equal),
+                        .address2(address2_equal),
+                        .free_addr(free_addr),
+                        .read_data1(read_data1),
+                        .read_data2(read_data2),
+                        .write_data(write_data_equal),
+                        .finished(equal_finished),
+                        .equal_return_sys_func(equal_return_sys_func),
+                        .equal_return_state(equal_return_state));
 
 
 // Setup Clock

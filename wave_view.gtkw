@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Sun Feb 18 15:13:20 2024
+[*] Tue Feb 20 00:24:01 2024
 [*]
 [dumpfile] "/home/amadeo/git/NockPU/waveform.vcd"
-[dumpfile_mtime] "Sun Feb 18 01:45:59 2024"
-[dumpfile_size] 206037
+[dumpfile_mtime] "Tue Feb 20 00:18:51 2024"
+[dumpfile_size] 222974
 [savefile] "/home/amadeo/git/NockPU/wave_view.gtkw"
 [timestart] 0
 [size] 3000 1862
 [pos] -1 -1
-*-10.000000 4460 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-10.000000 4950 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] execute_tb.
 [treeopen] execute_tb.mem.
 [sst_width] 360
@@ -29,7 +29,76 @@ execute_tb.execute.error[7:0]
 -RAM
 @22
 execute_tb.mem.ram.\ram[0][63:0]
+@c00022
 execute_tb.mem.ram.\ram[1][63:0]
+@28
+(0)execute_tb.mem.ram.\ram[1][63:0]
+(1)execute_tb.mem.ram.\ram[1][63:0]
+(2)execute_tb.mem.ram.\ram[1][63:0]
+(3)execute_tb.mem.ram.\ram[1][63:0]
+(4)execute_tb.mem.ram.\ram[1][63:0]
+(5)execute_tb.mem.ram.\ram[1][63:0]
+(6)execute_tb.mem.ram.\ram[1][63:0]
+(7)execute_tb.mem.ram.\ram[1][63:0]
+(8)execute_tb.mem.ram.\ram[1][63:0]
+(9)execute_tb.mem.ram.\ram[1][63:0]
+(10)execute_tb.mem.ram.\ram[1][63:0]
+(11)execute_tb.mem.ram.\ram[1][63:0]
+(12)execute_tb.mem.ram.\ram[1][63:0]
+(13)execute_tb.mem.ram.\ram[1][63:0]
+(14)execute_tb.mem.ram.\ram[1][63:0]
+(15)execute_tb.mem.ram.\ram[1][63:0]
+(16)execute_tb.mem.ram.\ram[1][63:0]
+(17)execute_tb.mem.ram.\ram[1][63:0]
+(18)execute_tb.mem.ram.\ram[1][63:0]
+(19)execute_tb.mem.ram.\ram[1][63:0]
+(20)execute_tb.mem.ram.\ram[1][63:0]
+(21)execute_tb.mem.ram.\ram[1][63:0]
+(22)execute_tb.mem.ram.\ram[1][63:0]
+(23)execute_tb.mem.ram.\ram[1][63:0]
+(24)execute_tb.mem.ram.\ram[1][63:0]
+(25)execute_tb.mem.ram.\ram[1][63:0]
+(26)execute_tb.mem.ram.\ram[1][63:0]
+(27)execute_tb.mem.ram.\ram[1][63:0]
+(28)execute_tb.mem.ram.\ram[1][63:0]
+(29)execute_tb.mem.ram.\ram[1][63:0]
+(30)execute_tb.mem.ram.\ram[1][63:0]
+(31)execute_tb.mem.ram.\ram[1][63:0]
+(32)execute_tb.mem.ram.\ram[1][63:0]
+(33)execute_tb.mem.ram.\ram[1][63:0]
+(34)execute_tb.mem.ram.\ram[1][63:0]
+(35)execute_tb.mem.ram.\ram[1][63:0]
+(36)execute_tb.mem.ram.\ram[1][63:0]
+(37)execute_tb.mem.ram.\ram[1][63:0]
+(38)execute_tb.mem.ram.\ram[1][63:0]
+(39)execute_tb.mem.ram.\ram[1][63:0]
+(40)execute_tb.mem.ram.\ram[1][63:0]
+(41)execute_tb.mem.ram.\ram[1][63:0]
+(42)execute_tb.mem.ram.\ram[1][63:0]
+(43)execute_tb.mem.ram.\ram[1][63:0]
+(44)execute_tb.mem.ram.\ram[1][63:0]
+(45)execute_tb.mem.ram.\ram[1][63:0]
+(46)execute_tb.mem.ram.\ram[1][63:0]
+(47)execute_tb.mem.ram.\ram[1][63:0]
+(48)execute_tb.mem.ram.\ram[1][63:0]
+(49)execute_tb.mem.ram.\ram[1][63:0]
+(50)execute_tb.mem.ram.\ram[1][63:0]
+(51)execute_tb.mem.ram.\ram[1][63:0]
+(52)execute_tb.mem.ram.\ram[1][63:0]
+(53)execute_tb.mem.ram.\ram[1][63:0]
+(54)execute_tb.mem.ram.\ram[1][63:0]
+(55)execute_tb.mem.ram.\ram[1][63:0]
+(56)execute_tb.mem.ram.\ram[1][63:0]
+(57)execute_tb.mem.ram.\ram[1][63:0]
+(58)execute_tb.mem.ram.\ram[1][63:0]
+(59)execute_tb.mem.ram.\ram[1][63:0]
+(60)execute_tb.mem.ram.\ram[1][63:0]
+(61)execute_tb.mem.ram.\ram[1][63:0]
+(62)execute_tb.mem.ram.\ram[1][63:0]
+(63)execute_tb.mem.ram.\ram[1][63:0]
+@1401200
+-group_end
+@22
 execute_tb.mem.ram.\ram[2][63:0]
 execute_tb.mem.ram.\ram[3][63:0]
 @c00022
@@ -106,42 +175,29 @@ execute_tb.mem.ram.\ram[5][63:0]
 execute_tb.mem.ram.\ram[6][63:0]
 execute_tb.mem.ram.\ram[7][63:0]
 execute_tb.mem.ram.\ram[8][63:0]
+@28
+execute_tb.memory_mux.sel[2:0]
+@22
 execute_tb.mem.mem_addr1[9:0]
+execute_tb.memory_mux.address1[9:0]
 execute_tb.mem.read_data1[63:0]
 execute_tb.execute.error[7:0]
-@200
--Traversal
-@22
-execute_tb.traversal.mem_addr[9:0]
-execute_tb.traversal.mem_tag[7:0]
-execute_tb.traversal.address1[9:0]
-execute_tb.traversal.hed[27:0]
-execute_tb.traversal.tel[27:0]
-@c00022
-execute_tb.traversal.sys_func[3:0]
+execute_tb.cell_block.cell_debug_sig[7:0]
+execute_tb.mem.write_data[63:0]
 @28
-(0)execute_tb.traversal.sys_func[3:0]
-(1)execute_tb.traversal.sys_func[3:0]
-(2)execute_tb.traversal.sys_func[3:0]
-(3)execute_tb.traversal.sys_func[3:0]
-@1401200
--group_end
+execute_tb.mem.execute
+execute_tb.mem.is_ready
+@200
+-Increment
 @22
-execute_tb.traversal.state[3:0]
-execute_tb.traversal.read_data1[63:0]
-execute_tb.traversal.debug_sig[7:0]
-execute_tb.traversal.mem_data[63:0]
-@23
-execute_tb.traversal.write_return_sys_func[3:0]
-@22
-execute_tb.traversal.write_return_state[3:0]
+execute_tb.incr_block.incr_address[9:0]
+execute_tb.incr_block.incr_data[63:0]
+execute_tb.incr_block.state[3:0]
 @200
 -Execute
-@28
-execute_tb.execute.execute_start
 @22
 execute_tb.execute.execute_address[9:0]
-execute_tb.traversal.execute_data[63:0]
+execute_tb.execute.execute_data[63:0]
 @28
 execute_tb.execute.finished
 execute_tb.execute.mem_func[1:0]
@@ -153,9 +209,7 @@ execute_tb.traversal.mem_data[63:0]
 execute_tb.execute.error[7:0]
 @28
 execute_tb.traversal.execute
-execute_tb.traversal.execute_finished
 @22
-execute_tb.traversal.execute_address[9:0]
 execute_tb.execute.a[27:0]
 @c00022
 execute_tb.execute.b[27:0]
@@ -198,5 +252,61 @@ execute_tb.execute.subject[27:0]
 execute_tb.execute.address1[9:0]
 execute_tb.execute.read_data1[63:0]
 execute_tb.mem.write_data[63:0]
+@200
+-Control MUX
+@28
+execute_tb.memory_mux.execute_c
+@22
+execute_tb.control_mux.module_address[9:0]
+execute_tb.control_mux.module_data[63:0]
+@28
+execute_tb.control_mux.sel[2:0]
+execute_tb.control_mux.finished
+execute_tb.control_mux.execute_finished
+@201
+-Traversal
+@22
+execute_tb.traversal.mem_addr[9:0]
+execute_tb.traversal.mem_tag[7:0]
+execute_tb.traversal.mem_data[63:0]
+execute_tb.traversal.address1[9:0]
+@28
+execute_tb.traversal.is_finished_reg
+execute_tb.traversal.module_finished
+@22
+execute_tb.traversal.hed[27:0]
+execute_tb.traversal.tel[27:0]
+@c00022
+execute_tb.traversal.sys_func[3:0]
+@28
+(0)execute_tb.traversal.sys_func[3:0]
+(1)execute_tb.traversal.sys_func[3:0]
+(2)execute_tb.traversal.sys_func[3:0]
+(3)execute_tb.traversal.sys_func[3:0]
+@1401200
+-group_end
+@22
+execute_tb.traversal.state[3:0]
+execute_tb.traversal.read_data1[63:0]
+execute_tb.traversal.debug_sig[7:0]
+execute_tb.traversal.write_return_sys_func[3:0]
+execute_tb.traversal.write_return_state[3:0]
+execute_tb.traversal.write_data[63:0]
+@200
+-Cell
+@22
+execute_tb.cell_block.state[3:0]
+execute_tb.cell_block.cell_address[9:0]
+execute_tb.cell_block.cell_data[63:0]
+@28
+execute_tb.cell_block.cell_start[2:0]
+execute_tb.cell_block.mem_execute
+@22
+execute_tb.cell_block.address1[9:0]
+execute_tb.cell_block.read_data1[63:0]
+execute_tb.cell_block.cell_debug_sig[7:0]
+@28
+execute_tb.cell_block.mem_ready
+execute_tb.cell_block.write_value
 [pattern_trace] 1
 [pattern_trace] 0
