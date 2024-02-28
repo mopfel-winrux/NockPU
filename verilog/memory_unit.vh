@@ -33,6 +33,8 @@
 `define  CELL_CELL       2'b00
 `define  CELL            1'b0
 `define  ATOM            1'b1
+`define  YES             1'b0
+`define  NO              1'b1
 
 //Memory constants
 `define NIL          28'hFFFFFFF
