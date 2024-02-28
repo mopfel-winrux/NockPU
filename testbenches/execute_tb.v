@@ -18,10 +18,13 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/cell_auto.hex";
 //parameter MEM_INIT_FILE = "./memory/nested_increment.hex";
 //parameter MEM_INIT_FILE = "./memory/increment.hex";
-parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode_5/yes_atom.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode_5/yes_cell.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/yes_deep_cell.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode_5/nested_yes.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom_cell.hex";
+parameter MEM_INIT_FILE = "./memory/opcode_5/no_deep_cell.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
