@@ -25,6 +25,7 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom_cell.hex";
 parameter MEM_INIT_FILE = "./memory/opcode_5/no_deep_cell.hex";
+//parameter MEM_INIT_FILE = "./memory/add_equal.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
