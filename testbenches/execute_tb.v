@@ -24,8 +24,9 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/opcode_5/nested_yes.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode_5/no_atom_cell.hex";
-parameter MEM_INIT_FILE = "./memory/opcode_5/no_deep_cell.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode_5/no_deep_cell.hex";
 //parameter MEM_INIT_FILE = "./memory/add_equal.hex";
+parameter MEM_INIT_FILE = "./memory/if_ans2.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
