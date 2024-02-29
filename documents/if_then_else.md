@@ -1,10 +1,13 @@
 `*[a 6 b c d]` -> `*[a *[[c d] 0 *[[2 3] 0 *[a 4 4 b]]]]`
 
 `.*(1 [6 [0 1] [0 1] [4 0 1]])`
+
+```
 a = 1       = addr 0x01 = execute_data[hed]
 b = [0 1]   = addr 0x04 = execute_data[tel]->tel[hed]
 c = [0 1]   = addr 0x06 = execute_data[tel]->tel->tel[hed]
 d = [4 0 1] = addr 0x07 = execute_data[tel]->tel->tel[tel]
+```
 
 ```
 Addr | Data (hex)           | New Data (hex)     | Notes
