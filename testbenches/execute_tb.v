@@ -30,7 +30,8 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/if_ans2.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode7.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode8.hex";
-parameter MEM_INIT_FILE = "./memory/opcode8_2.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode8_2.hex";
+parameter MEM_INIT_FILE = "./memory/opcode9_tmp.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;
