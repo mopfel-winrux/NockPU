@@ -143,11 +143,15 @@ module execute (
   parameter EXE_COMPOSE_INIT   = 4'h0,
             EXE_COMPOSE_READ   = 4'h1,
             EXE_COMPOSE_WRITE  = 4'h2,
-            EXE_COMPOSE_WRITE2 = 4'h3,
-            EXE_COMPOSE_FINISH = 4'h4;
+            EXE_COMPOSE_FINISH = 4'h3;
 
   //extend states
-  parameter EXE_EXTEND_INIT = 4'h0;
+  parameter EXE_EXTEND_INIT   = 4'h0,
+            EXE_EXTEND_READ1  = 4'h1,
+            EXE_EXTEND_READ2  = 4'h2,
+            EXE_EXTEND_WRITE1 = 4'h3,
+            EXE_EXTEND_WRITE2 = 4'h4,
+            EXE_EXTEND_FINISH = 4'hF;
 
   //invoke states
   parameter EXE_INVOKE_INIT = 4'h0;
@@ -1290,15 +1294,6 @@ module execute (
               end
             end
 
-            EXE_COMPOSE_WRITE2: begin
-              if (mem_ready) begin
-                $stop;
-              end else begin
-                mem_func <= 0;
-                mem_execute <= 0;
-              end
-            end
-
             EXE_COMPOSE_FINISH: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
@@ -1314,9 +1309,100 @@ module execute (
         end
 
         EXE_FUNC_EXTEND: begin
-          //case(state)
-          $stop;
-          //endcase
+          case(state)
+            EXE_EXTEND_INIT: begin
+              if (mem_ready) begin
+                b_addr <= address1;
+                c_addr <= read_data1[`tel_start:`tel_end];
+                address1 <= read_data1[`tel_start:`tel_end];
+                mem_func <= `GET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_EXTEND_READ1;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_EXTEND_READ1: begin
+              if (mem_ready) begin
+                read_data_reg <= read_data1;
+                address1 <= read_data1[`tel_start:`tel_end];
+                mem_func <= `GET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_EXTEND_READ2;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_EXTEND_READ2: begin
+              if (mem_ready) begin
+                address1 <= c_addr;
+                write_data <= { 6'b100000,
+                                execute_data[`hed_tag],
+                                read_data_reg[`hed_tag],
+                                execute_data[`hed_start:`hed_end],
+                                read_data_reg[`hed_start:`hed_end]};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_EXTEND_WRITE1;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_EXTEND_WRITE1: begin
+              if (mem_ready) begin
+                address1 <= b_addr;
+                write_data <= { 6'b000000,
+                                `CELL,
+                                execute_data[`hed_tag],
+                                `ADDR_PAD,
+                                c_addr,
+                                execute_data[`hed_start:`hed_end]};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_EXTEND_WRITE2;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+
+            EXE_EXTEND_WRITE2: begin
+              if (mem_ready) begin
+                address1 <= execute_address;
+                write_data <= { 6'b100000,
+                                `CELL,
+                                read_data_reg[`tel_tag],
+                                `ADDR_PAD,
+                                b_addr,
+                                read_data_reg[`tel_start:`tel_end]};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_EXTEND_FINISH;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_EXTEND_FINISH: begin
+              if (mem_ready) begin
+                exec_func <= EXE_FUNC_INIT;
+                state <= EXE_INIT_FINISHED;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+          endcase
         end
 
         EXE_FUNC_INVOKE: begin
