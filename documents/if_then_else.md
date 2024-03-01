@@ -37,8 +37,8 @@ Without intelligently reusing memory space we will require 9 new memory spots we
 Addr | Data (hex)           | New Data (hex)     | Notes
 0x00 | 00 0000000 0000009   | 00 0000000 0000007 |
 0x01 | 82 0000001 0000002   | 82 0000001 0000002 | *[a                                        ]
-0x02 | 02 0000006 0000003   | 03 0000003 0000005 |     *[[    ] [                          ]] 
-0x03 | 00 0000004 0000005   | 80 0000006 0000007 |        c d
+0x02 | 02 0000006 0000003   | 80 0000003 0000005 |     *[[    ] [                          ]] 
+0x03 | 00 0000004 0000005   | 00 0000006 0000007 |        c d
 0x04 | 03 0000000 0000001   | 80 0000000 0000001 | Don't change
 0x05 | 00 0000006 0000007   | 80 0000000 0000009 |                0 
 0x06 | 03 0000000 0000001   | 03 0000000 0000001 | Don't change
@@ -53,3 +53,23 @@ Addr | Data (hex)           | New Data (hex)     | Notes
 ```
 
 We can use the bottom version to only require 6 new memory spots to run `if then else`
+
+Steps
+
+1. Get 6 free memory addresses
+2. populate the following registers, multiple state machines
+```
+a = 1       = addr 0x01 = execute_data[hed]
+b = [0 1]   = addr 0x04 = execute_data[tel]->tel[hed]
+c = [0 1]   = addr 0x06 = execute_data[tel]->tel->tel[hed]
+d = [4 0 1] = addr 0x07 = execute_data[tel]->tel->tel[tel]
+```
+3. Save the following addresses
+```
+execute_data[tel]             = 2
+execute_data[tel][tel]        = 3
+execute_data[tel][tel][tel]   = 5
+```
+
+
+

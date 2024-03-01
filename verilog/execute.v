@@ -38,6 +38,8 @@ module execute (
 
   //Registers to treat opcodes as "Functions"
   reg [`noun_width - 1:0] a, opcode, b, c, d;
+  reg a_tag, b_tag, c_tag, d_tag;
+  reg [`memory_addr_width - 1:0] b_addr, c_addr, d_addr;
   reg [`noun_width - 1:0] func_addr;
   reg [3:0] func_return_exec_func;
   reg [3:0] func_return_state;
@@ -82,10 +84,11 @@ module execute (
 
   // slot states
   parameter EXE_SLOT_INIT        = 4'h0,
-            EXE_SLOT_PREP        = 4'h1,
-            EXE_SLOT_CHECK       = 4'h2,
-            EXE_SLOT_DONE        = 4'h3,
-            EXE_SLOT_CELL_OF_NIL = 4'h4;
+            EXE_SLOT_INDIRECT    = 4'h1,
+            EXE_SLOT_PREP        = 4'h2,
+            EXE_SLOT_CHECK       = 4'h3,
+            EXE_SLOT_DONE        = 4'h4,
+            EXE_SLOT_CELL_OF_NIL = 4'h5;
 
   // Constant states
   parameter EXE_CONSTANT_INIT       = 4'h0, 
@@ -120,7 +123,21 @@ module execute (
             EXE_EQUAL_FINISH        = 4'h7;
 
   //if then else states
-  parameter EXE_IF_INIT = 4'h0;
+  parameter EXE_IF_INIT    = 4'h0,
+            EXE_IF_READ_B  = 4'h1,
+            EXE_IF_READ_C  = 4'h2,
+            EXE_IF_READ_D  = 4'h3,
+            EXE_IF_WRITE1  = 4'h4,
+            EXE_IF_WRITE2  = 4'h5,
+            EXE_IF_WRITE3  = 4'h6,
+            EXE_IF_WRITE4  = 4'h7,
+            EXE_IF_WRITE5  = 4'h8,
+            EXE_IF_WRITE6  = 4'h9,
+            EXE_IF_WRITE7  = 4'hA,
+            EXE_IF_WRITE8  = 4'hB,
+            EXE_IF_WRITE9  = 4'hC,
+            EXE_IF_WRITE10 = 4'hD,
+            EXE_IF_FINISH  = 4'hE;
 
   //compose states
   parameter EXE_COMPOSE_INIT = 4'h0;
@@ -145,6 +162,7 @@ module execute (
             EXE_INIT_READ_TEL             = 4'h1,
             EXE_INIT_DECODE               = 4'h2,
             EXE_INIT_WRIT_TEL             = 4'h3,
+            EXE_INIT_WRIT_TEL_READ        = 4'h4,
             EXE_INIT_FINISHED             = 4'hF;
 
   // Autocons States
@@ -185,6 +203,13 @@ module execute (
                   error <= `ERROR_TEL_NOT_CELL;
                   state <= EXE_ERROR_INIT;
                   exec_func <= EXE_FUNC_ERROR;
+                /*end else if (execute_data[`hed_tag] == `ATOM) begin
+                  // If subject is a direct atom we want to 
+                  // write it as an indirect one
+                  mem_func <= `GET_FREE;
+                  write_data <= 1;
+                  mem_execute <= 1;
+                  state <= EXE_INIT_WRITE_SUB;*/
                 end else begin
                   if (mem_ready) begin
                     mem_tag <= execute_tag;
@@ -221,12 +246,12 @@ module execute (
                     exec_func <= EXE_FUNC_ERROR;
                     state <= EXE_ERROR_INIT;
                   end
-
                 end else begin
                   mem_data <= read_data1;
                   mem_tag <= read_data1[`tag_start:`tag_end]; 
                   opcode <= read_data1[`hed_start:`hed_end];
                   b <= read_data1[`tel_start:`tel_end];
+                  b_addr <= address1;
                   state <= EXE_INIT_DECODE;
                 end
               end else begin
@@ -239,13 +264,36 @@ module execute (
               if (mem_ready) begin
                 write_addr_reg <= execute_address;
                 mem_execute <= 1;
-                write_data <= {execute_data[`tag_start:`tag_end],
+                write_data <= {
+                        execute_data[`tag_start:`tag_end],
                         execute_data[`hed_start:`hed_end],
-                        18'b0,address1};
+                        `ADDR_PAD,
+                        address1};
+                b_addr <= address1;
                 address1 <= execute_address;
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
-                state <= EXE_INIT_READ_TEL;
+                state <= EXE_INIT_WRIT_TEL_READ;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_INIT_WRIT_TEL_READ: begin
+              if (mem_ready) begin
+                // if data is [cell NIL] error
+                if(read_data1[`tel_start:`tel_end] ==`NIL && read_data1[`tel_tag] == `ATOM) begin
+                  error <= `ERROR_TEL_NOT_CELL;
+                  exec_func <= EXE_FUNC_ERROR;
+                  state <= EXE_ERROR_INIT;
+                end else begin
+                  mem_data <= read_data1;
+                  mem_tag <= read_data1[`tag_start:`tag_end]; 
+                  opcode <= read_data1[`hed_start:`hed_end];
+                  b <= read_data1[`tel_start:`tel_end];
+                  state <= EXE_INIT_DECODE;
+                end
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -374,13 +422,41 @@ module execute (
         EXE_FUNC_SLOT: begin
           case (state)
             EXE_SLOT_INIT: begin
-              b <= (read_data1[`tel_start:`tel_end]<<1) | 1;
-              address1 <= execute_data[`hed_start:`hed_end]; // Read subject
-              subject <= execute_data[`hed_start:`hed_end];
-              subject_tag <= execute_data[`hed_tag];
-              state <= EXE_SLOT_PREP;
-              mem_execute <= 1;
-              mem_func <= `GET_CONTENTS;
+              if(read_data1[`tel_tag] == `ATOM) begin
+                b <= (read_data1[`tel_start:`tel_end]<<1) | 1;
+                address1 <= execute_data[`hed_start:`hed_end]; // Read subject
+                subject <= execute_data[`hed_start:`hed_end];
+                subject_tag <= execute_data[`hed_tag];
+                state <= EXE_SLOT_PREP;
+                mem_execute <= 1;
+                mem_func <= `GET_CONTENTS;
+              end else begin
+                address1 <= read_data1[`tel_start:`tel_end];
+                mem_func <= `GET_CONTENTS;
+                mem_execute <= 1;
+                state <= EXE_SLOT_INDIRECT;
+              end
+            end
+
+            EXE_SLOT_INDIRECT: begin
+              if (mem_ready) begin
+                if(read_data1[`tel_start:`tel_end] == `NIL 
+                && read_data1[`tel_tag] == `ATOM
+                && read_data1[`hed_tag] == `ATOM) begin
+                  b <= (read_data1[`hed_start:`hed_end]<<1) | 1;
+                  address1 <= execute_data[`hed_start:`hed_end]; // Read subject
+                  subject <= execute_data[`hed_start:`hed_end];
+                  subject_tag <= execute_data[`hed_tag];
+                  state <= EXE_SLOT_PREP;
+                  mem_execute <= 1;
+                  mem_func <= `GET_CONTENTS;
+                end else begin
+                  $stop; //XX Throw error
+                end
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
             end
 
             EXE_SLOT_PREP: begin
@@ -500,6 +576,7 @@ module execute (
                           `NIL};
                         state <= EXE_SLOT_DONE;
                       end else begin
+                        debug_sig <= 12;
                         exec_func <= EXE_FUNC_ERROR;
                         state <= EXE_ERROR_INIT;
                         error <= `ERROR_INVALID_SLOT_TEL;
@@ -727,7 +804,7 @@ module execute (
             EXE_INCR_INIT: begin
               if (mem_ready) begin
                 //rewrite value in addr to *[a tel]
-                address1 <= address1;
+                address1 <= b_addr;
                 state <= EXE_INCR_CHECK;
                 mem_execute <= 1;
                 mem_func <= `SET_CONTENTS;
@@ -902,10 +979,260 @@ module execute (
           endcase
         end
 
+        /*
+          EXE_IF_INIT    = 4'h0,
+          EXE_IF_READ_B  = 4'h1,
+          EXE_IF_READ_C  = 4'h2,
+          EXE_IF_READ_D  = 4'h3,
+          EXE_IF_WRITE1  = 4'h4,
+          EXE_IF_WRITE2  = 4'h5,
+          EXE_IF_WRITE3  = 4'h6,
+          EXE_IF_WRITE4  = 4'h7,
+          EXE_IF_WRITE5  = 4'h8,
+          EXE_IF_WRITE6  = 4'h9,
+          EXE_IF_WRITE7  = 4'hA,
+          EXE_IF_WRITE8  = 4'hB,
+          EXE_IF_WRITE9  = 4'hC,
+          EXE_IF_WRITE10 = 4'hD,
+          EXE_IF_FINISH  = 4'hE;
+        */
         EXE_FUNC_IF: begin
-          //case(state)
-          $stop;
-          //endcase
+          case(state)
+            EXE_IF_INIT: begin
+              if (mem_ready) begin
+                write_data <= 6;
+                mem_func <= `GET_FREE;
+                mem_execute <= 1;
+                state<= EXE_IF_READ_B;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_READ_B: begin
+              if (mem_ready) begin
+                a <= free_addr;
+                read_data_reg <= read_data1;
+                address1 <= read_data1[`tel_start:`tel_end];
+                mem_func <= `GET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_READ_C;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_READ_C: begin
+              if (mem_ready) begin
+                b <= read_data1[`hed_start:`hed_end];
+                b_tag <= read_data1[`hed_tag];
+                b_addr <= read_data1[`tel_start:`tel_end];
+                address1 <= read_data1[`tel_start:`tel_end];
+                mem_func <= `GET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_READ_D;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_READ_D: begin
+              if (mem_ready) begin
+                c <= read_data1[`hed_start:`hed_end];
+                c_tag <= read_data1[`hed_tag];
+                d <= read_data1[`tel_start:`tel_end];
+                d_tag <= read_data1[`tel_tag];
+                state<= EXE_IF_WRITE1;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE1: begin
+              if (mem_ready) begin
+                address1 <= execute_data[`tel_start:`tel_end];
+                write_data <= { 6'b100000,
+                                `CELL,
+                                `CELL,
+                                read_data_reg[`tel_start:`tel_end],
+                                `ADDR_PAD,
+                                b_addr};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_WRITE2;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE2: begin
+              if (mem_ready) begin
+                address1 <= read_data_reg[`tel_start:`tel_end];
+                write_data <= { 6'b000000,
+                                c_tag,
+                                d_tag,
+                                c,
+                                d};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_WRITE3;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE3: begin
+              if (mem_ready) begin
+                address1 <= b_addr;
+                write_data <= { 6'b000000,
+                                `ATOM,
+                                d_tag,
+                                `noun_width'h0,
+                                a};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_WRITE4;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE4: begin
+              if (mem_ready) begin
+                address1 <= a;
+                a <= a+1;
+                write_data <= { 6'b100000,
+                                `CELL,
+                                `CELL,
+                                a+2'h1,
+                                a+2'h2};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_WRITE5;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE5: begin
+              if (mem_ready) begin
+                address1 <= a;
+                a <= a+1;
+                write_data <= { 6'b000000,
+                                `ATOM,
+                                `ATOM,
+                                `noun_width'h2,
+                                `noun_width'h3};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_WRITE6;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE6: begin
+              if (mem_ready) begin
+                address1 <= a;
+                a <= a+1;
+                write_data <= { 6'b000000,
+                                `ATOM,
+                                `CELL,
+                                `noun_width'h0,
+                                a+1'h1};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_WRITE7;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE7: begin
+              if (mem_ready) begin
+                address1 <= a;
+                a <= a+1;
+                write_data <= { 6'b100000,
+                                execute_data[`hed_tag],
+                                `CELL,
+                                execute_data[`hed_start:`hed_end],
+                                a+1'h1};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_WRITE8;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE8: begin
+              if (mem_ready) begin
+                address1 <= a;
+                a <= a+1;
+                write_data <= { 6'b000000,
+                                `ATOM,
+                                `CELL,
+                                `noun_width'h4,
+                                a+1'h1};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_WRITE9;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE9: begin
+              if (mem_ready) begin
+                address1 <= a;
+                write_data <= { 6'b000000,
+                                `ATOM,
+                                b_tag,
+                                `noun_width'h4,
+                                b};
+                mem_func <= `SET_CONTENTS;
+                mem_execute <= 1;
+                state<= EXE_IF_FINISH;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_WRITE10: begin
+              if (mem_ready) begin
+                $stop;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_IF_FINISH: begin
+              if (mem_ready) begin
+                exec_func <= EXE_FUNC_INIT;
+                state <= EXE_INIT_FINISHED;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+          endcase
         end
 
         EXE_FUNC_COMPOSE: begin
