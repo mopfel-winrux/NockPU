@@ -83,17 +83,19 @@ module execute (
             EXE_FUNC_ERROR    = 4'hF;
 
   // slot states
-  parameter EXE_SLOT_INIT        = 4'h0,
-            EXE_SLOT_INDIRECT    = 4'h1,
-            EXE_SLOT_PREP        = 4'h2,
-            EXE_SLOT_CHECK       = 4'h3,
-            EXE_SLOT_DONE        = 4'h4,
-            EXE_SLOT_CELL_OF_NIL = 4'h5;
+  parameter EXE_SLOT_INIT           = 4'h0,
+            EXE_SLOT_INDIRECT       = 4'h1,
+            EXE_SLOT_PREP           = 4'h2,
+            EXE_SLOT_CHECK          = 4'h3,
+            EXE_SLOT_DONE           = 4'h4,
+            EXE_SLOT_CELL_OF_NIL    = 4'h5,
+            EXE_SLOT_READ_INDIRECT  = 4'h6;
 
   // Constant states
-  parameter EXE_CONSTANT_INIT       = 4'h0, 
-            EXE_CONSTANT_READ_B     = 4'h1,
-            EXE_CONSTANT_WRITE_WAIT = 4'h2;
+  parameter EXE_CONSTANT_INIT             = 4'h0, 
+            EXE_CONSTANT_READ_B           = 4'h1,
+            EXE_CONSTANT_WRITE_WAIT       = 4'h2,
+            EXE_CONSTANT_READ_B_INDIRECT  = 4'h3;
 
   //eval states
   parameter EXE_EVAL_INIT           = 4'h0,
@@ -483,29 +485,72 @@ module execute (
               b <= b << 1;
             end
 
+            EXE_SLOT_READ_INDIRECT: begin
+              if (mem_ready) begin
+                if(read_data1[`hed_tag] == `CELL
+                && read_data1[`tel_tag] == `ATOM
+                && read_data1[`tel_start:`tel_end] == `NIL) begin
+                  address1 <= read_data1[`hed_start:`hed_end];
+                  mem_func <= `GET_CONTENTS;
+                  mem_execute <= 1;
+                  state <= EXE_SLOT_READ_INDIRECT;
+                end else begin
+                  address1 <= func_addr;
+                  write_addr_reg <= func_addr;
+                  mem_func <= `SET_CONTENTS;
+                  mem_execute <= 1;
+                  state <= EXE_SLOT_DONE;
+                  write_data <= read_data1;
+               end
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+                read_data_reg <= read_data1;
+              end
+            end
+
             EXE_SLOT_CELL_OF_NIL: begin
               if (mem_ready) begin
-                state <= EXE_SLOT_DONE;
-                mem_func <= `SET_CONTENTS;
-                address1 <= func_addr;
-                write_addr_reg <= func_addr;
-                mem_execute <= 1;
-                state <= EXE_SLOT_DONE;
 
-                if(read_data1[`tel_start:`tel_end] == `NIL && read_data1[`tel_tag] == `ATOM) begin
-                  write_data <= {
-                          6'b000000,
-                          read_data1[`hed_tag],
-                          1'b1,
-                          read_data1[`hed_start:`hed_end],
-                          `NIL};
+                if(read_data1[`tel_start:`tel_end] == `NIL 
+                && read_data1[`tel_tag] == `ATOM) begin
+                  if(read_data1[`hed_tag] == `CELL) begin
+                    state <= EXE_SLOT_READ_INDIRECT;
+                    mem_func <= `GET_CONTENTS;
+                    address1 <= read_data1[`hed_start:`hed_end];
+                    mem_execute <= 1;
+                  end else begin
+                    mem_func <= `SET_CONTENTS;
+                    address1 <= func_addr;
+                    write_addr_reg <= func_addr;
+                    mem_execute <= 1;
+                    state <= EXE_SLOT_DONE;
+                    write_data <= {
+                            6'b000000,
+                            read_data1[`hed_tag],
+                            1'b1,
+                            read_data1[`hed_start:`hed_end],
+                            `NIL};
+                  end
                 end else begin
-                  write_data <= {
-                          6'b000000,
-                          subject_tag,
-                          1'b1,
-                          subject,
-                          `NIL};
+                  if(subject_tag == `CELL) begin
+                    state <= EXE_SLOT_READ_INDIRECT;
+                    mem_func <= `GET_CONTENTS;
+                    address1 <= subject;
+                    mem_execute <= 1;
+                  end else begin
+                    mem_func <= `SET_CONTENTS;
+                    address1 <= func_addr;
+                    write_addr_reg <= func_addr;
+                    mem_execute <= 1;
+                    state <= EXE_SLOT_DONE;
+                    write_data <= {
+                            6'b000000,
+                            subject_tag,
+                            1'b1,
+                            subject,
+                            `NIL};
+                 end
                 end
               end else begin
                 mem_func <= 0;
@@ -645,16 +690,47 @@ module execute (
 
             EXE_CONSTANT_READ_B: begin
               if (mem_ready) begin
-                address1 <= func_addr;
-                write_addr_reg <= func_addr;
-                mem_func <= `SET_CONTENTS;
-                mem_execute <= 1;
-                state <= EXE_CONSTANT_WRITE_WAIT;
-                write_data <= {6'b000000,
-                               read_data_reg[`tel_tag],
-                               1'b1,
-                               read_data_reg[`tel_start:`tel_end],
-                               `NIL};
+                if(read_data_reg[`tel_tag] == `CELL) begin
+                  address1 <= read_data_reg[`tel_start:`tel_end];
+                  mem_func <= `GET_CONTENTS;
+                  mem_execute <= 1;
+                  state <= EXE_CONSTANT_READ_B_INDIRECT;
+                end else begin
+                  address1 <= func_addr;
+                  write_addr_reg <= func_addr;
+                  mem_func <= `SET_CONTENTS;
+                  mem_execute <= 1;
+                  state <= EXE_CONSTANT_WRITE_WAIT;
+                  write_data <= {6'b000000,
+                                 read_data_reg[`tel_tag],
+                                 1'b1,
+                                 read_data_reg[`tel_start:`tel_end],
+                                 `NIL};
+               end
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+                read_data_reg <= read_data1;
+              end
+            end
+
+            EXE_CONSTANT_READ_B_INDIRECT: begin
+              if (mem_ready) begin
+                if(read_data1[`hed_tag] == `CELL
+                && read_data1[`tel_tag] == `ATOM
+                && read_data1[`tel_start:`tel_end] == `NIL) begin
+                  address1 <= read_data1[`hed_start:`hed_end];
+                  mem_func <= `GET_CONTENTS;
+                  mem_execute <= 1;
+                  state <= EXE_CONSTANT_READ_B_INDIRECT;
+                end else begin
+                  address1 <= func_addr;
+                  write_addr_reg <= func_addr;
+                  mem_func <= `SET_CONTENTS;
+                  mem_execute <= 1;
+                  state <= EXE_CONSTANT_WRITE_WAIT;
+                  write_data <= read_data1;
+               end
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
