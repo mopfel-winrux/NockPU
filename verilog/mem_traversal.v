@@ -227,6 +227,7 @@ module mem_traversal(
         SYS_FUNC_WRITE: begin
           case(state)
             SYS_WRITE_INIT: begin
+              if(mem_addr == hed && mem_tag[1] == `CELL) $stop;
               address1 <= mem_addr;
               write_data <= {mem_tag, hed, tel};
               mem_func <= `SET_CONTENTS;
