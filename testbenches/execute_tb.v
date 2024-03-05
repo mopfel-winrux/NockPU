@@ -29,7 +29,7 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/atom_incr.hex";
 //parameter MEM_INIT_FILE = "./memory/if_ans2.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode7.hex";
-//parameter MEM_INIT_FILE = "./memory/opcode8.hex";
+parameter MEM_INIT_FILE = "./memory/opcode8.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode8_nested.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode8_2.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode9_tmp.hex";
@@ -37,7 +37,7 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/opcode9_incr.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode9_9201.hex";
 //parameter MEM_INIT_FILE = "./memory/wtf.hex";
-parameter MEM_INIT_FILE = "./memory/decrement.hex";
+//parameter MEM_INIT_FILE = "./memory/decrement.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;

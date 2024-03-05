@@ -114,6 +114,7 @@ module cell_block (
         end
 
         PAUSE: begin
+          is_finished_reg <=0;
           if (cell_start == `MUX_CELL) state<= INIT;
         end
       endcase

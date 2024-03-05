@@ -110,6 +110,7 @@ module incr_block (
         end
 
         PAUSE: begin
+          is_finished_reg <=0;
           if (incr_start == `MUX_INCR) state<= INIT;
         end
 
