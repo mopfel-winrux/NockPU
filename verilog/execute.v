@@ -1764,7 +1764,7 @@ module execute (
           case(state)
             EXE_AUTO_INIT: begin
               mem_func <= `GET_FREE;
-              write_data <= 1;
+              write_data <= 2;
               mem_execute <= 1;
               state<= EXE_AUTO_WRITE_ROOT;
             end
@@ -1774,13 +1774,15 @@ module execute (
                 mem_func <= `SET_CONTENTS;
                 address1 <= execute_address;
                 mem_execute <= 1;
+                a <= free_addr;
                 write_data <= {
                         6'b000000, // remove execute
                         `CELL, // Mark as CELL
                         `CELL, // Mark as CELL
-                        execute_data[`tel_start:`tel_end],
                         `ADDR_PAD,
-                        free_addr};
+                        free_addr,
+                        `ADDR_PAD,
+                        free_addr + 1'h1};
                 state <= EXE_AUTO_READ_TEL;
               end else begin
                 mem_func <= 0;
@@ -1803,12 +1805,13 @@ module execute (
             EXE_AUTO_WRITE_TEL: begin
               if (mem_ready) begin
                 mem_func <= `SET_CONTENTS;
-                address1 <= execute_data[`tel_start:`tel_end];
+                address1 <= a;
+                a <= a+1;
                 mem_execute <= 1;
                 write_data <= {
                         6'b100000, // mark as execute
                         execute_data[`hed_tag], // Mark as CELL
-                        read_data1[`tel_tag],
+                        read_data1[`hed_tag],
                         execute_data[`hed_start:`hed_end],
                         read_data1[`hed_start:`hed_end]};
                 state <= EXE_AUTO_WRITE_MEM;
@@ -1822,7 +1825,7 @@ module execute (
             EXE_AUTO_WRITE_MEM: begin
               if (mem_ready) begin
                 mem_func <= `SET_CONTENTS;
-                address1 <= free_addr;
+                address1 <= a;
                 mem_execute <= 1;
                 write_data <= {
                         6'b100000, // mark as execute
