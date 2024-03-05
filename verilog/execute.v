@@ -1592,7 +1592,7 @@ module execute (
             EXE_INVOKE_INIT: begin
               if (mem_ready) begin
                 mem_func <= `GET_FREE;
-                write_data <= 3;
+                write_data <= 5;
                 mem_execute <= 1;
                 state <= EXE_INVOKE_READ;
               end else begin
@@ -1631,13 +1631,13 @@ module execute (
               if (mem_ready) begin
                 read_data_reg <= read_data1;
                 mem_func <= `SET_CONTENTS;
-                address1 <= address1;
+                address1 <= execute_address;
                 mem_execute <= 1;
-                write_data <= { 6'b000000,
-                                `ATOM, 
+                write_data <= { 6'b100000,
+                                `CELL, 
                                 `CELL,
-                                `noun_width'h2,
-                                a};
+                                a,
+                                a+1'h1};
                 state <= EXE_INVOKE_WRITE2;
               end else begin
                 mem_func <= 0;
@@ -1651,11 +1651,11 @@ module execute (
                 mem_func <= `SET_CONTENTS;
                 address1 <= a;
                 mem_execute <= 1;
-                write_data <= { 6'b000000,
-                                `CELL,
-                                `CELL,
-                                a + 2'h1,
-                                a + 2'h2};
+                write_data <= { 6'b100000,
+                                execute_data[`hed_tag], //a
+                                read_data_reg[`tel_tag],//c
+                                execute_data[`hed_start:`hed_end],
+                                read_data_reg[`tel_start:`tel_end]};  
                 state <= EXE_INVOKE_WRITE3;
               end else begin
                 mem_func <= 0;
@@ -1671,9 +1671,9 @@ module execute (
                 mem_execute <= 1;
                 write_data <= { 6'b000000,
                                 `ATOM,
-                                `ATOM,
-                                `noun_width'h0,
-                                `noun_width'h1};
+                                `CELL,
+                                `noun_width'h2,
+                                a+1'h1};
                 state <= EXE_INVOKE_WRITE4;
               end else begin
                 mem_func <= 0;
@@ -1685,13 +1685,14 @@ module execute (
               if (mem_ready) begin
                 mem_func <= `SET_CONTENTS;
                 address1 <= a;
+                a <= a+1;
                 mem_execute <= 1;
-                write_data <= { 6'b000000,
-                                `ATOM,
-                                read_data1[`hed_tag], //b
-                                `noun_width'h0,
-                                read_data1[`hed_start:`hed_end]}; //b
                 state <= EXE_INVOKE_WRITE5;
+                write_data <= { 6'b000000,
+                                `CELL,
+                                `CELL,
+                                a+1'h1,
+                                a+2'h2};
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1701,13 +1702,14 @@ module execute (
             EXE_INVOKE_WRITE5: begin
               if (mem_ready) begin
                 mem_func <= `SET_CONTENTS;
-                address1 <= execute_data[`tel_start:`tel_end];
+                address1 <= a;
+                a<= a+1;
                 mem_execute <= 1;
-                write_data <= { 6'b100000,
-                                execute_data[`hed_tag], //a
-                                read_data_reg[`tel_tag],//c
-                                execute_data[`hed_start:`hed_end],
-                                read_data_reg[`tel_start:`tel_end]};  
+                write_data <= { 6'b000000,
+                                `ATOM,
+                                `ATOM,
+                                `noun_width'h0,
+                                `noun_width'h1};
                 state <= EXE_INVOKE_WRITE6;
               end else begin
                 mem_func <= 0;
@@ -1718,14 +1720,13 @@ module execute (
             EXE_INVOKE_WRITE6: begin
               if (mem_ready) begin
                 mem_func <= `SET_CONTENTS;
-                address1 <= execute_address;
+                address1 <= a;
                 mem_execute <= 1;
-                write_data <= { 6'b100000,
-                                `CELL,
-                                `CELL,
-                                execute_data[`tel_start:`tel_end],
-                                b};
-                                //read_data_reg[`hed_start:`hed_end]};  
+                write_data <= { 6'b000000,
+                                `ATOM,
+                                read_data_reg[`hed_tag], //b
+                                `noun_width'h0,
+                                read_data_reg[`hed_start:`hed_end]}; //b
                 state <= EXE_INVOKE_FINISH;
               end else begin
                 mem_func <= 0;
