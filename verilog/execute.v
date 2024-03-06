@@ -1153,7 +1153,7 @@ module execute (
           case(state)
             EXE_IF_INIT: begin
               if (mem_ready) begin
-                write_data <= 10;
+                write_data <= 9;
                 mem_func <= `GET_FREE;
                 mem_execute <= 1;
                 state<= EXE_IF_READ_B;
