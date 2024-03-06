@@ -112,8 +112,9 @@ module execute (
 
   //increment states
   parameter EXE_INCR_INIT       = 4'h0, 
-            EXE_INCR_CHECK      = 4'h1, 
-            EXE_INCR_WRITE_WAIT = 4'h2;
+            EXE_INCR_FREE       = 4'h1,
+            EXE_INCR_CHECK      = 4'h2, 
+            EXE_INCR_WRITE_WAIT = 4'h3;
 
   //equal states
   parameter EXE_EQUAL_INIT          = 4'h0,
@@ -921,8 +922,20 @@ module execute (
           case(state)
             EXE_INCR_INIT: begin
               if (mem_ready) begin
+                state <= EXE_INCR_FREE;
+                mem_execute <= 1;
+                mem_func <= `GET_FREE;
+                write_data <= 1;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_INCR_FREE: begin
+              if (mem_ready) begin
                 //rewrite value in addr to *[a tel]
-                address1 <= b_addr;
+                address1 <= free_addr;
                 state <= EXE_INCR_CHECK;
                 mem_execute <= 1;
                 mem_func <= `SET_CONTENTS;
@@ -950,7 +963,7 @@ module execute (
                         `CELL,
                         `noun_width'h4,//opcode 4
                         `ADDR_PAD,
-                        address1};
+                        free_addr};
                 state <= EXE_INCR_WRITE_WAIT;
               end else begin
                 mem_func <= 0;
