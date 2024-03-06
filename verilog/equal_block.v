@@ -509,6 +509,7 @@ module equal_block (
             end
 
             RETURN_PAUSE: begin
+              is_finished_reg <=0;
               if (equal_start == `MUX_EQUAL) begin
                 func <= FUNC_INIT;
                 state<= INIT_INIT;
