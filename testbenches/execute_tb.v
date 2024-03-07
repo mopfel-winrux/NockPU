@@ -37,7 +37,8 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/opcode9_incr.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode9_9201.hex";
 //parameter MEM_INIT_FILE = "./memory/wtf.hex";
-parameter MEM_INIT_FILE = "./memory/decrement.hex";
+//parameter MEM_INIT_FILE = "./memory/decrement.hex";
+parameter MEM_INIT_FILE = "./memory/opcode10.hex";
 
 //Signal Declarations
 reg MAX10_CLK1_50;

@@ -174,7 +174,17 @@ module execute (
             EXE_INVOKE_FINISH     = 4'hF;
 
   //replace states
-  parameter EXE_REPLACE_INIT = 4'h0;
+  parameter EXE_REPLACE_INIT       = 4'h0,
+            EXE_REPLACE_READ       = 4'h1,
+            EXE_REPLACE_READ2      = 4'h2,
+            EXE_REPLACE_READ3      = 4'h3,
+            EXE_REPLACE_WRITE      = 4'h4,
+            EXE_REPLACE_WRITE2     = 4'h5,
+            EXE_REPLACE_WRITE3     = 4'h6,
+            EXE_REPLACE_WRITE4     = 4'h7,
+            EXE_REPLACE_WRITE5     = 4'h8,
+            EXE_REPLACE_FINISH     = 4'hF;
+
 
   //eval states
   parameter EXE_HINT_INIT = 4'h0;
@@ -1762,9 +1772,160 @@ module execute (
         end
 
         EXE_FUNC_REPLACE: begin
-          //case(state)
-          $stop;
-          //endcase
+          case(state)
+            EXE_REPLACE_INIT: begin
+              if(mem_ready) begin
+                mem_func <= `GET_FREE;
+                write_data <= 5;
+                mem_execute <= 1;
+                state <= EXE_REPLACE_READ;
+              end else begin
+                mem_func<=0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_REPLACE_READ: begin
+              if (mem_ready) begin
+                a <= free_addr;
+                mem_func <= `GET_CONTENTS;
+                address1 <= execute_data[`tel_start:`tel_end];
+                mem_execute <= 1;
+                state <= EXE_REPLACE_READ2;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_REPLACE_READ2: begin
+              if (mem_ready) begin
+                mem_func <= `GET_CONTENTS;
+                b <= read_data1[`tel_start:`tel_end];
+                address1 <= read_data1[`tel_start:`tel_end];
+                mem_execute <= 1;
+                state <= EXE_REPLACE_READ3;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_REPLACE_READ3: begin
+              if (mem_ready) begin
+                read_data_reg <= read_data1; // store d
+                mem_func <= `GET_CONTENTS;
+                address1 <= read_data1[`hed_start:`hed_end];
+                mem_execute <= 1;
+                state <= EXE_REPLACE_WRITE;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+
+            end
+
+            EXE_REPLACE_WRITE: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= execute_address;
+                mem_execute <= 1;
+                write_data <= { 6'b110000,
+                                `ATOM, 
+                                `CELL,
+                                `noun_width'hA,
+                                a};
+                state <= EXE_REPLACE_WRITE2;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_REPLACE_WRITE2: begin
+              if (mem_ready) begin
+                a <= a+1;
+                mem_func <= `SET_CONTENTS;
+                address1 <= a;
+                mem_execute <= 1;
+                write_data <= { 6'b000000,
+                                read_data1[`hed_tag],//b
+                                `CELL,
+                                read_data1[`hed_start:`hed_end],
+                                a+1'h1};
+                state <= EXE_REPLACE_WRITE3;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_REPLACE_WRITE3: begin
+              if (mem_ready) begin
+                a <= a+1;
+                mem_func <= `SET_CONTENTS;
+                address1 <= a;
+                mem_execute <= 1;
+                write_data <= { 6'b000000,
+                                `CELL,
+                                `CELL,
+                                a+1'h1,
+                                a+2'h2};
+                state <= EXE_REPLACE_WRITE4;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_REPLACE_WRITE4: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= a;
+                a <= a+1;
+                mem_execute <= 1;
+                state <= EXE_REPLACE_WRITE5;
+                write_data <= { 6'b100000,
+                                execute_data[`hed_tag], //a
+                                read_data1[`tel_tag], //c
+                                execute_data[`hed_start:`hed_end],//a
+                                read_data1[`tel_start:`tel_end]};//c
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_REPLACE_WRITE5: begin
+              if (mem_ready) begin
+                mem_func <= `SET_CONTENTS;
+                address1 <= a;
+                a<= a+1;
+                mem_execute <= 1;
+                write_data <= { 6'b100000,
+                                execute_data[`hed_tag],
+                                read_data_reg[`tel_tag],//d
+                                execute_data[`hed_start:`hed_end],
+                                read_data_reg[`tel_start:`tel_end]};//d
+                state <= EXE_REPLACE_FINISH;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+
+            EXE_REPLACE_FINISH: begin
+              if (mem_ready) begin
+                exec_func <= EXE_FUNC_INIT;
+                state <= EXE_INIT_FINISHED;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
+              end else begin
+                mem_func <= 0;
+                mem_execute <= 0;
+              end
+            end
+          endcase
         end
 
         EXE_FUNC_HINT: begin
