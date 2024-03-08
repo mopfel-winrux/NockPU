@@ -173,7 +173,6 @@ module mem_traversal(
                  module_data <= {mem_tag, hed, tel};//read_data1;
                  mux_controller <= `MUX_EDIT;
                  state <= SYS_EXECUTE_STACK_WAIT;
-                 $stop;
                end
                default: begin
                  state <= SYS_EXECUTE_ERROR;
