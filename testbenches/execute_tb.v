@@ -142,6 +142,21 @@ wire [3:0] equal_return_sys_func;
 wire [3:0] equal_return_state;
 wire [`tag_width - 1:0] equal_error;
 
+//Signal from edit module to memory Mux
+wire [1:0] mem_func_edit;
+wire mem_execute_edit;
+wire [`memory_addr_width - 1:0] address1_edit;
+wire [`memory_addr_width - 1:0] address2_edit;
+wire [`memory_data_width - 1:0] write_data_edit;
+
+//Signal from MTU to edit Module
+wire [`memory_addr_width - 1:0] edit_address;
+wire [`memory_data_width - 1:0] edit_data;
+wire edit_finished;
+wire [3:0] edit_return_sys_func;
+wire [3:0] edit_return_state;
+wire [`tag_width - 1:0] edit_error;
+
 
 
 // Instantiate Memory Unit
@@ -186,6 +201,11 @@ memory_mux memory_mux(.mem_func_a (mem_func_mtu),
                       .address1_e (address1_equal),
                       .address2_e (address2_equal),
                       .write_data_e (write_data_equal),
+                      .mem_func_f (mem_func_edit),
+                      .execute_f (mem_execute_edit),
+                      .address1_f (address1_edit),
+                      .address2_f (address2_edit),
+                      .write_data_f (write_data_edit),
                       .sel (select),
                       .mem_func (mem_func),
                       .execute (mem_execute),
@@ -219,7 +239,12 @@ control_mux control_mux(.sel (select),
                         .equal_return_sys_func (equal_return_sys_func),
                         .equal_return_state (equal_return_state),
                         .equal_address (equal_address),
-                        .equal_data (equal_data)
+                        .equal_data (equal_data),
+                        .edit_finished (edit_finished),
+                        .edit_return_sys_func (edit_return_sys_func),
+                        .edit_return_state (edit_return_state),
+                        .edit_address (edit_address),
+                        .edit_data (edit_data)
                       );
 // Instantiate MTU
 mem_traversal traversal(.power (power),
@@ -324,6 +349,27 @@ equal_block equal_block(.clk(clk),
                         .finished(equal_finished),
                         .equal_return_sys_func(equal_return_sys_func),
                         .equal_return_state(equal_return_state));
+
+//Instantiate Nock edit Module
+edit_block edit_block(.clk(clk),
+                      .rst(reset),
+                      .edit_error(edit_error),
+                      .edit_start(select),
+                      .edit_address(edit_address),
+                      .edit_data(edit_data),
+                      .mem_ready(mem_ready),
+                      .mem_execute(mem_execute_edit),
+                      .mem_func(mem_func_edit),
+                      .address1(address1_edit),
+                      .address2(address2_edit),
+                      .free_addr(free_addr),
+                      .read_data1(read_data1),
+                      .read_data2(read_data2),
+                      .write_data(write_data_edit),
+                      .finished(edit_finished),
+                      .edit_return_sys_func(edit_return_sys_func),
+                      .edit_return_state(edit_return_state));
+
 
 
 // Setup Clock
