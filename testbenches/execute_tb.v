@@ -90,6 +90,8 @@ wire mem_execute_nem;
 wire [`memory_addr_width - 1:0] address1_nem;
 wire [`memory_addr_width - 1:0] address2_nem;
 wire [`memory_data_width - 1:0] write_data_nem;
+wire [`noun_width-1:0] hint;
+wire hint_tag;
 
 //Signal from MTU to NEM
 wire [`memory_addr_width - 1:0] execute_address;
@@ -289,6 +291,8 @@ execute execute(.clk(clk),
                 .read_data2(read_data2),
                 .write_data(write_data_nem),
                 .finished(execute_finished),
+                .hint(hint),
+                .hint_tag(hint_tag),
                 .execute_return_sys_func(execute_return_sys_func),
                 .execute_return_state(execute_return_state));
 

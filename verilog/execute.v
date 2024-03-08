@@ -25,7 +25,7 @@ module execute (
   output reg [1:0] mem_func,
   output reg [`memory_data_width - 1:0] write_data,
   output wire finished,
-  output reg [`memory_addr_width-1:0] hint,
+  output reg [`noun_width-1:0] hint,
   output reg hint_tag
 );
   reg [7:0] debug_sig;
@@ -2107,7 +2107,6 @@ module execute (
 
             EXE_HINT_FINISH: begin
               if (mem_ready) begin
-                $stop;
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;
                 execute_return_sys_func <= `SYS_FUNC_READ;
