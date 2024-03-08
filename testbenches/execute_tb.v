@@ -38,8 +38,9 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/opcode9_9201.hex";
 //parameter MEM_INIT_FILE = "./memory/wtf.hex";
 //parameter MEM_INIT_FILE = "./memory/decrement.hex";
+parameter MEM_INIT_FILE = "./memory/add.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode10.hex";
-parameter MEM_INIT_FILE = "./memory/opcode11_static.hex";
+//parameter MEM_INIT_FILE = "./memory/opcode11_static.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode11_dynamic.hex";
 
 //Signal Declarations
