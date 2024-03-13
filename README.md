@@ -40,5 +40,5 @@ The `testbenches` folder contains wrapper classes for different verilog modules 
 It contains Quartus and ModelSim project files . The synthesis and simulation folders respectively
 
 
-#Acknowledgement
+## Acknowledgement
 This work has been made possible by a Grant from [Tacen](https://www.tacen.com).
