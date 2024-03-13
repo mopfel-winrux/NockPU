@@ -38,3 +38,7 @@ The `memory` folder contains memory files that can be loaded onto the synthesize
 The `testbenches` folder contains wrapper classes for different verilog modules to perform unit tests. 
 
 It contains Quartus and ModelSim project files . The synthesis and simulation folders respectively
+
+
+#Acknowledgement
+This work has been made possible by a Grant from [Tacen](https://www.tacen.com).
