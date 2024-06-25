@@ -193,7 +193,7 @@ module mem_traversal(
                          debug_sig <= 1;
               // mem_addr is only max when you reach the end and use 
               // trav_b's inital value
-              if(mem_addr == 1023) begin 
+              if(mem_addr == 2047) begin 
                 is_finished_reg <= 1;
               end
               else begin

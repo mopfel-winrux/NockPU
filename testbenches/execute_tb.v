@@ -38,7 +38,9 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/opcode9_9201.hex";
 //parameter MEM_INIT_FILE = "./memory/wtf.hex";
 //parameter MEM_INIT_FILE = "./memory/decrement.hex";
-parameter MEM_INIT_FILE = "./memory/add.hex";
+parameter MEM_INIT_FILE = "./memory/ackerman_1_2.hex";
+//parameter MEM_INIT_FILE = "./memory/add.hex";
+//parameter MEM_INIT_FILE = "./memory/cap.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode10.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode11_static.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode11_dynamic.hex";
@@ -395,7 +397,7 @@ initial begin
   $dumpfile("waveform.vcd");
   $dumpvars(0, execute_tb);
 
-  for (idx = 0; idx < 1023; idx = idx+1) begin
+  for (idx = 0; idx < 2047; idx = idx+1) begin
     $dumpvars(0,mem.ram.ram[idx]);
   end
 
@@ -409,7 +411,7 @@ initial begin
   traversal_execute = 1;
 
   wait (traversal_finished == 1'b1);
-  repeat (2) @(posedge clk);
+  repeat (500) @(posedge clk);
 
   $finish;
 end
