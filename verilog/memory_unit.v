@@ -48,28 +48,34 @@ module memory_unit(
   // Internal regs and wires
   reg [`memory_addr_width - 1:0] free_mem;
 
-  reg [4:0] state;
+  reg [3:0] state;
+  reg [3:0] gc_state;
   // States
-  parameter STATE_INIT_SETUP          = 5'h0,
-            STATE_INIT_WAIT_0         = 5'h1,
-            STATE_INIT_STORE_FREE_MEM = 5'h2,
-            STATE_INIT_CLEAR_NIL      = 5'h3,
-            STATE_INIT_WAIT_1         = 5'h4,
-            STATE_WAIT                = 5'h5,
-            STATE_READ_WAIT_0         = 5'h6,
-            STATE_READ_FINISH         = 5'h7,
-            STATE_WRITE_WAIT_0        = 5'h8,
-            STATE_WRITE_FINISH        = 5'h9,
-            STATE_FREE_WAIT           = 5'hA,
-            STATE_GC_A1               = 5'hB,
-            STATE_GC_A2               = 5'hC,
-            STATE_GC_A3               = 5'hD,
-            STATE_GC_A4               = 5'hE,
-            STATE_GC_A5               = 5'hF,
-            STATE_GC_A6               = 5'h10,
-            STATE_GC_B1               = 5'h11,
-            STATE_GC_B2               = 5'h12,
-            STATE_GC_B3               = 5'h13;
+  parameter STATE_INIT_SETUP          = 4'h0,
+            STATE_INIT_WAIT_0         = 4'h1,
+            STATE_INIT_STORE_FREE_MEM = 4'h2,
+            STATE_INIT_CLEAR_NIL      = 4'h3,
+            STATE_INIT_WAIT_1         = 4'h4,
+            STATE_WAIT                = 4'h5,
+            STATE_READ_WAIT_0         = 4'h6,
+            STATE_READ_FINISH         = 4'h7,
+            STATE_WRITE_WAIT_0        = 4'h8,
+            STATE_WRITE_FINISH        = 4'h9,
+            STATE_FREE_WAIT           = 4'hA,
+            STATE_GC                  = 4'hB;
+
+  parameter GC_INIT                   = 4'h0,
+            GC_WAIT_MTU               = 4'h1,
+            GC_START                  = 4'h2,
+            GC_A1                     = 4'h3,
+            GC_A2                     = 4'h4,
+            GC_A3                     = 4'h5,
+            GC_A4                     = 4'h6,
+            GC_A5                     = 4'h7,
+            GC_A6                     = 4'h8,
+            GC_B1                     = 4'h9,
+            GC_B2                     = 4'hA,
+            GC_B3                     = 4'hB;
 
   ram ram(.address1 (mem_addr1),
           .address2 (mem_addr2),
@@ -140,13 +146,14 @@ module memory_unit(
         end
 
         `GET_FREE: begin
-          if(free_addr + write_data <= 2047) begin // if you have enough free memory
+          if(free_addr + write_data <= 7) begin // if you have enough free memory
             free_addr <= free_mem;
             free_mem <= free_mem + write_data;
             state <= STATE_FREE_WAIT;
           end
           else begin
-            state <= STATE_GC_A1;
+            state <= STATE_GC;
+            gc_state <= GC_INIT;
           end
         end
         endcase
@@ -184,40 +191,50 @@ module memory_unit(
       is_ready_reg <= 1;
       state <= STATE_WAIT;
     end
+
+    STATE_GC: begin
+      case (gc_state)
+        GC_INIT: begin
+          $stop;
+        end
+
+        // Garbage Collect
+        GC_A1: begin
+          //  [Initialize.] x+--h, h*-n, and k*--NIL.
+          gc_state <= GC_A2;
+        end
+
+        GC_A2: begin
+         gc_state <= GC_A3;
+        end
+        GC_A3: begin
+          gc_state <= GC_A4;
+        end
+        GC_A4: begin
+          gc_state <= GC_A5;
+        end
+        GC_A5: begin
+          gc_state <= GC_A6;
+        end
+        GC_A6: begin
+          gc_state <= GC_B1;
+        end
+        GC_B1: begin
+          gc_state <= GC_B2;
+        end
+        GC_B2: begin
+          gc_state <= GC_B3;
+        end
+        GC_B3: begin
+          $stop;
+          gc_state <= GC_B1;
+        end
+
+        endcase
+     end
     
-    // Garbage Collect
-    STATE_GC_A1: begin
-      //  [Initialize.] x+--h, h*-n, and k*--NIL.
-      state <= STATE_GC_A2;
-    end
-
-    STATE_GC_A2: begin
-      state <= STATE_GC_A3;
-    end
-    STATE_GC_A3: begin
-      state <= STATE_GC_A4;
-    end
-    STATE_GC_A4: begin
-      state <= STATE_GC_A5;
-    end
-    STATE_GC_A5: begin
-      state <= STATE_GC_A6;
-    end
-    STATE_GC_A6: begin
-      state <= STATE_GC_B1;
-    end
-    STATE_GC_B1: begin
-      state <= STATE_GC_B2;
-    end
-    STATE_GC_B2: begin
-      state <= STATE_GC_B3;
-    end
-    STATE_GC_B3: begin
-      $stop;
-      state <= STATE_GC_B1;
-    end
-
     default:;
+
     endcase
   end
 end
