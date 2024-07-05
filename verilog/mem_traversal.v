@@ -13,7 +13,7 @@ module mem_traversal(
   input [`memory_data_width - 1:0] read_data2,
   input [`memory_addr_width - 1:0] free_addr,
   input gc,
-  output gc_ready,
+  output reg gc_ready,
   output reg mem_execute,
   output reg [`memory_addr_width - 1:0] address1,
   output reg [`memory_addr_width - 1:0] address2,
@@ -100,6 +100,7 @@ module mem_traversal(
       trav_B <= `NIL;
       trav_P <= start_addr;
       mem_execute <= 0;
+      gc_ready <= 0;
       debug_sig <= 0;
       mux_controller <= `MUX_TRAVERSAL;
     end
@@ -196,7 +197,12 @@ module mem_traversal(
               // mem_addr is only max when you reach the end and use 
               // trav_b's inital value
               if(mem_addr == 2047) begin 
-                is_finished_reg <= 1;
+                if(gc) 
+                  gc_ready <= 1;
+                else
+                begin
+                  is_finished_reg <= 1;
+                end
               end
               else begin
                 is_finished_reg <= 0;
@@ -287,7 +293,7 @@ module mem_traversal(
                      end
                      else if(mem_tag[3:2] == 2'b11) begin // if both were visited
                        // Set the command after write to pop
-                       if(mem_tag[7] == 1) begin // If we still need to execute
+                       if(mem_tag[7] == 1 && gc == 0) begin // If we still need to execute
                          debug_sig <= 4;
                          write_return_sys_func <= SYS_FUNC_EXECUTE;
                          write_return_state <= SYS_EXECUTE_INIT;
@@ -331,7 +337,7 @@ module mem_traversal(
                     end
                     else begin
                       // Set the command after write to pop
-                      if(mem_tag[7] == 1'b1) begin // If we still need to execute
+                      if(mem_tag[7] == 1'b1 && gc == 0) begin // If we still need to execute
                         write_return_sys_func <= SYS_FUNC_EXECUTE;
                         write_return_state <= SYS_EXECUTE_INIT;
                       end else begin
@@ -365,7 +371,7 @@ module mem_traversal(
                     end
                     else begin
                       // Set the command after write to pop
-                      if(mem_tag[7] == 1) begin // If we still need to execute
+                      if(mem_tag[7] == 1 && gc == 0) begin // If we still need to execute
                         write_return_sys_func <= SYS_FUNC_EXECUTE;
                         write_return_state <= SYS_EXECUTE_INIT;
                       end else begin

@@ -23,7 +23,7 @@ module memory_unit(
   output reg [`memory_addr_width - 1:0] free_addr,
   output reg [`memory_data_width - 1:0] read_data1,
   output reg [`memory_data_width - 1:0] read_data2,
-  output wire gc,
+  output reg gc,
   output wire is_ready,
   output wire [`memory_data_width - 1:0] mem_data_out1,
   output wire [`memory_data_width - 1:0] mem_data_out2
@@ -91,12 +91,17 @@ module memory_unit(
   if(!rst) begin
     state <= STATE_INIT_SETUP;
     free_mem <= 0;
+    gc <= 0;
 
     mem_addr1 <= 0;
     mem_addr2 <= 0;
     mem_data_in <= 0;
 
     is_ready_reg <= 0;
+  end
+  else if (gc_ready && state != STATE_GC) begin
+    state <= STATE_GC;
+    gc_state <= GC_A1;
   end
   else if (power) begin
     case (state)
@@ -197,7 +202,8 @@ module memory_unit(
     STATE_GC: begin
       case (gc_state)
         GC_INIT: begin
-          $stop;
+          gc <= 1;
+          state <= STATE_WAIT;
         end
 
         // Garbage Collect
