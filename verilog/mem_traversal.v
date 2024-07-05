@@ -12,6 +12,8 @@ module mem_traversal(
   input [`memory_data_width - 1:0] read_data1,
   input [`memory_data_width - 1:0] read_data2,
   input [`memory_addr_width - 1:0] free_addr,
+  input gc,
+  output gc_ready,
   output reg mem_execute,
   output reg [`memory_addr_width - 1:0] address1,
   output reg [`memory_addr_width - 1:0] address2,

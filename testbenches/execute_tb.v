@@ -5,7 +5,7 @@
 module execute_tb();
 
 //Test Parameters
-//parameter MEM_INIT_FILE = "./memory/autocons.hex";
+parameter MEM_INIT_FILE = "./memory/autocons.hex";
 //parameter MEM_INIT_FILE = "./memory/autocons2.hex";
 //parameter MEM_INIT_FILE = "./memory/slot_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/constant_tb.hex";
@@ -38,7 +38,7 @@ module execute_tb();
 //parameter MEM_INIT_FILE = "./memory/opcode9_9201.hex";
 //parameter MEM_INIT_FILE = "./memory/wtf.hex";
 //parameter MEM_INIT_FILE = "./memory/decrement.hex";
-parameter MEM_INIT_FILE = "./memory/ackerman_1_2.hex";
+//parameter MEM_INIT_FILE = "./memory/ackerman_1_2.hex";
 //parameter MEM_INIT_FILE = "./memory/add.hex";
 //parameter MEM_INIT_FILE = "./memory/cap.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode10.hex";
@@ -71,6 +71,11 @@ reg traversal_execute;
 wire traversal_finished;
 
 reg [`memory_addr_width - 1:0] start_addr;
+
+//GC signals
+
+wire gc; // wire from MMU to MTU signaling a GC
+wire gc_ready; // wire from MTU to MMU signaling MTU is ready for GC 
 
 //Signal from Control Mux to MTU 
 wire [`memory_addr_width - 1:0] module_address;
@@ -180,7 +185,9 @@ memory_unit mem(.func (mem_func),
                 .clk (clk),
                 .mem_data_out1 (mem_data_out1),
                 .mem_data_out2 (mem_data_out2),
-                .rst (reset));
+                .rst (reset),
+                .gc (gc),
+                .gc_ready (gc_ready));
 
 // Instantiate Memory Mux
 memory_mux memory_mux(.mem_func_a (mem_func_mtu),
@@ -259,6 +266,8 @@ mem_traversal traversal(.power (power),
                         .rst (reset),
                         .start_addr (start_addr),
                         .execute (traversal_execute),
+                        .gc (gc),
+                        .gc_ready (gc_ready),
                         .mem_ready (mem_ready),
                         .address1 (address1_mtu),
                         .address2 (address2_mtu),

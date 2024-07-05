@@ -19,9 +19,11 @@ module memory_unit(
   input [`memory_addr_width - 1:0] address1,
   input [`memory_addr_width - 1:0] address2,
   input [`memory_data_width - 1:0] write_data,
+  input gc_ready,
   output reg [`memory_addr_width - 1:0] free_addr,
   output reg [`memory_data_width - 1:0] read_data1,
   output reg [`memory_data_width - 1:0] read_data2,
+  output wire gc,
   output wire is_ready,
   output wire [`memory_data_width - 1:0] mem_data_out1,
   output wire [`memory_data_width - 1:0] mem_data_out2
