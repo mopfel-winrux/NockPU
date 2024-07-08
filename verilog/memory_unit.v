@@ -45,6 +45,7 @@ module memory_unit(
   reg [`memory_addr_width - 1:0] gc_n;
   reg [`memory_data_width - 1:0] gc_a;
   reg [`memory_data_width - 1:0] gc_d;
+  reg [`memory_addr_width - 1:0] max_memory;
 
 
   // Internal regs and wires
@@ -67,17 +68,16 @@ module memory_unit(
             STATE_GC                  = 4'hB;
 
   parameter GC_INIT                   = 4'h0,
-            GC_WAIT_MTU               = 4'h1,
-            GC_START                  = 4'h2,
-            GC_A1                     = 4'h3,
-            GC_A2                     = 4'h4,
-            GC_A3                     = 4'h5,
-            GC_A4                     = 4'h6,
-            GC_A5                     = 4'h7,
-            GC_A6                     = 4'h8,
-            GC_B1                     = 4'h9,
-            GC_B2                     = 4'hA,
-            GC_B3                     = 4'hB;
+            GC_START                  = 4'h1,
+            GC_A1                     = 4'h2,
+            GC_A2                     = 4'h3,
+            GC_A3                     = 4'h4,
+            GC_A4                     = 4'h5,
+            GC_A5                     = 4'h6,
+            GC_A6                     = 4'h7,
+            GC_B1                     = 4'h8,
+            GC_B2                     = 4'h9,
+            GC_B3                     = 4'hA;
 
   ram ram(.address1 (mem_addr1),
           .address2 (mem_addr2),
@@ -98,10 +98,11 @@ module memory_unit(
     mem_data_in <= 0;
 
     is_ready_reg <= 0;
+    max_memory <= 600;
   end
-  else if (gc_ready && state != STATE_GC) begin
+  else if (gc_ready && state != STATE_GC && gc) begin
     state <= STATE_GC;
-    gc_state <= GC_A1;
+    gc_state <= GC_START;
   end
   else if (power) begin
     case (state)
@@ -153,7 +154,7 @@ module memory_unit(
         end
 
         `GET_FREE: begin
-          if(free_addr + write_data <= 7) begin // if you have enough free memory
+          if(free_addr + write_data <= max_memory) begin // if you have enough free memory
             free_addr <= free_mem;
             free_mem <= free_mem + write_data;
             state <= STATE_FREE_WAIT;
@@ -206,6 +207,9 @@ module memory_unit(
           state <= STATE_WAIT;
         end
 
+        GC_START: begin
+         gc_state <= GC_A1;
+        end
         // Garbage Collect
         GC_A1: begin
           //  [Initialize.] x+--h, h*-n, and k*--NIL.
@@ -234,8 +238,12 @@ module memory_unit(
           gc_state <= GC_B3;
         end
         GC_B3: begin
-          $stop;
-          gc_state <= GC_B1;
+          max_memory <= 2047;
+          //$stop;
+          gc_state <= GC_INIT;
+          state <= STATE_WAIT;
+          read_data1 <= 1; // replace with new root
+          gc <= 0;
         end
 
         endcase

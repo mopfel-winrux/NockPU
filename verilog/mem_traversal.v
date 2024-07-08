@@ -66,7 +66,8 @@ module mem_traversal(
   // Read States
   parameter SYS_READ_INIT   = 4'h0,
             SYS_READ_WAIT   = 4'h1,
-            SYS_READ_DECODE = 4'h2;
+            SYS_READ_DECODE = 4'h2,
+            SYS_READ_GC_WAIT= 4'h3;
 
   // Write States
   parameter SYS_WRITE_INIT = 4'h0,
@@ -193,14 +194,16 @@ module mem_traversal(
         SYS_FUNC_READ: begin
           case(state)
             SYS_READ_INIT: begin
-                         debug_sig <= 1;
+              debug_sig <= 1;
               // mem_addr is only max when you reach the end and use 
               // trav_b's inital value
               if(mem_addr == 2047) begin 
-                if(gc) 
+                debug_sig <= 2;
+                if(gc) begin 
+                  state <= SYS_READ_GC_WAIT;
                   gc_ready <= 1;
-                else
-                begin
+                  $stop;
+                end else begin
                   is_finished_reg <= 1;
                 end
               end
@@ -213,7 +216,24 @@ module mem_traversal(
               end
             end
 
+            SYS_READ_GC_WAIT: begin
+              debug_sig <= 6;
+              if(!gc && gc_ready) begin
+                debug_sig <= 10;
+                mem_addr <= read_data1;
+                gc_ready <= 0;
+                is_finished_reg <= 0;
+                address1 <= read_data1;
+                mem_func <= `GET_CONTENTS;
+                mem_execute <= 1;
+                state <= SYS_READ_WAIT;
+                //state <= SYS_READ_INIT;
+                $stop;
+              end 
+            end
+
             SYS_READ_WAIT: begin
+              gc_ready <= 0;
               if(mem_ready) begin
                 debug_sig <= 6;
                 mem_data <= read_data1;

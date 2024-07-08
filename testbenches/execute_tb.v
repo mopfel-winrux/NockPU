@@ -5,7 +5,7 @@
 module execute_tb();
 
 //Test Parameters
-parameter MEM_INIT_FILE = "./memory/autocons.hex";
+//parameter MEM_INIT_FILE = "./memory/autocons.hex";
 //parameter MEM_INIT_FILE = "./memory/autocons2.hex";
 //parameter MEM_INIT_FILE = "./memory/slot_tb.hex";
 //parameter MEM_INIT_FILE = "./memory/constant_tb.hex";
@@ -38,7 +38,7 @@ parameter MEM_INIT_FILE = "./memory/autocons.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode9_9201.hex";
 //parameter MEM_INIT_FILE = "./memory/wtf.hex";
 //parameter MEM_INIT_FILE = "./memory/decrement.hex";
-//parameter MEM_INIT_FILE = "./memory/ackerman_1_2.hex";
+parameter MEM_INIT_FILE = "./memory/ackerman_1_2.hex";
 //parameter MEM_INIT_FILE = "./memory/add.hex";
 //parameter MEM_INIT_FILE = "./memory/cap.hex";
 //parameter MEM_INIT_FILE = "./memory/opcode10.hex";
