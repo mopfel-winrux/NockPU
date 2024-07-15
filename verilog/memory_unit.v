@@ -28,6 +28,7 @@ module memory_unit(
   output wire [`memory_data_width - 1:0] mem_data_out1,
   output wire [`memory_data_width - 1:0] mem_data_out2
 );
+  reg [7:0] debug_sig;
   // Signal wires for this module
   reg is_ready_reg;
   assign is_ready = !execute && is_ready_reg;
@@ -39,13 +40,20 @@ module memory_unit(
   reg [`memory_data_width - 1:0] mem_data_in;
 
   //Garbage Collection Registers
+  reg [`memory_addr_width - 1:0] old_root;
+  reg [`memory_addr_width - 1:0] new_root;
   reg [`memory_addr_width - 1:0] gc_x;
   reg [`memory_addr_width - 1:0] gc_h;
   reg [`memory_addr_width - 1:0] gc_k;
+  reg [`memory_addr_width - 1:0] gc_t;
   reg [`memory_addr_width - 1:0] gc_n;
   reg [`memory_data_width - 1:0] gc_a;
   reg [`memory_data_width - 1:0] gc_d;
+  
+  localparam [`memory_addr_width:0] memory_mask = (1<<`memory_addr_width-1)+1; 
+
   reg [`memory_addr_width - 1:0] max_memory;
+  reg [`memory_addr_width - 1:0] need_mem;
 
 
   // Internal regs and wires
@@ -53,6 +61,7 @@ module memory_unit(
 
   reg [3:0] state;
   reg [3:0] gc_state;
+  reg [3:0] gc_next_state;
   // States
   parameter STATE_INIT_SETUP          = 4'h0,
             STATE_INIT_WAIT_0         = 4'h1,
@@ -75,9 +84,14 @@ module memory_unit(
             GC_A4                     = 4'h5,
             GC_A5                     = 4'h6,
             GC_A6                     = 4'h7,
-            GC_B1                     = 4'h8,
-            GC_B2                     = 4'h9,
-            GC_B3                     = 4'hA;
+            GC_B0                     = 4'h8,
+            GC_B1                     = 4'h9,
+            GC_B2                     = 4'hA,
+            GC_B3_READ                = 4'hB,
+            GC_B3                     = 4'hC,
+            GC_WTF                    = 4'hD,
+            GC_DONE                   = 4'hE,
+            GC_WAIT                   = 4'hF;
 
   ram ram(.address1 (mem_addr1),
           .address2 (mem_addr2),
@@ -98,7 +112,10 @@ module memory_unit(
     mem_data_in <= 0;
 
     is_ready_reg <= 0;
-    max_memory <= 600;
+    max_memory <= 64;//39;//64;
+    old_root <= 1;
+    new_root <= memory_mask;
+    need_mem <= (free_addr - old_root);
   end
   else if (gc_ready && state != STATE_GC && gc) begin
     state <= STATE_GC;
@@ -154,7 +171,8 @@ module memory_unit(
         end
 
         `GET_FREE: begin
-          if(free_addr + write_data <= max_memory) begin // if you have enough free memory
+          need_mem <= (free_mem - old_root) + write_data;
+          if((free_mem-old_root) + write_data <= max_memory) begin // if you have enough free memory
             free_addr <= free_mem;
             free_mem <= free_mem + write_data;
             state <= STATE_FREE_WAIT;
@@ -199,7 +217,12 @@ module memory_unit(
       is_ready_reg <= 1;
       state <= STATE_WAIT;
     end
-
+    /*
+    mem_data_in <= {
+            mem_data_out1[`tag_start:`tag_end],
+            mem_data_out1[`hed_start:`hed_end],
+            mem_data_out1[`tel_start:`tel_end]};
+    */
     STATE_GC: begin
       case (gc_state)
         GC_INIT: begin
@@ -208,42 +231,194 @@ module memory_unit(
         end
 
         GC_START: begin
-         gc_state <= GC_A1;
+          gc_x <= old_root;
+          gc_h <= new_root;
+          gc_n <= new_root;
+          gc_k <= `NIL_ADDR;
+          gc_state <= GC_A1;
         end
         // Garbage Collect
         GC_A1: begin
           //  [Initialize.] x+--h, h*-n, and k*--NIL.
-          gc_state <= GC_A2;
+          mem_addr1 <= gc_x;
+          gc_state <= GC_WAIT;
+          gc_next_state <= GC_A2;
         end
 
         GC_A2: begin
-         gc_state <= GC_A3;
+          gc_a <= mem_data_out1;
+          gc_d <= mem_data_out1;
+          gc_state <= GC_A3;
         end
+
         GC_A3: begin
-          gc_state <= GC_A4;
+          mem_addr1 <= gc_x;
+          mem_data_in <= {
+                  gc_a[`tag_start:`tag_end],
+                  `ADDR_PAD,
+                  gc_n,
+                  gc_a[`tel_start:`tel_end]};
+          mem_write<=1;
+          gc_next_state <= GC_A4;
+          gc_state <= GC_WAIT;
         end
+
         GC_A4: begin
-          gc_state <= GC_A5;
+          if(gc_a[`hed_tag] == `CELL) begin
+            mem_addr1 <= gc_x;
+            mem_data_in <= {
+              mem_data_in[`tag_start:`tag_end],
+              mem_data_in[`hed_start:`hed_end],
+              `ADDR_PAD,
+              gc_k};
+            mem_write<=1;
+            gc_k <= gc_x;
+            gc_state <= GC_WAIT;
+            gc_next_state <= GC_A5;
+          end 
+          else
+            gc_state <= GC_A5;
         end
         GC_A5: begin
-          gc_state <= GC_A6;
+          mem_addr1 <= gc_n;
+          mem_data_in <= {
+            gc_a[`tag_start:`tag_end],
+            gc_a[`hed_start:`hed_end],
+            `NIL};
+          mem_write<=1;
+          gc_state <= GC_WAIT;
+          gc_next_state <= GC_A6;
+          // prepare for A6
+          //if(gc_d[`tel_tag] == `CELL)
+            mem_addr2 <= gc_d[`tel_start:`tel_end];
         end
         GC_A6: begin
-          gc_state <= GC_B1;
+          if(gc_d[`tel_tag]==`ATOM) begin
+            mem_addr1 <= gc_n;
+            mem_data_in <= {
+              mem_data_in[`tag_start:`hed_tag],
+              gc_d[`tel_tag],
+              mem_data_in[`hed_start:`hed_end],
+              gc_d[`tel_start:`tel_end]};
+            mem_write<=1;
+            gc_state <= GC_WAIT;
+            gc_next_state <= GC_B0;
+            gc_n <= gc_n + 1;
+          end 
+          else if (mem_data_out2[`hed_tag] ==`CELL &&
+                  (((new_root == memory_mask) && 
+                   (mem_data_out2[`hed_start:`hed_end] >= memory_mask)) ||
+                   (old_root == memory_mask) &&
+                   (mem_data_out2[`hed_start:`hed_end] < memory_mask)))
+          begin
+            mem_addr1 <= gc_n;
+            mem_data_in <= {
+              mem_data_in[`tag_start:`hed_tag],
+              mem_data_out2[`tel_tag],
+              mem_data_in[`hed_start:`hed_end],
+              mem_data_out2[`hed_start:`hed_end]};
+            mem_write <= 1;
+            gc_state <= GC_WAIT;
+            gc_next_state <= GC_B0;
+            gc_n <= gc_n + 1;
+          end else begin
+            mem_addr1 <= gc_n;
+            mem_data_in <= {
+              mem_data_in[`tag_start:`hed_tag],
+              `CELL,
+              mem_data_in[`hed_start:`hed_end],
+              `ADDR_PAD,
+              gc_n+2'h1};
+            mem_write<=1;
+            gc_n <= gc_n + 1;
+            gc_x <= gc_d[`tel_start:`tel_end];
+            
+            gc_state <= GC_WAIT;
+            gc_next_state <= GC_A1;
+          end
+        end
+            
+        GC_B0: begin
+          if (gc_k == `NIL_ADDR) begin
+            gc_state <= GC_DONE;
+          end
+          else begin
+            mem_addr1 <= gc_k;
+            gc_state <= GC_B1;
+          end
         end
         GC_B1: begin
-          gc_state <= GC_B2;
+          mem_addr2 <= mem_data_out1[`hed_start:`hed_end];
+          gc_state <= GC_WAIT;
+          gc_next_state <= GC_B2;
         end
         GC_B2: begin
-          gc_state <= GC_B3;
+          mem_addr1 <= mem_data_out1[`hed_start:`hed_end];
+          gc_t <= gc_k;
+          gc_k <= mem_data_out1[`tel_start:`tel_end];
+          gc_state <= GC_WAIT;
+          gc_next_state <= GC_B3_READ;
+        end
+        GC_B3_READ: begin
+          gc_x <= mem_data_out1[`hed_start:`hed_end];
+          mem_addr2 <= gc_t;//mem_data_out2[`hed_start:`hed_end];
+          gc_state <= GC_WAIT;
+          gc_next_state <= GC_B3;
         end
         GC_B3: begin
-          max_memory <= 2047;
-          //$stop;
-          gc_state <= GC_INIT;
-          state <= STATE_WAIT;
-          read_data1 <= 1; // replace with new root
+          if (((new_root == memory_mask) && 
+              (mem_data_out1[`hed_start:`hed_end] >= memory_mask)) ||
+             ((old_root == memory_mask) &&
+              (mem_data_out1[`hed_start:`hed_end] < memory_mask)))
+          begin
+            $stop;
+            debug_sig <= 64;
+            mem_addr1 <= mem_data_out2[`hed_start:`hed_end];
+            mem_data_in <= mem_data_out1;
+            /*{
+              mem_data_out1[`tag_start:`tel_trav],
+              `CELL,
+              mem_data_out1[`tel_tag],
+              gc_n,
+              mem_data_out1[`tel_start:`tel_end]};
+
+              mem_data_out1[`hed_start:`hed_end],
+              mem_data_out2[`tel_start:`tel_end]};*/
+            mem_write<=1;
+            gc_state <= GC_WAIT;
+            gc_next_state <= GC_WTF;
+          end 
+          else begin
+            mem_addr1 <= mem_data_out2[`hed_start:`hed_end];
+            mem_data_in <= {
+              mem_data_out1[`tag_start:`tel_trav],
+              `CELL,
+              mem_data_out1[`tel_tag],
+              `ADDR_PAD,
+              gc_n,
+              mem_data_out1[`tel_start:`tel_end]};
+            mem_write<=1;
+            gc_state <= GC_WAIT;
+            gc_next_state <= GC_A1;
+          end
+        end
+        GC_DONE: begin
+          read_data1 <= gc_h; // replace with new root
+          free_mem <= gc_n;
+          old_root <= new_root;
+          new_root <= old_root;
           gc <= 0;
+          //gc_state <= GC_INIT;
+          state <= STATE_WAIT;
+        end
+
+        GC_WTF: begin
+          gc_state <= GC_B0;
+          $stop;
+        end
+        GC_WAIT: begin
+          mem_write<=0;
+          gc_state <= gc_next_state;
         end
 
         endcase

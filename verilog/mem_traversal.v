@@ -202,7 +202,6 @@ module mem_traversal(
                 if(gc) begin 
                   state <= SYS_READ_GC_WAIT;
                   gc_ready <= 1;
-                  $stop;
                 end else begin
                   is_finished_reg <= 1;
                 end
@@ -221,6 +220,7 @@ module mem_traversal(
               if(!gc && gc_ready) begin
                 debug_sig <= 10;
                 mem_addr <= read_data1;
+                trav_P <= read_data1;
                 gc_ready <= 0;
                 is_finished_reg <= 0;
                 address1 <= read_data1;
@@ -228,7 +228,6 @@ module mem_traversal(
                 mem_execute <= 1;
                 state <= SYS_READ_WAIT;
                 //state <= SYS_READ_INIT;
-                $stop;
               end 
             end
 
@@ -254,7 +253,6 @@ module mem_traversal(
         SYS_FUNC_WRITE: begin
           case(state)
             SYS_WRITE_INIT: begin
-              //if(mem_addr == hed && mem_tag[1] == `CELL) $stop;
               address1 <= mem_addr;
               write_data <= {mem_tag, hed, tel};
               mem_func <= `SET_CONTENTS;

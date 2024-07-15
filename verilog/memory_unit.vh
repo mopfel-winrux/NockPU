@@ -38,6 +38,7 @@
 
 //Memory constants
 `define NIL          28'hFFFFFFF
+`define NIL_ADDR     `memory_addr_width'h7FF
 `define ADDR_PAD     17'h0
 
 `endif
