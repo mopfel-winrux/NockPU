@@ -251,7 +251,8 @@ module edit_block (
         end
 
         ERROR: begin
-          $stop;
+          $display("Error in edit_block");
+          $finish;
         end
       endcase
     end

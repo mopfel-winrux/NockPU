@@ -112,7 +112,8 @@ module memory_unit(
     mem_data_in <= 0;
 
     is_ready_reg <= 0;
-    max_memory <= 64;//39;//64;
+    max_memory <= 512; //128+32;
+    //128;
     old_root <= 1;
     new_root <= memory_mask;
     need_mem <= (free_addr - old_root);
@@ -254,7 +255,9 @@ module memory_unit(
         GC_A3: begin
           mem_addr1 <= gc_x;
           mem_data_in <= {
-                  gc_a[`tag_start:`tag_end],
+                  gc_a[`tag_start:`tel_trav],
+                  `CELL,
+                  gc_a[`tel_tag],
                   `ADDR_PAD,
                   gc_n,
                   gc_a[`tel_start:`tel_end]};
@@ -294,6 +297,7 @@ module memory_unit(
         end
         GC_A6: begin
           if(gc_d[`tel_tag]==`ATOM) begin
+            debug_sig <= 3;
             mem_addr1 <= gc_n;
             mem_data_in <= {
               mem_data_in[`tag_start:`hed_tag],
@@ -311,6 +315,7 @@ module memory_unit(
                    (old_root == memory_mask) &&
                    (mem_data_out2[`hed_start:`hed_end] < memory_mask)))
           begin
+            debug_sig <= 4;
             mem_addr1 <= gc_n;
             mem_data_in <= {
               mem_data_in[`tag_start:`hed_tag],
@@ -322,6 +327,7 @@ module memory_unit(
             gc_next_state <= GC_B0;
             gc_n <= gc_n + 1;
           end else begin
+            debug_sig <= 5;
             mem_addr1 <= gc_n;
             mem_data_in <= {
               mem_data_in[`tag_start:`hed_tag],
@@ -366,29 +372,33 @@ module memory_unit(
           gc_next_state <= GC_B3;
         end
         GC_B3: begin
-          if (((new_root == memory_mask) && 
+          if ((mem_data_out1[`hed_tag] ==`CELL) &&
+             ((new_root == memory_mask) && 
               (mem_data_out1[`hed_start:`hed_end] >= memory_mask)) ||
              ((old_root == memory_mask) &&
               (mem_data_out1[`hed_start:`hed_end] < memory_mask)))
           begin
-            $stop;
+            //$stop;
             debug_sig <= 64;
+            $display("debug_sig=64");
             mem_addr1 <= mem_data_out2[`hed_start:`hed_end];
             mem_data_in <= mem_data_out1;
-            /*{
-              mem_data_out1[`tag_start:`tel_trav],
-              `CELL,
-              mem_data_out1[`tel_tag],
-              gc_n,
-              mem_data_out1[`tel_start:`tel_end]};
+            //mem_data_in <= {
+              //mem_data_out1[`tag_start:`tel_trav],
+              //`CELL,
+              //mem_data_out1[`tel_tag],
+              //mem_data_out1[`hed_start:`hed_end],
+              ////gc_n,
+              //mem_data_out1[`tel_start:`tel_end]};
 
-              mem_data_out1[`hed_start:`hed_end],
-              mem_data_out2[`tel_start:`tel_end]};*/
+              //mem_data_out1[`hed_start:`hed_end],
+              //mem_data_out2[`tel_start:`tel_end]};
             mem_write<=1;
             gc_state <= GC_WAIT;
-            gc_next_state <= GC_WTF;
+            gc_next_state <= GC_B0;
           end 
           else begin
+            debug_sig <= 128;
             mem_addr1 <= mem_data_out2[`hed_start:`hed_end];
             mem_data_in <= {
               mem_data_out1[`tag_start:`tel_trav],
@@ -403,22 +413,39 @@ module memory_unit(
           end
         end
         GC_DONE: begin
+          debug_sig <= 1;
           read_data1 <= gc_h; // replace with new root
           free_mem <= gc_n;
           old_root <= new_root;
           new_root <= old_root;
-          gc <= 0;
+          gc_state <= GC_WTF;
+          gc_n <= free_mem;
+          gc_k <= old_root;
+          //gc <= 0;
           //gc_state <= GC_INIT;
-          state <= STATE_WAIT;
+          //state <= STATE_WAIT;
         end
 
         GC_WTF: begin
-          gc_state <= GC_B0;
-          $stop;
+          if (gc_k < gc_n) begin
+            mem_data_in <= 'x;
+            mem_addr1 <= gc_k;
+            gc_k <= gc_k +1;
+            mem_write <= 1;
+            gc_state <= GC_WAIT;
+            gc_next_state <= GC_WTF;
+          end else begin 
+            read_data1 <= gc_h; // replace with new root
+            gc <= 0;
+            //gc_state <= GC_INIT;
+            state <= STATE_WAIT;
+            //$stop;
+          end
         end
         GC_WAIT: begin
           mem_write<=0;
           gc_state <= gc_next_state;
+            //debug_sig <= 0;
         end
 
         endcase
