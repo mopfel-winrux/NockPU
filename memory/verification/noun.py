@@ -69,10 +69,11 @@ class Cell:
     3
     """
 
-    def __init__(self, head, tail, mug=0):
+    def __init__(self, head, tail, tag='', mug=0):
         self.head = head
         self.tail = tail
         self.mug = mug
+        self.tag = tag
 
     def __hash__(self):
         """31-bit non-zero murmur3 (mug)
@@ -137,7 +138,7 @@ class Cell:
                 (pretty(self.head, False), pretty(self.tail, True))
         if tail_pos:
             return content
-        return '[%s]' % content
+        return self.tag+'[%s]' % content
 
     def __str__(self):
         return self.pretty(False)

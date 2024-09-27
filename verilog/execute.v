@@ -30,6 +30,9 @@ module execute (
   output reg hint_tag
 );
   reg [7:0] debug_sig;
+  reg [7:0] count;
+
+  initial count <=0;
 
   // Interface with memory traversal
   reg [2:0] execute_start_ff;
@@ -397,6 +400,8 @@ module execute (
                       state <= EXE_INCR_INIT;
                       func_return_exec_func <= EXE_FUNC_INIT;
                       func_return_state <= EXE_INIT_FINISHED;
+                      count <= count +1;
+                      if(count == 18) $stop;
                     end
 
                     `equality: begin
@@ -422,6 +427,7 @@ module execute (
                     `invoke: begin
                       exec_func <= EXE_FUNC_INVOKE;
                       state <= EXE_INVOKE_INIT;
+                      //if(count == 9) $stop;
                     end
 
                     `replace: begin
