@@ -22,35 +22,35 @@ def inorder_traversal(noun):
     else:
         memory.append(0)
     
-    print(noun.pretty(True))
+    #print(noun.pretty(True))
     #print("s\t\t"+' '.join(map(hex, memory)))
     if(isinstance(noun.head, Cell) and isinstance(noun.tail, Cell)):
-        print("\th: " +noun.head.pretty(False))
-        print("\tt: "+noun.tail.pretty(False))
+        #print("\th: " +noun.head.pretty(False))
+        #print("\tt: "+noun.tail.pretty(False))
         memory[-1] = memory[-1] | len(memory) << 28
         cell_loc = len(memory)-1
         inorder_traversal(noun.head)
         memory[cell_loc] = memory[cell_loc] | len(memory)
         inorder_traversal(noun.tail)
     elif(isinstance(noun.head, Cell) and isinstance(noun.tail, int)):
-        print("\th: "+ noun.head.pretty(False))
-        print("\tt: "+ str(noun.tail))
+        #print("\th: "+ noun.head.pretty(False))
+        #print("\tt: "+ str(noun.tail))
         memory[-1] = memory[-1] | (1<<56) | len(memory) << 28
         cell_loc = len(memory)-1
         inorder_traversal(noun.head)
-        print(cell_loc)
-        print(hex(memory[cell_loc]))
+        #print(cell_loc)
+        #print(hex(memory[cell_loc]))
         memory[cell_loc] = memory[cell_loc] | (noun.tail & bitmask)
-        print(hex(memory[cell_loc]))
-        print("wtf")
+        #print(hex(memory[cell_loc]))
+        #print("wtf")
     elif(isinstance(noun.head, int) and isinstance(noun.tail, Cell)):
-        print("\th: "+  str(noun.head))
-        print("\tt: "+noun.tail.pretty(False))
+        #print("\th: "+  str(noun.head))
+        #print("\tt: "+noun.tail.pretty(False))
         memory[-1] = memory[-1] | (1<<57) | (noun.head & bitmask) << 28 | len(memory)
         inorder_traversal(noun.tail)
     elif(isinstance(noun.head, int) and isinstance(noun.tail, int)):
-        print("\th: "+  str(noun.head))
-        print("\tt: "+ str(noun.tail))
+        #print("\th: "+  str(noun.head))
+        #print("\tt: "+ str(noun.tail))
         memory[-1] = memory[-1] | (1<<57) | (1<<56) | (noun.head & bitmask) << 28 | (noun.tail & bitmask)
 
     #print("f\t\t"+' '.join(map(hex, memory)))

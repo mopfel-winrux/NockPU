@@ -115,7 +115,8 @@ module incr_block (
         end
 
         INCR_ERROR: begin
-          $stop;
+          $display("Error in incr_block");
+          $finish;
         end
       endcase
     end
