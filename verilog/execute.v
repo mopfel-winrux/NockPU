@@ -401,7 +401,6 @@ module execute (
                       func_return_exec_func <= EXE_FUNC_INIT;
                       func_return_state <= EXE_INIT_FINISHED;
                       count <= count +1;
-                      if(count == 18) $stop;
                     end
 
                     `equality: begin

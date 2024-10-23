@@ -49,6 +49,7 @@ module memory_unit(
   reg [`memory_addr_width - 1:0] gc_n;
   reg [`memory_data_width - 1:0] gc_a;
   reg [`memory_data_width - 1:0] gc_d;
+  reg [`memory_data_width - 1:0] gc_tmp;
   
   localparam [`memory_addr_width:0] memory_mask = (1<<`memory_addr_width-1)+1; 
 
@@ -115,7 +116,7 @@ module memory_unit(
     mem_data_in <= 0;
 
     is_ready_reg <= 0;
-    max_memory <= 128+32; //512; //128+32;
+    max_memory <= 128 -1;//256;//+32; //512; //128+32;
     //128;
     old_root <= 1;
     new_root <= memory_mask;
@@ -128,8 +129,6 @@ module memory_unit(
     gc_n <= free_mem;
     gc_k <= old_root;
     mem_addr1 <= old_root;
-    //$display("0x%0h 0x%8h", gc_k, state);
-    //$display((state != STATE_GC || state != STATE_DUMP));
   end
   else if (power) begin
     case (state)
@@ -394,46 +393,46 @@ module memory_unit(
           gc_next_state <= GC_B3_READ;
         end
         GC_B3_READ: begin
+          gc_tmp <= mem_data_out1;
           gc_x <= mem_data_out1[`hed_start:`hed_end];
+          mem_addr1 <= mem_data_out1[`hed_start:`hed_end];
           mem_addr2 <= gc_t;//mem_data_out2[`hed_start:`hed_end];
           gc_state <= GC_WAIT;
           gc_next_state <= GC_B3;
         end
+
         GC_B3: begin
-          //if ((mem_data_out1[`hed_tag] ==`CELL) &&
-          if (((new_root == memory_mask) && 
-              (mem_data_out1[`hed_start:`hed_end] >= memory_mask)) ||
+          if ((gc_tmp[`hed_tag] ==`CELL) &&
+              ((new_root == memory_mask) && 
+              (gc_tmp[`hed_start:`hed_end] >= memory_mask)) ||
              ((old_root == memory_mask) &&
-              (mem_data_out1[`hed_start:`hed_end] < memory_mask)))
+              (gc_tmp[`hed_start:`hed_end] < memory_mask)))
           begin
             debug_sig <= 64;
-            $display("debug_sig=64");
-            $stop;
+            //$display("debug_sig=64");
+            //$display("gc_x %h",gc_x);
+            //$display("gc_tmp %h", gc_tmp);
+            //$display("mem_data_out1 %h", mem_data_out1);
+            //$display("mem_data_out2 %h", mem_data_out2);
+            //$stop;
             mem_addr1 <= mem_data_out2[`hed_start:`hed_end];
             mem_data_in <= mem_data_out1;
-            /*mem_data_in <= {
-              mem_data_out1[`tag_start:`tel_trav],
-              mem_data_out2[`hed_tag],
-              mem_data_out1[`tel_tag],
-              mem_data_out2[`hed_start:`hed_end],
-              mem_data_out1[`tel_start:`tel_end]};
-*/
-              //mem_data_out1[`hed_start:`hed_end],
-              //mem_data_out2[`tel_start:`tel_end]};
+
             mem_write<=1;
             gc_state <= GC_WAIT;
             gc_next_state <= GC_B0;
           end 
           else begin
             debug_sig <= 128;
+            //$display("debug_sig=128");
             mem_addr1 <= mem_data_out2[`hed_start:`hed_end];
             mem_data_in <= {
-              mem_data_out1[`tag_start:`tel_trav],
+              gc_tmp[`tag_start:`tel_trav],
               `CELL,
-              mem_data_out1[`tel_tag],
+              gc_tmp[`tel_tag],
               `ADDR_PAD,
               gc_n,
-              mem_data_out1[`tel_start:`tel_end]};
+              gc_tmp[`tel_start:`tel_end]};
             mem_write<=1;
             gc_state <= GC_WAIT;
             gc_next_state <= GC_A1;
@@ -445,12 +444,12 @@ module memory_unit(
           free_mem <= gc_n;
           old_root <= new_root;
           new_root <= old_root;
-          gc_state <= GC_WTF;
+          //gc_state <= GC_WTF;
           //gc_n <= free_mem;
           gc_k <= new_root;
-          //gc <= 0;
-          //gc_state <= GC_INIT;
-          //state <= STATE_WAIT;
+          gc <= 0;
+          gc_state <= GC_INIT;
+          state <= STATE_WAIT;
         end
 
         GC_WTF: begin
