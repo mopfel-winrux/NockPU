@@ -12,6 +12,8 @@ module mem_traversal(
   input [`memory_data_width - 1:0] read_data1,
   input [`memory_data_width - 1:0] read_data2,
   input [`memory_addr_width - 1:0] free_addr,
+  input gc,
+  output reg gc_ready,
   output reg mem_execute,
   output reg [`memory_addr_width - 1:0] address1,
   output reg [`memory_addr_width - 1:0] address2,
@@ -64,7 +66,8 @@ module mem_traversal(
   // Read States
   parameter SYS_READ_INIT   = 4'h0,
             SYS_READ_WAIT   = 4'h1,
-            SYS_READ_DECODE = 4'h2;
+            SYS_READ_DECODE = 4'h2,
+            SYS_READ_GC_WAIT= 4'h3;
 
   // Write States
   parameter SYS_WRITE_INIT = 4'h0,
@@ -98,6 +101,7 @@ module mem_traversal(
       trav_B <= `NIL;
       trav_P <= start_addr;
       mem_execute <= 0;
+      gc_ready <= 0;
       debug_sig <= 0;
       mux_controller <= `MUX_TRAVERSAL;
     end
@@ -190,11 +194,17 @@ module mem_traversal(
         SYS_FUNC_READ: begin
           case(state)
             SYS_READ_INIT: begin
-                         debug_sig <= 1;
+              debug_sig <= 1;
               // mem_addr is only max when you reach the end and use 
               // trav_b's inital value
-              if(mem_addr == 1023) begin 
-                is_finished_reg <= 1;
+              if(mem_addr == 2047) begin 
+                debug_sig <= 2;
+                if(gc) begin 
+                  state <= SYS_READ_GC_WAIT;
+                  gc_ready <= 1;
+                end else begin
+                  is_finished_reg <= 1;
+                end
               end
               else begin
                 is_finished_reg <= 0;
@@ -205,7 +215,24 @@ module mem_traversal(
               end
             end
 
+            SYS_READ_GC_WAIT: begin
+              debug_sig <= 6;
+              if(!gc && gc_ready) begin
+                debug_sig <= 10;
+                mem_addr <= read_data1;
+                trav_P <= read_data1;
+                gc_ready <= 0;
+                is_finished_reg <= 0;
+                address1 <= read_data1;
+                mem_func <= `GET_CONTENTS;
+                mem_execute <= 1;
+                state <= SYS_READ_WAIT;
+                //state <= SYS_READ_INIT;
+              end 
+            end
+
             SYS_READ_WAIT: begin
+              gc_ready <= 0;
               if(mem_ready) begin
                 debug_sig <= 6;
                 mem_data <= read_data1;
@@ -226,7 +253,6 @@ module mem_traversal(
         SYS_FUNC_WRITE: begin
           case(state)
             SYS_WRITE_INIT: begin
-              //if(mem_addr == hed && mem_tag[1] == `CELL) $stop;
               address1 <= mem_addr;
               write_data <= {mem_tag, hed, tel};
               mem_func <= `SET_CONTENTS;
@@ -285,7 +311,7 @@ module mem_traversal(
                      end
                      else if(mem_tag[3:2] == 2'b11) begin // if both were visited
                        // Set the command after write to pop
-                       if(mem_tag[7] == 1) begin // If we still need to execute
+                       if(mem_tag[7] == 1 && gc == 0) begin // If we still need to execute
                          debug_sig <= 4;
                          write_return_sys_func <= SYS_FUNC_EXECUTE;
                          write_return_state <= SYS_EXECUTE_INIT;
@@ -329,7 +355,7 @@ module mem_traversal(
                     end
                     else begin
                       // Set the command after write to pop
-                      if(mem_tag[7] == 1'b1) begin // If we still need to execute
+                      if(mem_tag[7] == 1'b1 && gc == 0) begin // If we still need to execute
                         write_return_sys_func <= SYS_FUNC_EXECUTE;
                         write_return_state <= SYS_EXECUTE_INIT;
                       end else begin
@@ -363,7 +389,7 @@ module mem_traversal(
                     end
                     else begin
                       // Set the command after write to pop
-                      if(mem_tag[7] == 1) begin // If we still need to execute
+                      if(mem_tag[7] == 1 && gc == 0) begin // If we still need to execute
                         write_return_sys_func <= SYS_FUNC_EXECUTE;
                         write_return_state <= SYS_EXECUTE_INIT;
                       end else begin

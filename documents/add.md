@@ -8,6 +8,8 @@ in dojo this looks like
  ?:  =(0 a)  b
  $(a .*(a !=(=>(c=. =+(d=0 |-(?:(=(c +(d)) d $(d +(d)))))))), b +(b))
 ```
+NOTE: "you don't actually want to compile the =>, you just want it there to set the subject expectations for the hoon compiler" - ~master-morzod
+
 
 Followed by running
 

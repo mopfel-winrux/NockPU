@@ -15,6 +15,7 @@ module execute (
   output reg [3:0] execute_return_sys_func,
   output reg [3:0] execute_return_state,
   input mem_ready,
+  input gc,
   input [`memory_data_width - 1:0] read_data1,
   input [`memory_data_width - 1:0] read_data2,
   input [`memory_addr_width - 1:0] free_addr,
@@ -29,6 +30,9 @@ module execute (
   output reg hint_tag
 );
   reg [7:0] debug_sig;
+  reg [7:0] count;
+
+  initial count <=0;
 
   // Interface with memory traversal
   reg [2:0] execute_start_ff;
@@ -127,7 +131,7 @@ module execute (
             EXE_EQUAL_WRITE_TEL     = 4'h5,
             EXE_EQUAL_WRITE_TEL_TEL = 4'h6,
             EXE_EQUAL_WRITE_MEM     = 4'h7,
-            EXE_EQUAL_FINISH        = 4'h8;
+            EXE_EQUAL_DONE          = 4'h8;
 
   //if then else states
   parameter EXE_IF_INIT    = 4'h0,
@@ -144,14 +148,14 @@ module execute (
             EXE_IF_WRITE8  = 4'hB,
             EXE_IF_WRITE9  = 4'hC,
             EXE_IF_WRITE10 = 4'hD,
-            EXE_IF_FINISH  = 4'hE;
+            EXE_IF_DONE    = 4'hE;
 
   //compose states
   parameter EXE_COMPOSE_INIT   = 4'h0,
             EXE_COMPOSE_FREE   = 4'h1,
             EXE_COMPOSE_READ   = 4'h2,
             EXE_COMPOSE_WRITE  = 4'h3,
-            EXE_COMPOSE_FINISH = 4'h4;
+            EXE_COMPOSE_DONE   = 4'h4;
 
   //extend states
   parameter EXE_EXTEND_INIT   = 4'h0,
@@ -161,7 +165,7 @@ module execute (
             EXE_EXTEND_WRITE1 = 4'h4,
             EXE_EXTEND_WRITE2 = 4'h5,
             EXE_EXTEND_WRITE3 = 4'h6,
-            EXE_EXTEND_FINISH = 4'hF;
+            EXE_EXTEND_DONE   = 4'hF;
 
   //invoke states
   parameter EXE_INVOKE_INIT       = 4'h0,
@@ -173,7 +177,7 @@ module execute (
             EXE_INVOKE_WRITE4     = 4'h6,
             EXE_INVOKE_WRITE5     = 4'h7,
             EXE_INVOKE_WRITE6     = 4'h8,
-            EXE_INVOKE_FINISH     = 4'hF;
+            EXE_INVOKE_DONE       = 4'hF;
 
   //replace states
   parameter EXE_REPLACE_INIT       = 4'h0,
@@ -185,7 +189,7 @@ module execute (
             EXE_REPLACE_WRITE3     = 4'h6,
             EXE_REPLACE_WRITE4     = 4'h7,
             EXE_REPLACE_WRITE5     = 4'h8,
-            EXE_REPLACE_FINISH     = 4'hF;
+            EXE_REPLACE_DONE       = 4'hF;
 
 
   //eval states
@@ -198,7 +202,7 @@ module execute (
             EXE_HINT_WRITE3     = 4'h6,
             EXE_HINT_WRITE4     = 4'h7,
             EXE_HINT_WRITE5     = 4'h8,
-            EXE_HINT_FINISH     = 4'hF;
+            EXE_HINT_DONE       = 4'hF;
 
   // Error States
   parameter EXE_ERROR_INIT = 4'h0;
@@ -217,7 +221,7 @@ module execute (
             EXE_AUTO_READ_TEL             = 4'h2,
             EXE_AUTO_WRITE_TEL            = 4'h3,
             EXE_AUTO_WRITE_MEM            = 4'h4,
-            EXE_AUTO_FINISH               = 4'h5;
+            EXE_AUTO_DONE                 = 4'h5;
 
   always @(posedge clk) begin
     // Flip-flop to store the previous state of execute_start
@@ -248,15 +252,9 @@ module execute (
                 if (execute_tag[0] == `ATOM) begin
                   debug_sig <= 16;
                   error <= `ERROR_TEL_NOT_CELL;
+                  $display("Error in EXE_INIT_INIT: TEL_NOT_CELL");
                   state <= EXE_ERROR_INIT;
                   exec_func <= EXE_FUNC_ERROR;
-                /*end else if (execute_data[`hed_tag] == `ATOM) begin
-                  // If subject is a direct atom we want to 
-                  // write it as an indirect one
-                  mem_func <= `GET_FREE;
-                  write_data <= 1;
-                  mem_execute <= 1;
-                  state <= EXE_INIT_WRITE_SUB;*/
                 end else begin
                   if (mem_ready) begin
                     mem_tag <= execute_tag;
@@ -289,8 +287,9 @@ module execute (
                     mem_execute <= 1;
                     state <= EXE_INIT_WRIT_TEL;
                   end else begin
-                  debug_sig <= 17;
+                    debug_sig <= 17;
                     error <= `ERROR_TEL_NOT_CELL;
+                    $display("Error in EXE_INIT_READ_TEL: TEL_NOT_CELL");
                     exec_func <= EXE_FUNC_ERROR;
                     state <= EXE_ERROR_INIT;
                   end
@@ -334,6 +333,7 @@ module execute (
                 if(read_data1[`tel_start:`tel_end] ==`NIL && read_data1[`tel_tag] == `ATOM) begin
                   debug_sig <= 18;
                   error <= `ERROR_TEL_NOT_CELL;
+                  $display("Error in EXE_INIT_WRIT_TEL_READ: TEL_NOT_CELL");
                   exec_func <= EXE_FUNC_ERROR;
                   state <= EXE_ERROR_INIT;
                 end else begin
@@ -403,6 +403,7 @@ module execute (
                       state <= EXE_INCR_INIT;
                       func_return_exec_func <= EXE_FUNC_INIT;
                       func_return_state <= EXE_INIT_FINISHED;
+                      count <= count +1;
                     end
 
                     `equality: begin
@@ -428,6 +429,7 @@ module execute (
                     `invoke: begin
                       exec_func <= EXE_FUNC_INVOKE;
                       state <= EXE_INVOKE_INIT;
+                      //if(count == 9) $stop;
                     end
 
                     `replace: begin
@@ -812,6 +814,12 @@ module execute (
                                free_addr,
                                `ADDR_PAD,
                                free_addr+2'h1};
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -966,6 +974,12 @@ module execute (
                         read_data1[`tel_tag], // Mark as CELL
                         execute_data[`hed_start:`hed_end],
                         read_data1[`tel_start:`tel_end]};
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1031,6 +1045,12 @@ module execute (
                         `ADDR_PAD,
                         free_addr};
                 state <= EXE_EQUAL_WRITE_COMP;
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1113,7 +1133,7 @@ module execute (
                         read_data1[`tel_tag],
                         execute_data[`hed_start:`hed_end],
                         read_data1[`tel_start:`tel_end]};
-                state <= EXE_EQUAL_FINISH;
+                state <= EXE_EQUAL_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1131,14 +1151,14 @@ module execute (
                         `CELL,
                         execute_data[`tel_start:`tel_end],
                         read_data_reg[`tel_start:`tel_end]};
-                state <= EXE_EQUAL_FINISH;
+                state <= EXE_EQUAL_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
               end
             end
 
-            EXE_EQUAL_FINISH: begin
+            EXE_EQUAL_DONE: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;
@@ -1192,6 +1212,12 @@ module execute (
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 state<= EXE_IF_READ_C;
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1398,14 +1424,14 @@ module execute (
                                 b};
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
-                state<= EXE_IF_FINISH;
+                state<= EXE_IF_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
               end
             end
 
-            EXE_IF_FINISH: begin
+            EXE_IF_DONE: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;
@@ -1442,6 +1468,12 @@ module execute (
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 state<= EXE_COMPOSE_READ;
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1476,14 +1508,14 @@ module execute (
                                 read_data_reg[`tel_start:`tel_end]};
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
-                state<= EXE_COMPOSE_FINISH;
+                state<= EXE_COMPOSE_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
               end
             end
 
-            EXE_COMPOSE_FINISH: begin
+            EXE_COMPOSE_DONE: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;
@@ -1518,6 +1550,12 @@ module execute (
                 mem_func <= `GET_CONTENTS;
                 mem_execute <= 1;
                 state<= EXE_EXTEND_READ1;
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1600,14 +1638,14 @@ module execute (
                                 read_data_reg[`hed_start:`hed_end]};
                 mem_func <= `SET_CONTENTS;
                 mem_execute <= 1;
-                state<= EXE_EXTEND_FINISH;
+                state<= EXE_EXTEND_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
               end
             end
 
-            EXE_EXTEND_FINISH: begin
+            EXE_EXTEND_DONE: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;
@@ -1642,6 +1680,12 @@ module execute (
                 address1 <= execute_data[`tel_start:`tel_end];
                 mem_execute <= 1;
                 state <= EXE_INVOKE_READ2;
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1761,14 +1805,14 @@ module execute (
                                 read_data_reg[`hed_tag], //b
                                 `noun_width'h0,
                                 read_data_reg[`hed_start:`hed_end]}; //b
-                state <= EXE_INVOKE_FINISH;
+                state <= EXE_INVOKE_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
               end
             end
 
-            EXE_INVOKE_FINISH: begin
+            EXE_INVOKE_DONE: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;
@@ -1803,6 +1847,12 @@ module execute (
                 address1 <= execute_data[`tel_start:`tel_end];
                 mem_execute <= 1;
                 state <= EXE_REPLACE_READ2;
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -1918,14 +1968,14 @@ module execute (
                                 read_data_reg[`tel_tag],//d
                                 execute_data[`hed_start:`hed_end],
                                 read_data_reg[`tel_start:`tel_end]};//d
-                state <= EXE_REPLACE_FINISH;
+                state <= EXE_REPLACE_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
               end
             end
 
-            EXE_REPLACE_FINISH: begin
+            EXE_REPLACE_DONE: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;
@@ -1977,7 +2027,7 @@ module execute (
                                   read_data1[`tel_start:`tel_end]};
                   hint <= read_data1[`hed_start:`hed_end];
                   hint_tag <= read_data1[`hed_tag];
-                  state <= EXE_HINT_FINISH;
+                  state <= EXE_HINT_DONE;
                   mem_execute <= 1;
                 end else begin
                   mem_func <= `GET_CONTENTS;
@@ -2024,6 +2074,12 @@ module execute (
                                 `ADDR_PAD,
                                 free_addr+2'h1};
                 state <= EXE_HINT_WRITE2;
+              end
+              else if (gc) begin
+                exec_func <= func_return_exec_func;
+                state <= func_return_state;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -2097,7 +2153,7 @@ module execute (
                                 d_tag,
                                 execute_data[`hed_start:`hed_end],
                                 d};
-                state <= EXE_HINT_FINISH;
+                state <= EXE_HINT_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -2105,7 +2161,7 @@ module execute (
             end
 
 
-            EXE_HINT_FINISH: begin
+            EXE_HINT_DONE: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;
@@ -2143,6 +2199,12 @@ module execute (
                         `ADDR_PAD,
                         free_addr + 1'h1};
                 state <= EXE_AUTO_READ_TEL;
+              end
+              else if (gc) begin
+                exec_func <= EXE_FUNC_INIT;
+                state <= EXE_INIT_FINISHED;
+                execute_return_sys_func <= `SYS_FUNC_READ;
+                execute_return_state <= `SYS_READ_INIT;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
@@ -2192,14 +2254,14 @@ module execute (
                         read_data_reg[`tel_tag], // Mark as CELL
                         execute_data[`hed_start:`hed_end],
                         read_data_reg[`tel_start:`tel_end]};
-                state <= EXE_AUTO_FINISH;
+                state <= EXE_AUTO_DONE;
               end else begin
                 mem_func <= 0;
                 mem_execute <= 0;
               end
             end
 
-            EXE_AUTO_FINISH: begin
+            EXE_AUTO_DONE: begin
               if (mem_ready) begin
                 exec_func <= EXE_FUNC_INIT;
                 state <= EXE_INIT_FINISHED;

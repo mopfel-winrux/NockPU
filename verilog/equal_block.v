@@ -147,7 +147,7 @@ module equal_block (
             READ_INIT: begin
               // mem_addr is only max when you reach the end and use 
               // trav_b's inital value
-              if(mem_addr1 == 1023) begin 
+              if(mem_addr1 == 2047) begin 
                 write_value <= `YES;
                 func <= FUNC_RETURN;
                 state <= RETURN_INIT;
