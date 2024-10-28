@@ -252,6 +252,7 @@ module execute (
                 if (execute_tag[0] == `ATOM) begin
                   debug_sig <= 16;
                   error <= `ERROR_TEL_NOT_CELL;
+                  $display("Error in EXE_INIT_INIT: TEL_NOT_CELL");
                   state <= EXE_ERROR_INIT;
                   exec_func <= EXE_FUNC_ERROR;
                 end else begin
@@ -286,8 +287,9 @@ module execute (
                     mem_execute <= 1;
                     state <= EXE_INIT_WRIT_TEL;
                   end else begin
-                  debug_sig <= 17;
+                    debug_sig <= 17;
                     error <= `ERROR_TEL_NOT_CELL;
+                    $display("Error in EXE_INIT_READ_TEL: TEL_NOT_CELL");
                     exec_func <= EXE_FUNC_ERROR;
                     state <= EXE_ERROR_INIT;
                   end
@@ -331,6 +333,7 @@ module execute (
                 if(read_data1[`tel_start:`tel_end] ==`NIL && read_data1[`tel_tag] == `ATOM) begin
                   debug_sig <= 18;
                   error <= `ERROR_TEL_NOT_CELL;
+                  $display("Error in EXE_INIT_WRIT_TEL_READ: TEL_NOT_CELL");
                   exec_func <= EXE_FUNC_ERROR;
                   state <= EXE_ERROR_INIT;
                 end else begin

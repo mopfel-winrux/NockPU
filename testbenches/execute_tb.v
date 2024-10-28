@@ -423,6 +423,9 @@ initial begin
   wait (traversal_finished == 1'b1);
   repeat (500) @(posedge clk);
 
+  $display("ram[1] %x", mem.ram.ram[1]);
+  $display("ram[1025] %x", mem.ram.ram[1025]);
+
   $finish;
 end
 

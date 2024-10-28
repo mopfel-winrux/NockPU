@@ -116,8 +116,7 @@ module memory_unit(
     mem_data_in <= 0;
 
     is_ready_reg <= 0;
-    max_memory <= 128 -1;//256;//+32; //512; //128+32;
-    //128;
+    max_memory <= 1022;//1020;
     old_root <= 1;
     new_root <= memory_mask;
     need_mem <= (free_addr - old_root);
@@ -241,15 +240,11 @@ module memory_unit(
         $stop;
       end
     end
+    
     STATE_DUMP2: begin
       state <= STATE_DUMP;
     end
-    /*
-    mem_data_in <= {
-            mem_data_out1[`tag_start:`tag_end],
-            mem_data_out1[`hed_start:`hed_end],
-            mem_data_out1[`tel_start:`tel_end]};
-    */
+
     STATE_GC: begin
       case (gc_state)
         GC_INIT: begin
@@ -305,9 +300,11 @@ module memory_unit(
             gc_state <= GC_WAIT;
             gc_next_state <= GC_A5;
           end 
-          else
+          else begin
             gc_state <= GC_A5;
+          end
         end
+        
         GC_A5: begin
           mem_addr1 <= gc_n;
           mem_data_in <= {
@@ -322,6 +319,7 @@ module memory_unit(
           //if(gc_d[`tel_tag] == `CELL)
             mem_addr2 <= gc_d[`tel_start:`tel_end];
         end
+        
         GC_A6: begin
           if(gc_d[`tel_tag]==`ATOM) begin
             debug_sig <= 3;
@@ -380,11 +378,13 @@ module memory_unit(
             gc_state <= GC_B1;
           end
         end
+        
         GC_B1: begin
           mem_addr2 <= mem_data_out1[`hed_start:`hed_end];
           gc_state <= GC_WAIT;
           gc_next_state <= GC_B2;
         end
+        
         GC_B2: begin
           mem_addr1 <= mem_data_out1[`hed_start:`hed_end];
           gc_t <= gc_k;
@@ -392,6 +392,7 @@ module memory_unit(
           gc_state <= GC_WAIT;
           gc_next_state <= GC_B3_READ;
         end
+        
         GC_B3_READ: begin
           gc_tmp <= mem_data_out1;
           gc_x <= mem_data_out1[`hed_start:`hed_end];
@@ -409,12 +410,6 @@ module memory_unit(
               (gc_tmp[`hed_start:`hed_end] < memory_mask)))
           begin
             debug_sig <= 64;
-            //$display("debug_sig=64");
-            //$display("gc_x %h",gc_x);
-            //$display("gc_tmp %h", gc_tmp);
-            //$display("mem_data_out1 %h", mem_data_out1);
-            //$display("mem_data_out2 %h", mem_data_out2);
-            //$stop;
             mem_addr1 <= mem_data_out2[`hed_start:`hed_end];
             mem_data_in <= mem_data_out1;
 
@@ -424,7 +419,6 @@ module memory_unit(
           end 
           else begin
             debug_sig <= 128;
-            //$display("debug_sig=128");
             mem_addr1 <= mem_data_out2[`hed_start:`hed_end];
             mem_data_in <= {
               gc_tmp[`tag_start:`tel_trav],
@@ -438,6 +432,7 @@ module memory_unit(
             gc_next_state <= GC_A1;
           end
         end
+        
         GC_DONE: begin
           debug_sig <= 1;
           read_data1 <= gc_h; // replace with new root
@@ -469,6 +464,7 @@ module memory_unit(
             $display("0x%0h 0x%8h", gc_k-1, mem_data_out1);
           end
         end
+        
         GC_WAIT: begin
           mem_write<=0;
           gc_state <= gc_next_state;

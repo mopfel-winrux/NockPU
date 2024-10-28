@@ -33,8 +33,8 @@ def read_hex_file(file_path):
     return hex_dict
 
 
-file_path = 'gc_3_before'
-init_addr=0x1
+file_path = 'gc_1'
+init_addr=0x401
 
 #file_path = 'gc_3'
 #init_addr=0x401
